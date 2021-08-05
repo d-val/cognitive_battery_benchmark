@@ -31,10 +31,10 @@ metadata = event.metadata
 print(event, event.metadata.keys())
 ```
 By installing ai2thor package, it should automatically download all the required packages. You can check them in 'requirements.txt'
-#### Requirements
+## Requirements
 Python 3.7 or 3.8
 
-#### Clone this repo
+## Clone this repo
 ```python
 git clone https://github.com/d-val/nguyen_cognitive_battery.git
 ```
@@ -50,4 +50,11 @@ Run `aithor_test.py`
 python3 aithor_test.py
 ```
 
-If success, a window with size 2000x2000 will pop up. The egg will be put randomly into one pot.  
+If success, a window with size 2000x2000 will pop up. The egg will be put randomly into one pot.
+
+##Module Structure
+
+The structure of the 'nguyen_cognitive_battery' folder is as follows:
+
+- aithor_test.py: core movements/instruction for the AITHOR agent to perform 3 pots 1 egg
+- util.py: helper functions for agent movements
