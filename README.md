@@ -52,7 +52,7 @@ python3 aithor_test.py
 
 If success, a window with size 2000x2000 will pop up. The egg will be put randomly into one pot.
 
-##Module Structure
+## Module Structure
 
 The structure of the 'nguyen_cognitive_battery' folder is as follows:
 
