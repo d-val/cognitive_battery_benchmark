@@ -7,13 +7,16 @@ import cv2
 from util import *
 
 #unity directory
-BASE_DIR = "/Users/nguyenle/Documents/nguyen_cognitive_battery_clean"
+
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
 img_array = []
 
 controller = Controller(
 
     #local build
-    local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+    local_executable_path=f"{BASE_DIR}/custom-build.app/Contents/MacOS/AI2-THOR",
     
     agentMode="default",
     visibilityDistance=2,

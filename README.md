@@ -1,5 +1,5 @@
 # nguyen_cognitive_battery
-#How to create a benchmarking video sample
+#How to run 3 pots 1 egg simulation
 
 ## 💻 Installation
 
@@ -30,32 +30,24 @@ event = controller.step(action="RotateRight")
 metadata = event.metadata
 print(event, event.metadata.keys())
 ```
-
+By installing ai2thor package, it should automatically download all the required packages. You can check them in 'requirements.txt'
 #### Requirements
+Python 3.7 or 3.8
 
-| Component | Requirement |
-| :-- | :-- |
-| OS | Mac OS X 10.9+, Ubuntu 14.04+ |
-| Graphics Card | DX9 (shader model 3.0) or DX11 with feature level 9.3 capabilities. |
-| CPU | SSE2 instruction set support. |
-| Python | Versions 3.5+ |
-| Linux | X server with GLX module enabled |
+#### Clone this repo
+```python
+git clone https://github.com/d-val/nguyen_cognitive_battery.git
+```
 
 ## Running 3 Pots 1 Egg
 
-Install Unity Editor version 2019.4.20 LTS for OSX (Linux Editor is currently in Beta) from [Unity Download Archive](https://unity3d.com/get-unity/download/archive).
+Download our customized build from the following link [here](https://www.dropbox.com/sh/3g2xwrcrxo8pgfn/AACjX594mT5x3Tfs-YkiC25La?dl=0)
 
-Download our customized build from the following link [here](https://www.dropbox.com/l/scl/AAAlqUh3ySlx0FZGXI3kNBKqHzdwk9lCO7U)
-
-Unzip thor-OSXIntel64-local.zip file
-
-In `aithor_test.py`, change `BASE_DIR` to the directory that contains 'thor-OSXIntel64-local' application. For example:
-
-```python
-BASE_DIR = "/Users/dhaval/Documents/cognitive_battery_clean"
-```
+Unzip custom-build.zip file at the 'nguyen_cognitive_battery' folder
 
 Run `aithor_test.py`
 ```python
 python3 aithor_test.py
 ```
+
+If success, a window with size 2000x2000 will pop up. The egg will be put randomly into one pot.  
