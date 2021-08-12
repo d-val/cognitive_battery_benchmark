@@ -5,9 +5,8 @@ from ai2thor.controller import Controller
 import random
 import cv2
 from util import *
-
+import random
 #unity directory
-
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -16,7 +15,7 @@ img_array = []
 controller = Controller(
 
     #local build
-    local_executable_path=f"{BASE_DIR}/custom-build.app/Contents/MacOS/AI2-THOR",
+    local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
     
     agentMode="default",
     visibilityDistance=2,
@@ -35,6 +34,50 @@ controller = Controller(
     width=2000,
     height=2000,
     fieldOfView=90
+)
+
+
+
+controller.step(
+    action="RandomizeMaterials")
+
+controller.step(
+    action="RandomizeLighting",
+    brightness=(0.5, 1.5),
+    randomizeColor=True,
+    hue=(0, 1),
+    saturation=(0.5, 1),
+    synchronized=False
+)
+
+excludedReceptableTypes = set()    
+excludeList = []                #Egg and Pot exclude from randomization
+randomObjects = []              #store all other Pickupable objects
+
+for obj in controller.last_event.metadata["objects"]:
+    excludedReceptableTypes.add(obj["objectType"])
+    if obj["objectType"] in {"Egg", "Pot"}:
+        excludeList.append(obj["objectId"])
+    elif obj["pickupable"] == True:
+        randomObjects.append(obj["objectId"])
+
+#Only acceptable receptable is the table (CounterTop)
+excludedReceptableTypes.remove("CounterTop")
+#exclude all but 2 random objects to show randomly on the table
+excludeRandomObjects = random.sample(randomObjects, len(randomObjects) -2)
+
+controller.step(action="InitialRandomSpawn",
+    randomSeed=random.randint(0,10),
+    forceVisible=True,
+    numPlacementAttempts=5,
+    placeStationary=True,
+    numDuplicatesOfType = [
+
+    ],
+    excludedReceptacles= list(excludedReceptableTypes),
+
+    excludedObjectIds= excludeList + excludeRandomObjects
+
 )
 
 
@@ -101,7 +144,7 @@ def swap(swap_receptables):
   img_array.append(controller.last_event.frame)
 
      
-for i in range(10):
+for i in range(3):
     swap(random.sample(pots,2))
 
 
@@ -109,14 +152,6 @@ for i in range(10):
 controller.step("MoveBack") 
 
 
-
-# if os.path.exists('project.mp4'):
-#     os.remove('project.mp4')
-# out = cv2.VideoWriter('project.mp4',cv2.VideoWriter_fourcc(*'FMP4'), 1, (2000,2000))
-# for frame in img_array:
-#     out.write(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-# cv2.destroyAllWindows()
-# out.release()
 
 
 
