@@ -41,9 +41,9 @@ git clone https://github.com/d-val/nguyen_cognitive_battery.git
 
 ## Running 3 Pots 1 Egg
 
-Download our customized build from the following link [here](https://www.dropbox.com/sh/3g2xwrcrxo8pgfn/AACjX594mT5x3Tfs-YkiC25La?dl=0)
+Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
 
-Unzip custom-build.zip file at the 'nguyen_cognitive_battery' folder
+Unzip thor-OSXIntel64-local.zip file at the 'nguyen_cognitive_battery' folder
 
 Run `aithor_test.py`
 ```python
