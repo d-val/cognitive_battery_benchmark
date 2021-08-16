@@ -33,14 +33,15 @@ controller = Controller(
     # # camera properties
     width=2000,
     height=2000,
-    fieldOfView=90
+    fieldOfView=random.randint(90,140)
 )
 
 
-
+#Randomize Materials in the scene
 controller.step(
     action="RandomizeMaterials")
 
+#Randomize Lighting in the scene
 controller.step(
     action="RandomizeLighting",
     brightness=(0.5, 1.5),
@@ -50,22 +51,92 @@ controller.step(
     synchronized=False
 )
 
-excludedReceptableTypes = set()    
+#Possible receptacle types
+receptableTypes = ["Pot", "Mug", "Cup"]
+
+#Randomly chose a receptacle type
+receptableType = random.sample(receptableTypes, 1)[0]
+
+#Possible reward objects (Egg, Ball, ...) types
+rewardTypes = ["Egg", "Potato", "Tomato", "Apple"]
+
+#Randomly chose a reward type
+rewardType = random.sample(rewardTypes, 1)[0]
+
+#List of initial poses (Pots' poses)
+initialPoses = []
+#A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
+#https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
+
 excludeList = []                #Egg and Pot exclude from randomization
 randomObjects = []              #store all other Pickupable objects
 
+#Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
+#and will be location randomized later
 for obj in controller.last_event.metadata["objects"]:
-    excludedReceptableTypes.add(obj["objectType"])
-    if obj["objectType"] in {"Egg", "Pot"}:
+
+    #current Pose of the object
+    initialPose = {"objectName": obj["name"],
+                      "position": obj["position"],
+                      "rotation": obj["rotation"]}
+
+    #Set reward inital position (pre-determined) to the right of the table
+    if obj["objectType"] == rewardType:
+        initialPoses.append(
+                    {"objectName": obj["name"],
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                    "position": {'x': -0.4300207197666168, 'y': 1.126484751701355, 'z': -0.9255303740501404}
+                    }
+                    )
+
+    #Set recetacles location, initialize 3 times on the table at pre-determined positions
+    if obj["objectType"] == receptableType:
+        initialPoses.append(
+                    {"objectName": obj["name"],
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                    "position": {'x': -0.4351297914981842, 'y': 1.1031372547149658, 'z': 0.7}
+                    }
+                    )
+        initialPoses.append({"objectName": obj["name"],
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                    "position": {'x': -0.4351317286491394, 'y': 1.1031371355056763, 'z': -7.855288276914507e-05}
+                    }
+                    )
+        initialPoses.append({"objectName": obj["name"],
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                    "position": {'x': -0.4351297914981842, 'y': 1.1031371355056763, 'z': -0.7}
+                    }
+                    )
+    #Ignore reward and receptacles object, they will not be randomized place behind the table
+    if obj["objectType"] in [rewardType] + receptableTypes:
+        pass
+    else:
+        initialPoses.append(initialPose)
+
+
+
+#set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
+controller.step(
+  action='SetObjectPoses',
+  objectPoses = initialPoses
+)
+
+#exclude the chosen reward and receptacles from location randomization, 
+# only randomize pickupable objects
+for obj in controller.last_event.metadata["objects"]:
+    if obj["objectType"] in [rewardType] + receptableTypes:
         excludeList.append(obj["objectId"])
-    elif obj["pickupable"] == True:
+    elif obj["pickupable"]:
         randomObjects.append(obj["objectId"])
 
-#Only acceptable receptable is the table (CounterTop)
-excludedReceptableTypes.remove("CounterTop")
-#exclude all but 2 random objects to show randomly on the table
-excludeRandomObjects = random.sample(randomObjects, len(randomObjects) -2)
 
+
+
+#exclude all but 1 random objects to show randomly on the table
+excludeRandomObjects = random.sample(randomObjects, len(randomObjects)-1)
+excludeRandomObjects = []
+#https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-randomseed
+#InitialRandomSpawn attempts to randomize the position of Pickupable objects, placing them in any valid receptacle they could be placed in within the scene. 
 controller.step(action="InitialRandomSpawn",
     randomSeed=random.randint(0,10),
     forceVisible=True,
@@ -74,7 +145,9 @@ controller.step(action="InitialRandomSpawn",
     numDuplicatesOfType = [
 
     ],
-    excludedReceptacles= list(excludedReceptableTypes),
+
+    #Objects could randomly spawn in any suitable receptacles except for the simulating receptacles themselves
+    excludedReceptacles= [receptableType],
 
     excludedObjectIds= excludeList + excludeRandomObjects
 
@@ -91,22 +164,23 @@ pot_zs = []
 #receptable name
 pots = []
 
-#get_object the z of the rewardId and receptables and also the receptable ids
+#get the z coordinates of the rewardId (Egg) and receptables (Pot) and also get the receptable ids
 for obj in controller.last_event.metadata["objects"]:
-    if obj["objectType"] == "Egg":
+    if obj["objectType"] == rewardType:
         rewardId = obj["objectId"]
         egg_z = obj["position"]["z"]
-    if obj["objectType"] == "Pot":
+    if obj["objectType"] == receptableType:
         pots.append(obj["name"])
         pot_zs.append(obj["position"]["z"])
 
-#sample 1 random receptable to put the rewardId in
+#sample 1 random receptable to put the rewardId (Egg) in
 correct_pot_z = random.sample(pot_zs,1)[0]
+
+#Calculate how much the egg should be moved to the left to be on top of the intended Pot
 egg_move_left_mag = correct_pot_z - egg_z
 
 #Move agent to fit the screen
 controller.step("MoveRight")
-img_array.append(controller.last_event.frame)
 
 #move the reward to the pre-selected receptable then drop it
 move_object(controller, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0)])
@@ -144,11 +218,27 @@ def swap(swap_receptables):
   img_array.append(controller.last_event.frame)
 
      
-for i in range(3):
+for i in range(random.randint(1,10)):
     swap(random.sample(pots,2))
 
+#get egg final z coordinates
+for obj in controller.last_event.metadata["objects"]:
+    if obj["objectType"] == rewardType:
+        egg_final_z = obj["position"]["z"]
 
-#dummy moves to visualize
+out = None
+#determine which pot egg finally in.
+#0 = left, 1 = middle, 2 = right
+if egg_final_z > -1 and egg_final_z < -0.35:
+    out = 2
+elif egg_final_z >= -0.35 and egg_final_z <= 0.35:
+    out = 1
+elif egg_final_z > 0.35 and egg_final_z < 1:
+    out = 0
+
+print(out)
+#dummy moves for debugging purposes
+controller.step("MoveBack")
 controller.step("MoveBack") 
 
 
