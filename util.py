@@ -45,12 +45,12 @@ def pickup(controller, object_ID):
     #     last_image = controller.last_event.frame
     #     images.append(last_image)
 
-    # controller.step("PausePhysicsAutoSim")
+    # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
 
     return controller.last_event
 
-def drop_object(controller):
+def drop_object(controller, frame_list):
     """
     controller: current controller
 
@@ -62,7 +62,7 @@ def drop_object(controller):
     # images = []
     # controller.step("PausePhysicsAutoSim")
     controller.step(
-            action="DropHandObject",
+            action="DropHeldObject",
             forceAction=False
             )
     # while not controller.last_event.metadata["isSceneAtRest"]:
@@ -70,11 +70,11 @@ def drop_object(controller):
     #         action="AdvancePhysicsStep",
     #         timeStep=0.01
     #     )
-    #     images.append(last_image)
+    #     frame_list.append(last_image)
 
     # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
-    return controller.last_event
+    return controller.last_event, frame_list
 
 def move_hand(controller, directions, frame_list):
     """
@@ -125,7 +125,8 @@ def move_object(controller, objectId, directions, frame_list):
     directions = interpolate_between_2points(directions, num_interpolations=10)
     _, frame_list = move_hand(controller, directions, frame_list)
 
-    return drop_object(controller), frame_list
+    last_event, framelist = drop_object(controller, frame_list)
+    return last_event, framelist
 
 def checkError(controller):
     """
