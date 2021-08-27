@@ -6,6 +6,8 @@ import random
 import cv2
 from util import *
 import random
+from tqdm import tqdm
+from math import erf, sqrt
 #unity directory
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -16,7 +18,12 @@ MOVE_RECEP_AHEAD_MAG = 0.3
 class VideoBenchmark(Controller):
 
     def __init__(self):
-        self.img_array = []
+
+        random.seed(10)
+        np.random.seed(10)
+
+        self.frame_list = []
+        self.saved_frames = []
 
         # controller = Controller(
         super().__init__(
@@ -137,8 +144,6 @@ class VideoBenchmark(Controller):
                 randomObjects.append(obj["objectId"])
 
 
-
-
         #exclude all but 1 random objects to show randomly on the table
         excludeRandomObjects = random.sample(randomObjects, len(randomObjects)-1)
         excludeRandomObjects = []
@@ -188,8 +193,8 @@ class VideoBenchmark(Controller):
         self.step("MoveRight")
 
         #move the reward to the pre-selected receptable then drop it
-        move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0)])
-        self.img_array.append(self.last_event.frame)
+        _, self.frame_list = move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0)], self.frame_list)
+        # self.frame_list.append(self.last_event.frame)
 
     #Swap 2 receptables
     def swap(self, swap_receptables):
@@ -206,21 +211,23 @@ class VideoBenchmark(Controller):
       z_different = get_object(recep1_name, self)["position"]["z"] - get_object(recep2_name, self)["position"]["z"]
 
       #move first recep far away
-      move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
-      self.img_array.append(self.last_event.frame)
+      # move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
+      _, self.frame_list = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list)
+      # self.play(move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list))
+      self.frame_list.append(self.last_event.frame)
 
       #move 2nd recep to 1st recep place
-      move_object(self, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)])
-      self.img_array.append(self.last_event.frame)
+      _, self.frame_list = move_object(self, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)], self.frame_list)
+      # self.frame_list.append(self.last_event.frame)
 
       # every time an object is moved, its id is changed
       # update 1st receptable ID
       recep1_id = get_objectId(recep1_name, self)
 
       #move 1st recep to second recep place
-      move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)])
+      _, self.frame_list = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list)
 
-      self.img_array.append(self.last_event.frame)
+      # self.frame_list.append(self.last_event.frame)
 
     def perform_action(self):
         for i in range(random.randint(1,3)):
@@ -248,9 +255,24 @@ class VideoBenchmark(Controller):
         print(out)
         return out
 
+
+    def save_frames_to_file(self):
+
+        from PIL import Image
+
+        image_folder = './'
+        print('num frames', len(self.frame_list))
+        height, width, channels = self.frame_list[0].shape
+
+        for i, frame in enumerate(tqdm(self.frame_list)):
+            img = Image.fromarray(frame)
+            img.save("frames/{}.jpeg".format(i))
+
 vid = VideoBenchmark()
 vid.perform_action()
-# print(len(vid.img_array))
+vid.save_frames_to_file()
+
+
 
 
 

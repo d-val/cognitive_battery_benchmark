@@ -3,7 +3,7 @@ thor-OSXIntel64-local.app/
 *.app
 *.zip
 venv/
-.idea
+*.idea
 __pycache__/*
-.DS_Store
+*.DS_Store
 *.pyc

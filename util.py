@@ -27,12 +27,25 @@ def pickup(controller, object_ID):
 
     return: event after pickup
     """
+    # controller.step("PausePhysicsAutoSim")
     controller.step(
             action="PickupObject",
             objectId=object_ID,
             forceAction=False,
-            manualInteract=True
+            manualInteract=True,
+            # manualInteract=False,
             )
+    # images = []
+    # # for i in range(10):
+    # while not controller.last_event.metadata["isSceneAtRest"]:
+    #     controller.step(
+    #         action="AdvancePhysicsStep",
+    #         timeStep=0.01
+    #     )
+    #     last_image = controller.last_event.frame
+    #     images.append(last_image)
+
+    # controller.step("PausePhysicsAutoSim")
     checkError(controller)
 
     return controller.last_event
@@ -45,14 +58,25 @@ def drop_object(controller):
     
     return: event after pickup
     """
+    # TODO make these changes after bug is fixed
+    # images = []
+    # controller.step("PausePhysicsAutoSim")
     controller.step(
             action="DropHandObject",
             forceAction=False
             )
+    # while not controller.last_event.metadata["isSceneAtRest"]:
+    #     controller.step(
+    #         action="AdvancePhysicsStep",
+    #         timeStep=0.01
+    #     )
+    #     images.append(last_image)
+
+    # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
     return controller.last_event
 
-def move_hand(controller, directions):
+def move_hand(controller, directions, frame_list):
     """
     controller: current controller
 
@@ -61,7 +85,16 @@ def move_hand(controller, directions):
 
     return: event after the last movement
     """
+    # images = []
     for ahead, right, up in directions:
+        # for i in range(10):
+        # while not controller.last_event.metadata["isSceneAtRest"]:
+        #     controller.step(
+        #         action="AdvancePhysicsStep",
+        #         timeStep=0.01
+        #     )
+        #     # images.append(last_image)
+
         controller.step(
                 action = "MoveHeldObject",
                 ahead = ahead,
@@ -69,11 +102,13 @@ def move_hand(controller, directions):
                 up = up,
                 forceVisible=False
             )
+        last_image = controller.last_event.frame
+        frame_list.append(last_image)
         checkError(controller)
-    return controller.last_event
+    return controller.last_event, frame_list
 
 
-def move_object(controller, objectId, directions):
+def move_object(controller, objectId, directions, frame_list):
     """u
     controller: current controller
     object_ID: unique objectId of the object to be moved
@@ -84,11 +119,13 @@ def move_object(controller, objectId, directions):
     3. drop the holding object
     return: the event after drop the object
     """
-    pickup(controller, objectId)
+    last_event = pickup(controller, objectId)
+    frame_list.append(last_event.frame)
 
-    move_hand(controller, directions)
+    directions = interpolate_between_2points(directions, num_interpolations=10)
+    _, frame_list = move_hand(controller, directions, frame_list)
 
-    return drop_object(controller)
+    return drop_object(controller), frame_list
 
 def checkError(controller):
     """
@@ -96,3 +133,14 @@ def checkError(controller):
     """
     if controller.last_event.metadata["errorMessage"] != '':
         print(controller.last_event.metadata["errorMessage"])
+
+def interpolate_between_2points(directions, num_interpolations):
+    all_directions = []
+    for direction in directions:
+        a = direction[0]/num_interpolations
+        b = direction[1]/num_interpolations
+        c = direction[2]/num_interpolations
+        for i in range(num_interpolations):
+            all_directions.append( (a,b,c) )
+
+    return all_directions
