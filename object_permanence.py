@@ -12,8 +12,8 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 img_array = []
 
+num_of_agents = 1
 controller = Controller(
-
     #local build
     local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
     
@@ -33,8 +33,22 @@ controller = Controller(
     # # camera properties
     width=2000,
     height=2000,
-    fieldOfView=random.randint(90,140)
+    fieldOfView=random.randint(90,120),
+    agentCount = num_of_agents,
+    makeAgentsVisible = False
 )
+
+#Move agents to fit the screen
+for i in range(num_of_agents):
+    controller.step(
+        action="Teleport",
+        position=dict(x=-1.5, y=0.9, z=0),
+        rotation=dict(x=0, y=90, z=0),
+        horizon=0,
+        standing=True,
+        agentId = i
+    )
+
 
 #Randomize Materials in the scene
 controller.step(
@@ -55,14 +69,15 @@ receptableTypes = ["Pot", "Mug", "Cup"]
 
 #Randomly chose a receptacle type
 receptableType = random.sample(receptableTypes, 1)[0]
+receptableType = 'Cup'
 
 #Possible reward objects (Egg, Ball, ...) types
 rewardTypes = ["Egg", "Potato", "Tomato", "Apple"]
 
 #Randomly chose a reward type
 rewardType = random.sample(rewardTypes, 1)[0]
-
-#List of initial poses (Pots' poses)
+rewardType = "Egg"
+#List of initial poses (receptacle_names' poses)
 initialPoses = []
 #A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
 #https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
@@ -80,30 +95,37 @@ for obj in controller.last_event.metadata["objects"]:
                       "rotation": obj["rotation"]}
 
     #Set reward inital position (pre-determined) to the right of the table
-    if obj["objectType"] == rewardType:
+    if obj["objectType"] == rewardType :
         initialPoses.append(
                     {"objectName": obj["name"],
                     "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.4300207197666168, 'y': 1.126484751701355, 'z': -0.9255303740501404}
+                    "position": {'x': -0.43, 'y': 1.126484751701355, 'z': -0.9}
                     }
                     )
 
-    #Set recetacles location, initialize 3 times on the table at pre-determined positions
-    if obj["objectType"] == receptableType:
+    if obj["name"] == "Cup_Opaque":
         initialPoses.append(
                     {"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.4351297914981842, 'y': 1.1031372547149658, 'z': 0.7}
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                    "position": {'x': 0, 'y': 1.4, 'z': -0.9}
+                    }
+                    )
+    #Set recetacles location, initialize 3 times on the table at pre-determined positions
+    if obj["objectType"] == receptableType and obj["name"] != "Cup_Opaque":
+        initialPoses.append(
+                    {"objectName": obj["name"],
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                    "position": {'x': -0.43, 'y': 1.5, 'z': 0.5}
                     }
                     )
         initialPoses.append({"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.4351317286491394, 'y': 1.1031371355056763, 'z': -7.855288276914507e-05}
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                    "position": {'x': -0.43, 'y': 1.5, 'z': -7.855288276914507e-05}
                     }
                     )
         initialPoses.append({"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.4351297914981842, 'y': 1.1031371355056763, 'z': -0.7}
+                    "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                    "position": {'x': -0.43, 'y': 1.5, 'z': -0.5}
                     }
                     )
     #Ignore reward and receptacles object, they will not be randomized place behind the table
@@ -117,7 +139,8 @@ for obj in controller.last_event.metadata["objects"]:
 #set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
 controller.step(
   action='SetObjectPoses',
-  objectPoses = initialPoses
+  objectPoses = initialPoses,
+  placeStationary=False
 )
 
 #exclude the chosen reward and receptacles from location randomization, 
@@ -156,67 +179,102 @@ MOVEUP_MAGNITUDE = 0.3
 MOVE_RECEP_AHEAD_MAG = 0.3
 
 #receptable z coordinate
-pot_zs = []
+receptacle_zs = []
 
 #receptable name
-pots = []
+receptacle_names = []
+
+#receptacle ids
+receptacle_ids = []
 
 #get the z coordinates of the rewardId (Egg) and receptables (Pot) and also get the receptable ids
+#get opaque cup Id and x coordinate
 for obj in controller.last_event.metadata["objects"]:
     if obj["objectType"] == rewardType:
         rewardId = obj["objectId"]
         egg_z = obj["position"]["z"]
-    if obj["objectType"] == receptableType:
-        pots.append(obj["name"])
-        pot_zs.append(obj["position"]["z"])
+        egg_x = obj["position"]["x"]
+    if obj["objectType"] == receptableType and obj["name"] != "Cup_Opaque":
+        receptacle_names.append(obj["name"])
+        receptacle_ids.append(obj["objectId"])
+        receptacle_zs.append(obj["position"]["z"])
+    if obj["name"] == "Cup_Opaque":
+        cupOpaqueId = obj["objectId"]
+        cupOpaque_x = obj["position"]["x"]
 
-#sample 1 random receptable to put the rewardId (Egg) in
-correct_pot_z = random.sample(pot_zs,1)[0]
+#sample 1 random receptable to put the (opaque cup + egg) compound under
+correct_receptacle_z = random.sample(receptacle_zs,1)[0]
 
 #Calculate how much the egg should be moved to the left to be on top of the intended Pot
-egg_move_left_mag = correct_pot_z - egg_z
+egg_move_left_mag = correct_receptacle_z - egg_z
 
-#Move agent to fit the screen
-controller.step("MoveRight")
+#Calculate how much to move the opaque back to be on the egg
+receptacle_move_back = cupOpaque_x - egg_x
 
-#move the reward to the pre-selected receptable then drop it
-move_object(controller, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0)])
-# img_array.append(controller.last_event.frame)
+print(receptacle_ids)
+#move the opaque cup onto the egg
+move_object(controller, cupOpaqueId, [(0,0, MOVEUP_MAGNITUDE), (-receptacle_move_back, 0, 0)])
+
+controller.step(
+    action="PickupObject",
+    objectId=cupOpaqueId,
+    forceAction=True,
+    manualInteract=True
+)
+
+controller.step(
+    action="MoveHeldObject",
+    ahead=0.3,
+    right=0,
+    up=0,
+    forceVisible=False
+)
+
+controller.step("MoveBack")
+
+controller.step("MoveBack")
+
+controller.step("MoveBack")
+
+# move_object(controller, cupOpaqueId, [(receptacle_move_back,0, 0)])
+
+
+
 
 #Swap 2 receptables
-def swap(swap_receptables):
-  """ swap_receptables: list of 2 pots object to swap
-  return None
-  """
-  event = controller.last_event
-  recep1_name = swap_receptables[0]
-  recep2_name = swap_receptables[1]
-  recep1_id = get_objectId(recep1_name, controller)
-  recep2_id = get_objectId(recep2_name, controller)
+# def swap(swap_receptables):
+#   """ swap_receptables: list of 2 receptacle_names object to swap
+#   return None
+#   """
+#   event = controller.last_event
+#   recep1_name = swap_receptables[0]
+#   recep2_name = swap_receptables[1]
+#   recep1_id = get_objectId(recep1_name, controller)
+#   recep2_id = get_objectId(recep2_name, controller)
 
-  #calculate the z-different to move the receps
-  z_different = get_object(recep1_name, controller)["position"]["z"] - get_object(recep2_name, controller)["position"]["z"]
+#   #calculate the z-different to move the receps
+#   z_different = get_object(recep1_name, controller)["position"]["z"] - get_object(recep2_name, controller)["position"]["z"]
 
-  #move first recep far away
-  move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
-#   img_array.append(controller.last_event.frame)
+#   #move first recep far away
+#   move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
+# #   img_array.append(controller.last_event.frame)
 
-  #move 2nd recep to 1st recep place
-  move_object(controller, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)])
-#   img_array.append(controller.last_event.frame)
+#   #move 2nd recep to 1st recep place
+#   move_object(controller, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)])
+# #   img_array.append(controller.last_event.frame)
 
-  # every time an object is moved, its id is changed
-  # update 1st receptable ID
-  recep1_id = get_objectId(recep1_name, controller)
+#   # every time an object is moved, its id is changed
+#   # update 1st receptable ID
+#   recep1_id = get_objectId(recep1_name, controller)
 
-  #move 1st recep to second recep place
-  move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)])
+#   #move 1st recep to second recep place
+#   move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)])
   
-#   img_array.append(controller.last_event.frame)
+# #   img_array.append(controller.last_event.frame)
 
      
-for i in range(random.randint(1,10)):
-    swap(random.sample(pots,2))
+# for i in range(random.randint(1,10)):
+#     swap(random.sample(receptacle_names,2))
 
 #get egg final z coordinates
 for obj in controller.last_event.metadata["objects"]:
