@@ -209,6 +209,30 @@ controller.step(
     roll=0
 )
 
+controller.step(
+    action="MoveHeldObject",
+    ahead=0,
+    right= 0,
+    up=0.1,
+    forceVisible=False
+)
+
+controller.step(
+    action="MoveHeldObject",
+    ahead=0,
+    right= 0,
+    up=-0.1,
+    forceVisible=False
+)
+
+controller.step(
+    action="MoveHeldObject",
+    ahead=0,
+    right= 0,
+    up=0.1,
+    forceVisible=False
+)
+
 for obj in controller.last_event.metadata["objects"]:
     if obj["objectType"] == rewardType:
         if obj["position"]["z"] > 0:
