@@ -110,7 +110,7 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
             )
         last_image = controller.last_event.frame
         frame_list.append(last_image)
-        third_party_camera_frames.append(controller.third_party_camera_frames[0])
+        third_party_camera_frames.append(controller.last_event.third_party_camera_frames[0])
         checkError(controller)
     return controller.last_event, frame_list, third_party_camera_frames
 
