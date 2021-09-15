@@ -24,7 +24,7 @@ class VideoBenchmark(Controller):
 
         self.frame_list = []
         self.saved_frames = []
-
+        self.third_party_camera_frames = []
         # controller = Controller(
         super().__init__(
 
@@ -50,6 +50,12 @@ class VideoBenchmark(Controller):
             fieldOfView=random.randint(90,140)
         )
 
+        self.step(
+            action="AddThirdPartyCamera",
+            position=dict(x=-1.5, y=1.8, z=0),
+            rotation=dict(x=0, y=90, z=0),
+            fieldOfView=90
+        )
 
         #Randomize Materials in the scene
         self.step(
@@ -193,7 +199,7 @@ class VideoBenchmark(Controller):
         self.step("MoveRight")
 
         #move the reward to the pre-selected receptable then drop it
-        _, self.frame_list = move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0), (0, 0, -MOVEUP_MAGNITUDE)], self.frame_list)
+        _, self.frame_list, self.third_party_camera_frames = move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0), (0, 0, -MOVEUP_MAGNITUDE)], self.frame_list, self.third_party_camera_frames)
         # self.frame_list.append(self.last_event.frame)
 
     #Swap 2 receptables
@@ -212,12 +218,12 @@ class VideoBenchmark(Controller):
 
       #move first recep far away
       # move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
-      _, self.frame_list = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list)
+      _, self.frame_list, self.third_party_camera_frames = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list, self.third_party_camera_frames)
       # self.play(move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list))
       self.frame_list.append(self.last_event.frame)
-
+      self.third_party_camera_frames.append(self.last_event.third_party_camera_frames[0])
       #move 2nd recep to 1st recep place
-      _, self.frame_list = move_object(self, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)], self.frame_list)
+      _, self.frame_list, self.third_party_camera_frames = move_object(self, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)], self.frame_list, self.third_party_camera_frames)
       # self.frame_list.append(self.last_event.frame)
 
       # every time an object is moved, its id is changed
@@ -225,7 +231,7 @@ class VideoBenchmark(Controller):
       recep1_id = get_objectId(recep1_name, self)
 
       #move 1st recep to second recep place
-      _, self.frame_list = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list)
+      _, self.frame_list, self.third_party_camera_frames = move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)], self.frame_list, self.third_party_camera_frames)
 
       # self.frame_list.append(self.last_event.frame)
 
@@ -250,14 +256,14 @@ class VideoBenchmark(Controller):
 
         #dummy moves for debugging purposes
         self.step("MoveBack")
-        self.step("MoveBack")
+        self = self.step("MoveBack")
 
         print(out)
         return out
 
 
     def save_frames_to_file(self):
-
+        print(len(self.third_party_camera_frames))
         from PIL import Image
 
         image_folder = './'
@@ -267,6 +273,14 @@ class VideoBenchmark(Controller):
         for i, frame in enumerate(tqdm(self.frame_list)):
             img = Image.fromarray(frame)
             img.save("frames/{}.jpeg".format(i))
+        
+        print('num frames', len(self.third_party_camera_frames))
+        height, width, channels = self.third_party_camera_frames[0].shape
+
+        for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
+            img = Image.fromarray(frame)
+            img.save("videos/{}.jpeg".format(i))
+        
 
 vid = VideoBenchmark()
 vid.perform_action()
