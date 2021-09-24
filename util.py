@@ -27,7 +27,6 @@ def pickup(controller, object_ID):
 
     return: event after pickup
     """
-    print(len(controller.last_event.third_party_camera_frames))
 
     # controller.step("PausePhysicsAutoSim")
     controller.step(
@@ -60,7 +59,6 @@ def drop_object(controller, frame_list, third_party_camera_frames):
     
     return: event after pickup
     """
-    print(len(controller.last_event.third_party_camera_frames))
 
     # TODO make these changes after bug is fixed
     # images = []
@@ -89,7 +87,6 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
 
     return: event after the last movement
     """
-    print(len(controller.last_event.third_party_camera_frames))
 
     # images = []
     for ahead, right, up in directions:
@@ -126,7 +123,6 @@ def move_object(controller, objectId, directions, frame_list, third_party_camera
     3. drop the holding object
     return: the event after drop the object
     """
-    print(len(controller.last_event.third_party_camera_frames))
     last_event = pickup(controller, objectId)
     frame_list.append(last_event.frame)
     third_party_camera_frames.append(last_event.third_party_camera_frames[0])
@@ -140,8 +136,8 @@ def checkError(controller):
     """
     print error message if exist
     """
-    if controller.last_event.metadata["errorMessage"] != '':
-        print(controller.last_event.metadata["errorMessage"])
+    # if controller.last_event.metadata["errorMessage"] != '':
+    #     print(controller.last_event.metadata["errorMessage"])
 
 def interpolate_between_2points(directions, num_interpolations):
     all_directions = []

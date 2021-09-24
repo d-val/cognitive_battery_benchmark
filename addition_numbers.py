@@ -6,249 +6,310 @@ import random
 import cv2
 from util import *
 import random
+from tqdm import tqdm
+import math
 #unity directory
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-num_of_agents = 1
-controller = Controller(
-    #local build
-    local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+class VideoBenchmark(Controller):
     
-    agentMode="default",
-    visibilityDistance=2,
-    scene="FloorPlan1",
+    def __init__(self):
 
-    # step sizes
-    gridSize=0.25,
-    snapToGrid=False,
-    rotateStepDegrees=90,
+        random.seed(10)
+        np.random.seed(10)
 
-    # image modalities
-    renderDepthImage=False,
-    renderInstanceSegmentation=False,
+        self.frame_list = []
+        self.saved_frames = []
+        self.third_party_camera_frames = []
+        # controller = Controller(
+        super().__init__(
+            local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            
+            agentMode="default",
+            visibilityDistance=5,
+            scene="FloorPlan1",
 
-    # # camera properties
-    width=2000,
-    height=2000,
-    fieldOfView=random.randint(90,120),
-    agentCount = num_of_agents,
-    makeAgentsVisible = False
-)
+            # step sizes
+            gridSize=0.25,
+            snapToGrid=False,
+            rotateStepDegrees=90,
 
-#Move agents to fit the screen
-for i in range(num_of_agents):
-    controller.step(
-        action="Teleport",
-        position=dict(x=-1.5, y=0.9, z=0),
-        rotation=dict(x=0, y=90, z=0),
-        horizon=0,
-        standing=True,
-        agentId = i
-    )
+            # image modalities
+            renderDepthImage=False,
+            renderInstanceSegmentation=False,
 
-rewardTypes = ["Potato", "Tomato", "Apple"]
+            # # camera properties
+            width=2000,
+            height=2000,
+            fieldOfView=random.randint(90,120),
+            makeAgentsVisible = False
+        )
 
-rewardType = random.sample(rewardTypes, 1)[0]
+        self.step(
+            action="AddThirdPartyCamera",
+            position=dict(x=1.5, y=1.8, z=0),
+            rotation=dict(x=0, y=270, z=0),
+            fieldOfView=90
+        )
 
+        #Randomize Materials in the scene
+        self.step(
+            action="RandomizeMaterials")
 
-#Randomize Materials in the scene
-controller.step(
-    action="RandomizeMaterials")
+        #Randomize Lighting in the scene
+        self.step(
+            action="RandomizeLighting",
+            brightness=(0.5, 1.5),
+            randomizeColor=True,
+            hue=(0, 1),
+            saturation=(0.5, 1),
+            synchronized=False
+        )
 
-#Randomize Lighting in the scene
-controller.step(
-    action="RandomizeLighting",
-    brightness=(0.5, 1.5),
-    randomizeColor=True,
-    hue=(0, 1),
-    saturation=(0.5, 1),
-    synchronized=False
-)
+        rewardTypes = ["Potato", "Tomato", "Apple"]
 
+        self.rewardType = random.sample(rewardTypes, 1)[0]
 
-#List of initial poses (receptacle_names' poses)
-initialPoses = []
-#A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
-#https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
+# #Randomize Materials in the scene
+# controller.step(
+#     action="RandomizeMaterials")
 
-excludeList = []                #Egg and Pot exclude from randomization
-randomObjects = []              #store all other Pickupable objects
-
-#Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
-#and will be location randomized later
-for obj in controller.last_event.metadata["objects"]:
-
-    #current Pose of the object
-    initialPose = {"objectName": obj["name"],
-                      "position": obj["position"],
-                      "rotation": obj["rotation"]}
-
-    #Set the Plates location (pre-determined)
-    if obj["objectType"] == "Plate":
-        #right plate (z < 0)
-        initialPoses.append(
-                    {"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.34, 'y': 1.105, 'z': -0.78}
-                    }
-                    )
-
-        #left plate (z > 0)
-        initialPoses.append(
-                    {"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.34, 'y': 1.105, 'z': 0.78}
-                    }
-                    )
-    if obj["name"] == "BigBowl":
-        #right bowl (z < 0)
-        initialPoses.append(
-                    {"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.34, 'y': 1.1, 'z': -0.23}
-                    }
-                    )
-
-        #left bowl (z > 0)
-        initialPoses.append(
-                    {"objectName": obj["name"],
-                    "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    "position": {'x': -0.34, 'y': 1.1, 'z': 0.23}
-                    }
-                    )
-    
-    #Set the rewards'locations randomly around the plate
-    if obj["objectType"] == rewardType:
-        #right plate
-        for i in range(0,random.randint(0,8)):
-            initialPoses.append(
-                        {"objectName": obj["name"],
-                        "rotation": {'x': 0.0, 'y': 0, 'z': 0},
-                        "position": {'x': -0.34 + random.uniform(-0.13, 0.13), 'y': 1.3 + 0.001*i, 'z': -0.75 + random.uniform(-0.13, 0.13)}
-                        }
-                        )
-        #left plate
-        for i in range(0,random.randint(0,8)):
-            initialPoses.append(
-                        {"objectName": obj["name"],
-                        "rotation": {'x': 0.0, 'y': 0, 'z': 0},
-                        "position": {'x': -0.34 + random.uniform(-0.13, 0.13), 'y': 1.3 + 0.001*i, 'z': 0.75 + random.uniform(-0.13, 0.13)}
-                        }
-                        )
-
-    #Ignore reward and receptacles object, they will not be randomized on the table
-    if obj["objectType"] in {"Pot", rewardType}:
-        pass
-    elif not obj["moveable"] and not obj["pickupable"]:
-        pass
-    else:
-        initialPoses.append(initialPose)
+# #Randomize Lighting in the scene
+# controller.step(
+#     action="RandomizeLighting",
+#     brightness=(0.5, 1.5),
+#     randomizeColor=True,
+#     hue=(0, 1),
+#     saturation=(0.5, 1),
+#     synchronized=False
+# )
 
 
+        #List of initial poses (receptacle_names' poses)
+        initialPoses = []
+        #A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
+        #https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
 
-#set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
-controller.step(
-  action='SetObjectPoses',
-  objectPoses = initialPoses,
-  placeStationary=False
-)
+        excludeList = []                #Egg and Pot exclude from randomization
+        randomObjects = []              #store all other Pickupable objects
+
+        #Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
+        #and will be location randomized later
+        for obj in self.last_event.metadata["objects"]:
+
+            #current Pose of the object
+            initialPose = {"objectName": obj["name"],
+                            "position": obj["position"],
+                            "rotation": obj["rotation"]}
+
+            #Set the Plates location (pre-determined)
+            if obj["objectType"] == "Plate":
+                #right plate (z < 0)
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': -0.25, 'y': 1.105, 'z': -0.6}
+                            }
+                            )
+
+                #left plate (z > 0)
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': -0.25, 'y': 1.105, 'z': 0.6}
+                            }
+                            )
+                
+                #mid plate
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': 0, 'y': 1.105, 'z': 0}
+                            }
+                            )
+            
+            if obj["name"] == "Occluder":
+                #right occluder
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': 0.15, 'y': 1.105, 'z': -0.6}
+                            }
+                            )
+                #left occluder
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': 0.15, 'y': 1.105, 'z': 0.6}
+                            }
+                            )
+                
+                #mid occluder
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                            "position": {'x': 0.4, 'y': 1.105, 'z': 0}
+                            }
+                            )
+            
+            #randomly spawn between 0 to 9 food on each plate
+            if obj["objectType"] == self.rewardType:
+                #right rewards
+                j = random.randint(0,6)
+                for i in range(j):        #[0,j)
+                    theta = 2*math.pi*i/j
+                    r = random.uniform(0.1, 0.15)
+                    initialPoses.append(
+                                {"objectName": obj["name"],
+                                "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                                "position": {'x': -0.25 + r*math.cos(theta) , 'y': 1.205, 'z': -0.6 + r*math.sin(theta)}
+                                }
+                                )
+
+                #left rewards
+                k = random.randint(0,6)
+                for i in range(k):        #[0,k)
+                    theta = 2*math.pi*i/k
+                    r = random.uniform(0.1, 0.15)
+                    initialPoses.append(
+                                {"objectName": obj["name"],
+                                "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                                "position": {'x': -0.25 + r*math.cos(theta), 'y': 1.205, 'z': 0.6 + r*math.cos(theta)}
+                                }
+                                )
+                
+                #mid rewards
+                l = random.randint(0,6)
+                for i in range(l):        #[0,l) 
+                    theta = 2*math.pi*i/l
+                    r = random.uniform(0.1, 0.15)
+                    initialPoses.append(
+                                {"objectName": obj["name"],
+                                "rotation": {'x': -0.0, 'y': 0, 'z': 0},
+                                "position": {'x': 0 + r*math.cos(theta), 'y': 1.205, 'z': 0 + + r*math.cos(theta)}
+                                }
+                                )
+                print(j,k,l)
+            #Put lids on 3 plates
+            if obj["name"] == "BigBowl":
+                #right plate (z < 0)
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                            "position": {'x': -0.25, 'y': 1.455, 'z': -0.6}
+                            }
+                            )
+
+                #left plate (z > 0)
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                            "position": {'x': -0.25, 'y': 1.455, 'z': 0.6}
+                            }
+                            )
+                
+                #mid plate
+                initialPoses.append(
+                            {"objectName": obj["name"],
+                            "rotation": {'x': -0.0, 'y': 0, 'z': 180},
+                            "position": {'x': 0, 'y': 1.455, 'z': 0}
+                            }
+                            )
+
+            initialPoses.append(initialPose)
 
 
-#Store all rewards Id in list to be exclude from randomization
-excludedRewardsId = []
-for obj in controller.last_event.metadata["objects"]:
-    if obj["objectType"] == rewardType:
-        excludedRewardsId.append(obj["objectId"]) #useful for randomization of non-rewards
+        #set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
+        self.step(
+        action='SetObjectPoses',
+        objectPoses = initialPoses,
+        placeStationary=False
+        )
 
-#randomize all non-rewards objects
-controller.step(action="InitialRandomSpawn",
-    randomSeed=random.randint(0,10),
-    forceVisible=True,
-    numPlacementAttempts=5,
-    placeStationary=True,
-    numDuplicatesOfType = [
-    ],
-    excludedObjectIds= excludedRewardsId
+        current_objects = self.last_event.metadata["objects"]
+        #set aside all occluders
+        for obj in current_objects:
+            if obj["name"][:8] == "Occluder":
+                #left and right stay on table
+                if abs(obj["position"]["z"]) > 0.3:
+                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+                #middle goes away
+                else:
+                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-1.2, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
 
-)
+        current_objects = self.last_event.metadata["objects"]
+        #remove all bowls
+        for obj in current_objects:
+            if obj["name"][:7] == "BigBowl" and abs(obj["position"]["z"]):
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
 
-#count rewards to get output
-out = None
-left = 0
-right = 0
 
-controller.step(
-    action="PickupObject",
-    objectId='Plate|-00.34|+01.11|+00.78',
-    forceAction=True,
-    manualInteract=True
-)
+        current_objects = self.last_event.metadata["objects"]
+        #put sides occluder back
+        for obj in current_objects:
+            #only put right and left occluders back
+            if obj["name"][:8] == "Occluder" and abs(obj["position"]["z"]) > 0.3:
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (+0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+        
+        #transfer food
+        current_objects = self.last_event.metadata["objects"]
 
-controller.step(
-    action="MoveHeldObject",
-    ahead=0,
-    right= 0,
-    up=0.7,
-    forceVisible=False
-)
+        #randomly choose left or right plate, pick random multiplier associates to the direction to move food
+        #right, multiplier = 1; left, multiplier = -1
+        if random.random() > 0.5:
+            multiplier = 1
+        else:
+            multiplier = -1
+        for obj in current_objects:
+            if obj["name"].startswith(self.rewardType) and abs(obj["position"]["z"]) < 0.3:
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.25, 0, 0),(0, -0.6* multiplier, 0), (0, 0, -0.4)], self.frame_list, self.third_party_camera_frames)
 
-controller.step(
-    action="MoveHeldObject",
-    ahead=0,
-    right= 0.5,
-    up=0,
-    forceVisible=False
-)
+        
+        self.step("MoveBack")
+        self.step("MoveAhead")
+        self.step("MoveBack")
+        self.step("MoveAhead")
+        #count rewards to get output
+        out = None
+        left = 0
+        right = 0
 
-controller.step(
-    action="RotateHeldObject",
-    pitch=180,
-    yaw=0,
-    roll=0
-)
+        for obj in self.last_event.metadata["objects"]:
+            if obj["objectType"] == self.rewardType:
+                if obj["position"]["z"] > 0:
+                    left += 1
+                if obj["position"]["z"] < 0:
+                    right +=1
+        if left > right:
+            out = -1
+        elif left < right:
+            out = 1
+        else:   #left == right
+            out = 0
+        print(out)
 
-controller.step(
-    action="MoveHeldObject",
-    ahead=0,
-    right= 0,
-    up=0.1,
-    forceVisible=False
-)
 
-controller.step(
-    action="MoveHeldObject",
-    ahead=0,
-    right= 0,
-    up=-0.1,
-    forceVisible=False
-)
+    def save_frames_to_file(self):
+        from PIL import Image
 
-controller.step(
-    action="MoveHeldObject",
-    ahead=0,
-    right= 0,
-    up=0.1,
-    forceVisible=False
-)
+        image_folder = './'
+        print('num frames', len(self.frame_list))
+        height, width, channels = self.frame_list[0].shape
 
-for obj in controller.last_event.metadata["objects"]:
-    if obj["objectType"] == rewardType:
-        if obj["position"]["z"] > 0:
-            left += 1
-        if obj["position"]["z"] < 0:
-            right +=1
-if left > right:
-    out = -1
-elif left < right:
-    out = 1
-else:   #left == right
-    out = 0
+        for i, frame in enumerate(tqdm(self.frame_list)):
+            img = Image.fromarray(frame)
+            img.save("addition_numbers_agent/{}.jpeg".format(i))
+        
+        print('num frames', len(self.third_party_camera_frames))
+        height, width, channels = self.third_party_camera_frames[0].shape
 
-print(out)
+        for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
+            img = Image.fromarray(frame)
+            img.save("addition_numbers_monkey/{}.jpeg".format(i))
 
-controller.step("MoveBack")
-controller.step("MoveAhead")
-controller.step("MoveBack")
-controller.step("MoveAhead")
+
+
+vid = VideoBenchmark()
+vid.save_frames_to_file()
