@@ -52,7 +52,7 @@ class VideoBenchmark(Controller):
 
         self.step(
             action="AddThirdPartyCamera",
-            position=dict(x=-1.5, y=1.8, z=0),
+            position=dict(x=-1.5, y=1, z=0),
             rotation=dict(x=0, y=90, z=0),
             fieldOfView=90
         )
@@ -263,7 +263,6 @@ class VideoBenchmark(Controller):
 
 
     def save_frames_to_file(self):
-        print(len(self.third_party_camera_frames))
         from PIL import Image
 
         image_folder = './'
