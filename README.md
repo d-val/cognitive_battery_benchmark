@@ -1,4 +1,4 @@
-# nguyen_cognitive_battery
+
 #How to run 3 pots 1 egg simulation
 
 ## 💻 Installation
