@@ -1,0 +1,33 @@
+name: cognitive-battery-benchmark
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - ai2thor
+    - aws-requests-auth
+    - botocore
+    - certifi
+    - charset-normalizer
+    - click
+    - Flask
+    - idna
+    - itsdangerous
+    - Jinja2
+    - jmespath
+    - MarkupSafe
+    - msgpack
+    - numpy
+    - opencv-python
+    - Pillow
+    - progressbar2
+    - python-dateutil
+    - python-utils
+    - python-xlib
+    - PyYAML
+    - requests
+    - six
+    - tqdm
+    - urllib3
+    - Werkzeug
