@@ -234,16 +234,16 @@ class VideoBenchmark(Controller):
             if obj["name"][:8] == "Occluder":
                 #left and right stay on table
                 if abs(obj["position"]["z"]) > 0.3:
-                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
                 #middle goes away
                 else:
-                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-1.2, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+                    _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-1.2, 0, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
 
         current_objects = self.last_event.metadata["objects"]
         #remove all bowls
         for obj in current_objects:
             if obj["name"][:7] == "BigBowl" and abs(obj["position"]["z"]):
-                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
 
 
         current_objects = self.last_event.metadata["objects"]
@@ -251,7 +251,7 @@ class VideoBenchmark(Controller):
         for obj in current_objects:
             #only put right and left occluders back
             if obj["name"][:8] == "Occluder" and abs(obj["position"]["z"]) > 0.3:
-                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (+0.73, 0, 0), (0, 0, -0.5)], self.frame_list, self.third_party_camera_frames)
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (+0.73, 0, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
         
         #transfer food
         current_objects = self.last_event.metadata["objects"]
@@ -264,7 +264,7 @@ class VideoBenchmark(Controller):
             multiplier = -1
         for obj in current_objects:
             if obj["name"].startswith(self.rewardType) and abs(obj["position"]["z"]) < 0.3:
-                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.25, 0, 0),(0, -0.6* multiplier, 0), (0, 0, -0.4)], self.frame_list, self.third_party_camera_frames)
+                _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.25, 0, 0),(0, -0.6* multiplier, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
 
         
         self.step("MoveBack")
