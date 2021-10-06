@@ -8,3 +8,8 @@ __pycache__/*
 *.DS_Store
 *.pyc
 frames/
+addition_numbers_agent/
+addition_numbers_monkey/
+rotation_agent_view/
+rotation_monkey_view/
+videos/
