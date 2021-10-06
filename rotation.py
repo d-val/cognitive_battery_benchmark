@@ -185,6 +185,10 @@ class VideoBenchmark(Controller):
                 objectPoses = initialPoses,
                 placeStationary=False
             )
+
+            #add frame to corresponding frame list
+            self.frame_list.append(self.last_event.frame)
+            self.third_party_camera_frames.append(self.last_event.third_party_camera_frames[0])
             #initial state, lift up cup to show food
             if i == 0:
                 for obj in self.last_event.metadata["objects"]:
