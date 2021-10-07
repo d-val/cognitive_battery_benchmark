@@ -248,7 +248,6 @@ class AdditionNumbers(Experiment):
             action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
         )
 
-    def run(self):
         current_objects = self.last_event.metadata["objects"]
         # set aside all occluders
         for obj in current_objects:

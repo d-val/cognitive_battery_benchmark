@@ -57,7 +57,7 @@ git clone https://github.com/d-val/cognitive_battery_benchmark/tree/neil_test
 
 Run `cd experiments`:
 ```python
-from experiments.simple_swap import SimpleSwap 
+from simple_swap import SimpleSwap 
 
 SimpleSwapExperiment = SimpleSwap()
 SimpleSwapExperiment.run()

@@ -41,7 +41,7 @@ class SimpleSwap(Experiment):
                 "height": 2000,
                 "fieldOfView": random.randint(90, 140),
             },
-            seed,
+            seed
         )
 
         self.step(
@@ -276,7 +276,6 @@ class SimpleSwap(Experiment):
 
         # self.frame_list.append(self.last_event.frame)
 
-    def run(self):
         for i in range(random.randint(1, 3)):
             self.swap(random.sample(self.pots, 2))
 
