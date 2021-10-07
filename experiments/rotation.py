@@ -211,7 +211,7 @@ class Rotation(Experiment):
         self.step("MoveBack")
         self.step("MoveAhead")
 
-    def save_frames_to_file(self, SAVE_DIR):
+    def save_frames_to_folder(self, SAVE_DIR):
 
         if not os.path.isdir(SAVE_DIR):
             os.makedirs(f"{SAVE_DIR}/rotation_agent_view")
