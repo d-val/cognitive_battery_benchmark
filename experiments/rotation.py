@@ -1,53 +1,51 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy as np
+from PIL import Image
 from ai2thor.controller import Controller
 import random
 import cv2
-from util import *
 import random
 from tqdm import tqdm
 import math
-#unity directory
+
+# unity directory
+from experiment import Experiment
+from utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-class VideoBenchmark(Controller):
-    
-    def __init__(self):
+class Rotation(Experiment):
 
-        #set case according to the spreadsheet
-        case = 1
+    def __init__(self, case=1, seed=0):
+        # TODO: ask about the case here
 
-        random.seed(10)
-        np.random.seed(10)
-
+        # set case according to the spreadsheet
         self.frame_list = []
         self.saved_frames = []
         self.third_party_camera_frames = []
-        # controller = Controller(
         super().__init__(
-            local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-            
-            agentMode="default",
-            visibilityDistance=5,
-            scene="FloorPlan1",
-
-            # step sizes
-            gridSize=0.25,
-            snapToGrid=False,
-            rotateStepDegrees=90,
-
-            # image modalities
-            renderDepthImage=False,
-            renderInstanceSegmentation=False,
-
-            # # camera properties
-            width=2000,
-            height=2000,
-            fieldOfView=random.randint(90,120),
-            makeAgentsVisible = False
+            {
+                # local build
+                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+                "agentMode": "default",
+                "visibilityDistance": 5,
+                "scene": "FloorPlan1",
+                # step sizes
+                "gridSize": 0.25,
+                "snapToGrid": False,
+                "rotateStepDegrees": 90,
+                # image modalities
+                "renderDepthImage": False,
+                "renderInstanceSegmentation": False,
+                # # camera properties
+                "width": 2000,
+                "height": 2000,
+                "fieldOfView": random.randint(90, 120),
+                "makeAgentsVisible": False
+            },
+            seed
         )
 
         self.step(
@@ -57,11 +55,11 @@ class VideoBenchmark(Controller):
             fieldOfView=90
         )
 
-        #Randomize Materials in the scene
+        # Randomize Materials in the scene
         self.step(
             action="RandomizeMaterials")
 
-        #Randomize Lighting in the scene
+        # Randomize Lighting in the scene
         self.step(
             action="RandomizeLighting",
             brightness=(0.5, 1.5),
@@ -75,48 +73,48 @@ class VideoBenchmark(Controller):
 
         self.rewardType = random.sample(rewardTypes, 1)[0]
 
-        #List of initial poses (receptacle_names' poses)
+        # List of initial poses (receptacle_names' poses)
         initialPoses = []
-        #A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
-        #https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
+        # A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
+        # https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
 
-        excludeList = []                #Egg and Pot exclude from randomization
-        randomObjects = []              #store all other Pickupable objects
+        excludeList = []  # Egg and Pot exclude from randomization
+        randomObjects = []  # store all other Pickupable objects
 
-        #set distance of cups to the center of tray
+        # set distance of cups to the center of tray
         d1 = -0.4
         d2 = 0
         d3 = 0.4
 
-        #set number of rotation, 11 for 360 degree and 6 for 180 degree
+        # set number of rotation, 11 for 360 degree and 6 for 180 degree
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times 
         num_rotate = 0
 
-        #rotate 180, food in middle
+        # rotate 180, food in middle
         if case == 1:
             num_rotate = 6
             food_dist = d2
-        #rotate 360, food in left or right
+        # rotate 360, food in left or right
         if case == 2:
             num_rotate = 11
-            food_dist = random.choice([d1,d3])
-        #rotate 180, food in left or right
+            food_dist = random.choice([d1, d3])
+        # rotate 180, food in left or right
         if case == 3:
             num_rotate = 6
-            food_dist = random.choice([d1,d3])
-        #Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
-        #and will be location randomized later
-        for i in range(0,num_rotate):
-            #empty initial poses after each iteration to avoid duplicate
+            food_dist = random.choice([d1, d3])
+        # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
+        # and will be location randomized later
+        for i in range(0, num_rotate):
+            # empty initial poses after each iteration to avoid duplicate
             initialPoses = []
             for obj in self.last_event.metadata["objects"]:
-                angle = i*36
-                angle_radian = 2*math.pi*angle/360
-                #current Pose of the object
+                angle = i * 36
+                angle_radian = 2 * math.pi * angle / 360
+                # current Pose of the object
                 initialPose = {"objectName": obj["name"],
-                                "position": obj["position"],
-                                "rotation": obj["rotation"]}
-                
+                               "position": obj["position"],
+                               "rotation": obj["rotation"]}
+
                 # if obj["name"] == "Tray":
                 #     #mid occluder
                 #     initialPoses.append(
@@ -146,57 +144,58 @@ class VideoBenchmark(Controller):
                 #                 )
                 if obj["name"] != "Tray" and obj["objectType"] != "Potato" and obj["name"][:4] != "Cup1":
                     initialPoses.append(initialPose)
-            
-            
+
             initialPoses.append(
-                        {"objectName": "Tray",
-                        "rotation": {'x': -0.0, 'y': angle, 'z': 0},
-                        "position": {'x': 0, 'y': 1.105, 'z': 0}
-                        }
+                {"objectName": "Tray",
+                 "rotation": {'x': -0.0, 'y': angle, 'z': 0},
+                 "position": {'x': 0, 'y': 1.105, 'z': 0}
+                 }
             )
             initialPoses.append(
-                        {"objectName": "Cup1",
-                        "rotation": {'x': -0.0, 'y': angle, 'z': 180},
-                        "position": {'x': 0 + d3 * math.sin(angle_radian), 'y': 1.505, 'z': d3*math.cos(angle_radian)}
-                        }
-                        )
+                {"objectName": "Cup1",
+                 "rotation": {'x': -0.0, 'y': angle, 'z': 180},
+                 "position": {'x': 0 + d3 * math.sin(angle_radian), 'y': 1.505, 'z': d3 * math.cos(angle_radian)}
+                 }
+            )
             initialPoses.append(
-                        {"objectName": "Cup1",
-                        "rotation": {'x': -0.0, 'y': angle, 'z': 180},
-                        "position": {'x':  d2 * math.sin(angle_radian), 'y': 1.505, 'z': d2*math.cos(angle_radian)}
-                        }
-                        )
+                {"objectName": "Cup1",
+                 "rotation": {'x': -0.0, 'y': angle, 'z': 180},
+                 "position": {'x': d2 * math.sin(angle_radian), 'y': 1.505, 'z': d2 * math.cos(angle_radian)}
+                 }
+            )
             initialPoses.append(
-                        {"objectName": "Cup1",
-                        "rotation": {'x': -0.0, 'y': angle, 'z': 180},
-                        "position": {'x':  d1 * math.sin(angle_radian), 'y': 1.505, 'z': d1*math.cos(angle_radian)}
-                        }
-                        )
+                {"objectName": "Cup1",
+                 "rotation": {'x': -0.0, 'y': angle, 'z': 180},
+                 "position": {'x': d1 * math.sin(angle_radian), 'y': 1.505, 'z': d1 * math.cos(angle_radian)}
+                 }
+            )
             initialPoses.append(
-                        {"objectName": "Potato_35885ea7",
-                        "rotation": {'x': -0.0, 'y': angle, 'z': 0},
-                        "position": {'x': food_dist * math.sin(angle_radian), 'y': 1.205, 'z': food_dist*math.cos(angle_radian)}
-                        }
-                        )
+                {"objectName": "Potato_35885ea7",
+                 "rotation": {'x': -0.0, 'y': angle, 'z': 0},
+                 "position": {'x': food_dist * math.sin(angle_radian), 'y': 1.205,
+                              'z': food_dist * math.cos(angle_radian)}
+                 }
+            )
             print(len(initialPoses))
-            #set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
+            # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
             self.step(
                 action='SetObjectPoses',
-                objectPoses = initialPoses,
+                objectPoses=initialPoses,
                 placeStationary=False
             )
 
-            #add frame to corresponding frame list
+            # add frame to corresponding frame list
             self.frame_list.append(self.last_event.frame)
             self.third_party_camera_frames.append(self.last_event.third_party_camera_frames[0])
-            #initial state, lift up cup to show food
+            # initial state, lift up cup to show food
             if i == 0:
                 for obj in self.last_event.metadata["objects"]:
                     if obj["name"][:4] == "Cup1":
-                        move_object(self, obj["objectId"], [(0, 0, 0.4)], self.frame_list, self.third_party_camera_frames)
+                        move_object(self, obj["objectId"], [(0, 0, 0.4)], self.frame_list,
+                                    self.third_party_camera_frames)
         out = None
-        #return value
-        #1 = right, 0 = middle, -1 = left
+        # return value
+        # 1 = right, 0 = middle, -1 = left
         for obj in self.last_event.metadata["objects"]:
             if obj["name"] == "Potato_35885ea7":
                 dist = obj["position"]["z"]
@@ -208,31 +207,26 @@ class VideoBenchmark(Controller):
                     out = 0
         print(out)
 
-
-        #dummy moves for debug
+        # dummy moves for debug
         self.step("MoveBack")
         self.step("MoveAhead")
 
+    def save_frames_to_file(self, SAVE_DIR):
 
-    def save_frames_to_file(self):
-        from PIL import Image
+        if not os.path.isdir(SAVE_DIR):
+            os.makedirs(f"{SAVE_DIR}/rotation_agent_view")
+            os.makedirs(f"{SAVE_DIR}/rotation_monkey_view")
 
-        image_folder = './'
         print('num frames', len(self.frame_list))
         height, width, channels = self.frame_list[0].shape
 
         for i, frame in enumerate(tqdm(self.frame_list)):
             img = Image.fromarray(frame)
-            img.save("rotation_agent_view/{}.jpeg".format(i))
-        
+            img.save(f"{SAVE_DIR}/rotation_agent_view/{i}.jpeg")
+
         print('num frames', len(self.third_party_camera_frames))
         height, width, channels = self.third_party_camera_frames[0].shape
 
         for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
             img = Image.fromarray(frame)
-            img.save("rotation_monkey_view/{}.jpeg".format(i))
-
-
-
-vid = VideoBenchmark()
-vid.save_frames_to_file()
+            img.save(f"{SAVE_DIR}/rotation_monkey_view/{i}.jpeg")
