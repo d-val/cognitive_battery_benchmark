@@ -18,6 +18,7 @@ from PIL import Image
 import math
 from math import erf, sqrt
 
+
 class VideoController(Controller):
     def __init__(
         self,
@@ -376,8 +377,9 @@ class VideoController(Controller):
             success, image = vidcap.read()
             i += 1
 
+
 with VideoController() as vc:
     vc.play(vc.MoveAhead())
     vc.wait(5)
     vc.play(vc.MoveAhead())
-    vc.export_video('thor')
+    vc.export_video("thor")

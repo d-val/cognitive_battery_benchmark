@@ -1,18 +1,19 @@
  
-# How to run 3 pots 1 egg simulation
+# Cognitive Battery Benchmark
 
 ## 💻 Installation
 
-#### With pip
+#### With pip:
 
 ```bash
-pip install ai2thor
+pip install -r setup/requirements.txt
 ```
 
-#### With conda
+#### With conda:
 
 ```bash
-conda install -c conda-forge ai2thor
+conda env create -f environment.yml
+conda activate cognitive-battery-benchmark
 ```
 
 #### With Docker
@@ -36,14 +37,14 @@ Python 3.7 or 3.8
 
 ## Clone this repo
 ```python
-git clone https://github.com/d-val/nguyen_cognitive_battery.git
+git clone https://github.com/d-val/cognitive_battery_benchmark/tree/neil_test
 ```
 
 ## Running 3 Pots 1 Egg
 
 Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
 
-Unzip thor-OSXIntel64-local.zip file at the 'nguyen_cognitive_battery' folder
+Unzip thor-OSXIntel64-local.zip file at the 'cognitive_battery_benchmark' folder
 
 Run `aithor_test.py`
 ```python
@@ -54,7 +55,7 @@ If success, a window with size 2000x2000 will pop up. The egg will be put random
 
 ## Module Structure
 
-The structure of the 'nguyen_cognitive_battery' folder is as follows:
+The structure of the 'cognitive_battery_benchmark' folder is as follows:
 
 - aithor_test.py: core movements/instruction for the AITHOR agent to perform 3 pots 1 egg
 - util.py: helper functions for agent movements
