@@ -10,6 +10,7 @@ def get_object(receptable_name, controller):
             return obj
     return None
 
+
 def get_objectId(receptable_name, controller):
     """
     receptable_name: unique name of the receptable object
@@ -18,6 +19,8 @@ def get_objectId(receptable_name, controller):
     return: objectId in metadata of controller if exitst, else None
     """
     return get_object(receptable_name, controller)["objectId"]
+
+
 def pickup(controller, object_ID):
     """
     controller: current controller
@@ -30,12 +33,12 @@ def pickup(controller, object_ID):
 
     # controller.step("PausePhysicsAutoSim")
     controller.step(
-            action="PickupObject",
-            objectId=object_ID,
-            forceAction=False,
-            manualInteract=True,
-            # manualInteract=False,
-            )
+        action="PickupObject",
+        objectId=object_ID,
+        forceAction=False,
+        manualInteract=True,
+        # manualInteract=False,
+    )
     # images = []
     # # for i in range(10):
     # while not controller.last_event.metadata["isSceneAtRest"]:
@@ -51,22 +54,20 @@ def pickup(controller, object_ID):
 
     return controller.last_event
 
+
 def drop_object(controller, frame_list, third_party_camera_frames):
     """
     controller: current controller
 
     drop the object holding
-    
+
     return: event after pickup
     """
 
     # TODO make these changes after bug is fixed
     # images = []
     # controller.step("PausePhysicsAutoSim")
-    controller.step(
-            action="DropHeldObject",
-            forceAction=False
-            )
+    controller.step(action="DropHeldObject", forceAction=False)
     # while not controller.last_event.metadata["isSceneAtRest"]:
     #     controller.step(
     #         action="AdvancePhysicsStep",
@@ -77,6 +78,7 @@ def drop_object(controller, frame_list, third_party_camera_frames):
     # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
     return controller.last_event, frame_list, third_party_camera_frames
+
 
 def move_hand(controller, directions, frame_list, third_party_camera_frames):
     """
@@ -99,20 +101,20 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
         #     # images.append(last_image)
 
         controller.step(
-                action = "MoveHeldObject",
-                ahead = ahead,
-                right = right,
-                up = up,
-                forceVisible=False
-            )
+            action="MoveHeldObject", ahead=ahead, right=right, up=up, forceVisible=False
+        )
         last_image = controller.last_event.frame
         frame_list.append(last_image)
-        third_party_camera_frames.append(controller.last_event.third_party_camera_frames[0])
+        third_party_camera_frames.append(
+            controller.last_event.third_party_camera_frames[0]
+        )
         checkError(controller)
     return controller.last_event, frame_list, third_party_camera_frames
 
 
-def move_object(controller, objectId, directions, frame_list, third_party_camera_frames):
+def move_object(
+    controller, objectId, directions, frame_list, third_party_camera_frames
+):
     """u
     controller: current controller
     object_ID: unique objectId of the object to be moved
@@ -127,10 +129,15 @@ def move_object(controller, objectId, directions, frame_list, third_party_camera
     frame_list.append(last_event.frame)
     third_party_camera_frames.append(last_event.third_party_camera_frames[0])
     directions = interpolate_between_2points(directions, num_interpolations=10)
-    _, frame_list, third_party_camera_frames = move_hand(controller, directions, frame_list, third_party_camera_frames)
+    _, frame_list, third_party_camera_frames = move_hand(
+        controller, directions, frame_list, third_party_camera_frames
+    )
 
-    last_event, framelist, third_party_camera_frames = drop_object(controller, frame_list, third_party_camera_frames)
+    last_event, framelist, third_party_camera_frames = drop_object(
+        controller, frame_list, third_party_camera_frames
+    )
     return last_event, framelist, third_party_camera_frames
+
 
 def checkError(controller):
     """
@@ -139,13 +146,14 @@ def checkError(controller):
     # if controller.last_event.metadata["errorMessage"] != '':
     #     print(controller.last_event.metadata["errorMessage"])
 
+
 def interpolate_between_2points(directions, num_interpolations):
     all_directions = []
     for direction in directions:
-        a = direction[0]/num_interpolations
-        b = direction[1]/num_interpolations
-        c = direction[2]/num_interpolations
+        a = direction[0] / num_interpolations
+        b = direction[1] / num_interpolations
+        c = direction[2] / num_interpolations
         for i in range(num_interpolations):
-            all_directions.append( (a,b,c) )
+            all_directions.append((a, b, c))
 
     return all_directions
