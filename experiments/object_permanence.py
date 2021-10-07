@@ -41,7 +41,6 @@ class ObjectPermanence(Experiment):
             seed,
         )
 
-
         # Move agents to fit the screen
         self.step(
             action="Teleport",
@@ -50,7 +49,6 @@ class ObjectPermanence(Experiment):
             horizon=0,
             standing=True,
         )
-
 
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
@@ -116,7 +114,10 @@ class ObjectPermanence(Experiment):
                     }
                 )
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
-            if object["objectType"] == receptableType and object["name"] != "Cup_Opaque":
+            if (
+                object["objectType"] == receptableType
+                and object["name"] != "Cup_Opaque"
+            ):
                 initialPoses.append(
                     {
                         "objectName": object["name"],
@@ -144,7 +145,6 @@ class ObjectPermanence(Experiment):
             else:
                 initialPoses.append(initialPose)
 
-
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
             action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
@@ -157,7 +157,6 @@ class ObjectPermanence(Experiment):
                 excludeList.append(obj["objectId"])
             elif obj["pickupable"]:
                 randomObjects.append(obj["objectId"])
-
 
         # exclude all but 1 random objects to show randomly on the table
         excludeRandomObjects = random.sample(randomObjects, len(randomObjects) - 1)
@@ -175,8 +174,6 @@ class ObjectPermanence(Experiment):
             excludedReceptacles=[receptableType],
             excludedObjectIds=excludeList + excludeRandomObjects,
         )
-
-
 
         # receptable z coordinate
         receptacle_zs = []
@@ -214,11 +211,16 @@ class ObjectPermanence(Experiment):
         print(receptacle_ids)
         # move the opaque cup onto the egg
         move_object(
-            self, cupOpaqueId, [(0, 0, self.MOVEUP_MAGNITUDE), (-receptacle_move_back, 0, 0)]
+            self,
+            cupOpaqueId,
+            [(0, 0, self.MOVEUP_MAGNITUDE), (-receptacle_move_back, 0, 0)],
         )
 
         self.step(
-            action="PickupObject", objectId=cupOpaqueId, forceAction=True, manualInteract=True
+            action="PickupObject",
+            objectId=cupOpaqueId,
+            forceAction=True,
+            manualInteract=True,
         )
 
         self.step(action="MoveHeldObject", ahead=0.3, right=0, up=0, forceVisible=False)
@@ -230,7 +232,6 @@ class ObjectPermanence(Experiment):
         self.step("MoveBack")
 
         # move_object(controller, cupOpaqueId, [(receptacle_move_back,0, 0)])
-
 
         # Swap 2 receptables
         # def swap(swap_receptables):
@@ -262,7 +263,6 @@ class ObjectPermanence(Experiment):
         #   move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)])
 
         # #   img_array.append(controller.last_event.frame)
-
 
         # for i in range(random.randint(1,10)):
         #     swap(random.sample(receptacle_names,2))

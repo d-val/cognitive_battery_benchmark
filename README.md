@@ -31,31 +31,54 @@ event = controller.step(action="RotateRight")
 metadata = event.metadata
 print(event, event.metadata.keys())
 ```
-By installing ai2thor package, it should automatically download all the required packages. You can check them in 'requirements.txt'
+By installing the ai2thor package, it should automatically download all the required packages. You can check them in `requirements.txt`.
 ## Requirements
 Python 3.7 or 3.8
 
+- Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
+- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/utils` folder
+
+OR
+
+From inside the root `cognitive_battery_benchmark` folder:
+```commandline
+wget https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip
+unzip thor-OSXIntel64-local.zip -d experiments/utils
+rm thor-OSXIntel64-local.zip
+```
+
+
 ## Clone this repo
-```python
+```commandline
 git clone https://github.com/d-val/cognitive_battery_benchmark/tree/neil_test
 ```
 
-## Running 3 Pots 1 Egg
+## Running Example Experiment [`SimpleSwap`]
 
-Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
-
-Unzip thor-OSXIntel64-local.zip file at the 'cognitive_battery_benchmark' folder
-
-Run `aithor_test.py`
+Run `cd experiments`:
 ```python
-python3 aithor_test.py
+from experiments.simple_swap import SimpleSwap 
+
+SimpleSwapExperiment = SimpleSwap()
+SimpleSwapExperiment.run()
+SimpleSwapExperiment.save_frames_to_file('output')
 ```
 
-If success, a window with size 2000x2000 will pop up. The egg will be put randomly into one pot.
+If success, a window with size `2000x2000` will pop up, and the experiment will run in the terminal.
 
 ## Module Structure
 
-The structure of the 'cognitive_battery_benchmark' folder is as follows:
+The structure of the `cognitive_battery_benchmark` folder is as follows:
 
-- aithor_test.py: core movements/instruction for the AITHOR agent to perform 3 pots 1 egg
-- util.py: helper functions for agent movements
+- **experiments**: files necessary to run experiments, based on reference paper
+  - `addition_numbers.py`: addition numbers test class
+  - `experiment.py`: base experiment class
+  - [**not working**] `object_permanence.py`: object permanence test class 
+  - [**not working**] `relative_numbers.py`: relative numbers test class
+  - `simple_swap.py`: simple swap test class
+  - **utils**: helper files for experiments
+    - `util.py`: helper functions
+    - `video_controller.py`: basic implementation for a video controller for AI2THOR  
+- **setup**: helper files for setting up the module
+  - `environment.yml`: setup conda installation
+  - `requirements.txt`: setup pip installation
