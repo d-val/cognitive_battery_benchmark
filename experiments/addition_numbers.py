@@ -346,7 +346,7 @@ class AdditionNumbers(Experiment):
             out = 0
         print(out)
 
-    def save_frames_to_file(self, SAVE_DIR):
+    def save_frames_to_folder(self, SAVE_DIR):
 
         if not os.path.isdir(SAVE_DIR):
             os.makedirs(f"{SAVE_DIR}/addition_numbers_agent")

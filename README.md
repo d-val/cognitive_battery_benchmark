@@ -60,7 +60,7 @@ Run `cd experiments`:
 from simple_swap import SimpleSwap 
 
 SimpleSwapExperiment = SimpleSwap()
-SimpleSwapExperiment.save_frames_to_file('output')
+SimpleSwapExperiment.save_frames_to_folder('output')
 ```
 
 If success, a window with size `2000x2000` will pop up, and the experiment will run in the terminal.
