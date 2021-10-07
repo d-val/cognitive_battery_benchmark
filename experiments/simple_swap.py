@@ -229,8 +229,8 @@ class SimpleSwap(Experiment):
 
         # calculate the z-different to move the receps
         z_different = (
-                get_object(recep1_name, self)["position"]["z"]
-                - get_object(recep2_name, self)["position"]["z"]
+            get_object(recep1_name, self)["position"]["z"]
+            - get_object(recep2_name, self)["position"]["z"]
         )
 
         # move first recep far away
@@ -321,8 +321,3 @@ class SimpleSwap(Experiment):
         for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
             img = Image.fromarray(frame)
             img.save(f"{SAVE_DIR}/video/{i}.jpeg")
-
-
-vid = SimpleSwap()
-vid.run()
-vid.save_frames_to_file("test")

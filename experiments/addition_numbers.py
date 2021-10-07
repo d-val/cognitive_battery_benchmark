@@ -366,8 +366,3 @@ class AdditionNumbers(Experiment):
         for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
             img = Image.fromarray(frame)
             img.save(f"{SAVE_DIR}/addition_numbers_monkey/{i}.jpeg")
-
-
-vid = AdditionNumbers()
-vid.run()
-vid.save_frames_to_file("test")
