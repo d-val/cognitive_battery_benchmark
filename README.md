@@ -60,7 +60,6 @@ Run `cd experiments`:
 from simple_swap import SimpleSwap 
 
 SimpleSwapExperiment = SimpleSwap()
-SimpleSwapExperiment.run()
 SimpleSwapExperiment.save_frames_to_file('output')
 ```
 
