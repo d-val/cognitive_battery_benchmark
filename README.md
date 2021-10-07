@@ -74,6 +74,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - `experiment.py`: base experiment class
   - [**not working**] `object_permanence.py`: object permanence test class 
   - [**not working**] `relative_numbers.py`: relative numbers test class
+  - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
   - **utils**: helper files for experiments
     - `util.py`: helper functions
