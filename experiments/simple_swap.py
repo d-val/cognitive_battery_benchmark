@@ -2,8 +2,7 @@
 import os
 import random
 
-from PIL import Image
-from tqdm import tqdm
+import numpy as np
 
 # unity directory
 from experiment import Experiment
@@ -13,14 +12,10 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class SimpleSwap(Experiment):
-    def __init__(self, moveup_magnitude=0.3, move_recep_ahead_mag=0.3, seed=0):
+    def __init__(self, fov=None, seed=0):
 
-        self.frame_list = []
-        self.saved_frames = []
-        self.third_party_camera_frames = []
-
-        self.MOVEUP_MAGNITUDE = moveup_magnitude
-        self.MOVE_RECEP_AHEAD_MAG = move_recep_ahead_mag
+        random.seed(seed)
+        np.random.seed(seed)
 
         super().__init__(
             {
@@ -39,9 +34,8 @@ class SimpleSwap(Experiment):
                 # # camera properties
                 "width": 2000,
                 "height": 2000,
-                "fieldOfView": random.randint(90, 140),
-            },
-            seed
+                "fieldOfView": random.randint(90, 140) if fov is None else fov,
+            }
         )
 
         self.step(
@@ -64,17 +58,37 @@ class SimpleSwap(Experiment):
             synchronized=False,
         )
 
+    def run(
+        self,
+        moveup_magnitude=0.3,
+        move_recep_ahead_mag=0.3,
+        receptableType=None,
+        receptableTypes=["Pot", "Mug", "Cup"],
+        reward_pot=None,
+        rewardType=None,
+        rewardTypes=["Egg", "Potato", "Tomato", "Apple"],
+        swaps=None,
+        pots_to_swap=None,
+    ):
+
+        self.MOVEUP_MAGNITUDE = moveup_magnitude
+        self.MOVE_RECEP_AHEAD_MAG = move_recep_ahead_mag
+        self.swaps = random.randint(1, 3) if swaps is None else swaps
+
         # Possible receptacle types
-        receptableTypes = ["Pot", "Mug", "Cup"]
+        self.receptableTypes = receptableTypes
 
         # Randomly chose a receptacle type
-        receptableType = random.sample(receptableTypes, 1)[0]
-
-        # Possible reward objects (Egg, Ball, ...) types
-        rewardTypes = ["Egg", "Potato", "Tomato", "Apple"]
+        self.receptableType = (
+            random.sample(self.receptableTypes, 1)[0]
+            if receptableType is None
+            else receptableType
+        )
 
         # Randomly chose a reward type
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+        self.rewardType = (
+            random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
+        )
 
         # List of initial poses (Pots' poses)
         initialPoses = []
@@ -110,7 +124,7 @@ class SimpleSwap(Experiment):
                 )
 
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
-            if obj["objectType"] == receptableType:
+            if obj["objectType"] == self.receptableType:
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -145,7 +159,7 @@ class SimpleSwap(Experiment):
                     }
                 )
             # Ignore reward and receptacles object, they will not be randomized place behind the table
-            if obj["objectType"] in [self.rewardType] + receptableTypes:
+            if obj["objectType"] in [self.rewardType] + self.receptableTypes:
                 pass
             else:
                 initialPoses.append(initialPose)
@@ -156,12 +170,13 @@ class SimpleSwap(Experiment):
         # exclude the chosen reward and receptacles from location randomization,
         # only randomize pickupable objects
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] in [self.rewardType] + receptableTypes:
+            if obj["objectType"] in [self.rewardType] + self.receptableTypes:
                 excludeList.append(obj["objectId"])
             elif obj["pickupable"]:
                 randomObjects.append(obj["objectId"])
 
         # exclude all but 1 random objects to show randomly on the table
+        # TODO: check what is this for
         excludeRandomObjects = random.sample(randomObjects, len(randomObjects) - 1)
         excludeRandomObjects = []
         # https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-randomseed
@@ -174,7 +189,7 @@ class SimpleSwap(Experiment):
             placeStationary=True,
             numDuplicatesOfType=[],
             # Objects could randomly spawn in any suitable receptacles except for the simulating receptacles themselves
-            excludedReceptacles=[receptableType],
+            excludedReceptacles=[self.receptableType],
             excludedObjectIds=excludeList + excludeRandomObjects,
         )
 
@@ -189,12 +204,21 @@ class SimpleSwap(Experiment):
             if obj["objectType"] == self.rewardType:
                 rewardId = obj["objectId"]
                 egg_z = obj["position"]["z"]
-            if obj["objectType"] == receptableType:
+            if obj["objectType"] == self.receptableType:
                 self.pots.append(obj["name"])
                 pot_zs.append(obj["position"]["z"])
 
         # sample 1 random receptable to put the rewardId (Egg) in
-        correct_pot_z = random.sample(pot_zs, 1)[0]
+        correct_pot_z = (
+            pot_zs[reward_pot][0]
+            if reward_pot is not None
+            else random.sample(pot_zs, 1)[0]
+        )
+        self.pots_to_swap = (
+            [random.sample(self.pots, 2) for _ in range(self.swaps)]
+            if pots_to_swap is None
+            else pots_to_swap
+        )
 
         # Calculate how much the egg should be moved to the left to be on top of the intended Pot
         egg_move_left_mag = correct_pot_z - egg_z
@@ -216,12 +240,36 @@ class SimpleSwap(Experiment):
         )
         # self.frame_list.append(self.last_event.frame)
 
+        for pot_swap in self.pots_to_swap:
+            self.swap(pot_swap)
+
+        # get egg final z coordinates
+        for obj in self.last_event.metadata["objects"]:
+            if obj["objectType"] == self.rewardType:
+                egg_final_z = obj["position"]["z"]
+
+        out = None
+        # determine which pot egg finally in.
+        # 0 = left, 1 = middle, 2 = right
+        if -1 < egg_final_z < -0.35:
+            out = 2
+        elif -0.35 <= egg_final_z <= 0.35:
+            out = 1
+        elif 0.35 < egg_final_z < 1:
+            out = 0
+
+        # dummy moves for debugging purposes
+        self.step("MoveBack")
+        self = self.step("MoveBack")
+
+        print(out)
+        return out
+
     # Swap 2 receptables
     def swap(self, swap_receptables):
         """swap_receptables: list of 2 pots object to swap
         return None
         """
-        event = self.last_event
         recep1_name = swap_receptables[0]
         recep2_name = swap_receptables[1]
         recep1_id = get_objectId(recep1_name, self)
@@ -275,48 +323,3 @@ class SimpleSwap(Experiment):
         )
 
         # self.frame_list.append(self.last_event.frame)
-
-        for i in range(random.randint(1, 3)):
-            self.swap(random.sample(self.pots, 2))
-
-        # get egg final z coordinates
-        for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == self.rewardType:
-                egg_final_z = obj["position"]["z"]
-
-        out = None
-        # determine which pot egg finally in.
-        # 0 = left, 1 = middle, 2 = right
-        if -1 < egg_final_z < -0.35:
-            out = 2
-        elif -0.35 <= egg_final_z <= 0.35:
-            out = 1
-        elif 0.35 < egg_final_z < 1:
-            out = 0
-
-        # dummy moves for debugging purposes
-        self.step("MoveBack")
-        self = self.step("MoveBack")
-
-        print(out)
-        return out
-
-    def save_frames_to_folder(self, SAVE_DIR):
-
-        if not os.path.isdir(SAVE_DIR):
-            os.makedirs(f"{SAVE_DIR}/frames")
-            os.makedirs(f"{SAVE_DIR}/video")
-
-        print("num frames", len(self.frame_list))
-        height, width, channels = self.frame_list[0].shape
-
-        for i, frame in enumerate(tqdm(self.frame_list)):
-            img = Image.fromarray(frame)
-            img.save(f"{SAVE_DIR}/frames/{i}.jpeg")
-
-        print("num frames", len(self.third_party_camera_frames))
-        height, width, channels = self.third_party_camera_frames[0].shape
-
-        for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
-            img = Image.fromarray(frame)
-            img.save(f"{SAVE_DIR}/video/{i}.jpeg")

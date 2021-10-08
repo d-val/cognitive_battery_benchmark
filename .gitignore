@@ -7,6 +7,6 @@ venv/
 __pycache__/*
 *.DS_Store
 *.pyc
-frames/
 .DS_Store
 *.DS_Store
+experiments/frames/
