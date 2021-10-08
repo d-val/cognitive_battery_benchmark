@@ -60,6 +60,7 @@ Run `cd experiments`:
 from simple_swap import SimpleSwap 
 
 SimpleSwapExperiment = SimpleSwap()
+SimpleSwapExperiment.run()
 SimpleSwapExperiment.save_frames_to_folder('output')
 ```
 
@@ -79,6 +80,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - **utils**: helper files for experiments
     - `util.py`: helper functions
     - `video_controller.py`: basic implementation for a video controller for AI2THOR  
+  - **frames**: folder to store frames of experiments
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation

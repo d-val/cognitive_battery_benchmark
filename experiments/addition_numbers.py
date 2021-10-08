@@ -17,11 +17,10 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class AdditionNumbers(Experiment):
-    def __init__(self, seed=0):
+    def __init__(self, fov=None, seed=0):
 
-        self.frame_list = []
-        self.saved_frames = []
-        self.third_party_camera_frames = []
+        random.seed(seed)
+        np.random.seed(seed)
 
         super().__init__(
             {
@@ -40,17 +39,16 @@ class AdditionNumbers(Experiment):
                 # # camera properties
                 "width": 2000,
                 "height": 2000,
-                "fieldOfView": random.randint(90, 120),
-                "makeAgentsVisible": False,
-            },
-            seed,
+                "fieldOfView": random.randint(90, 120) if fov is None else fov,
+                "makeAgentsVisible": False
+            }
         )
 
         self.step(
             action="AddThirdPartyCamera",
             position=dict(x=1.5, y=1.8, z=0),
             rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90,
+            fieldOfView=90
         )
 
         # Randomize Materials in the scene
@@ -66,9 +64,8 @@ class AdditionNumbers(Experiment):
             synchronized=False,
         )
 
-        rewardTypes = ["Potato", "Tomato", "Apple"]
 
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+
 
         # #Randomize Materials in the scene
         # controller.step(
@@ -83,6 +80,10 @@ class AdditionNumbers(Experiment):
         #     saturation=(0.5, 1),
         #     synchronized=False
         # )
+
+    def run(self, rewardTypes = ["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6):
+
+        self.rewardType = random.sample(rewardTypes, 1)[0]
 
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -162,7 +163,7 @@ class AdditionNumbers(Experiment):
             # randomly spawn between 0 to 9 food on each plate
             if obj["objectType"] == self.rewardType:
                 # right rewards
-                j = random.randint(0, 6)
+                j = random.randint(0, max_reward)
                 for i in range(j):  # [0,j)
                     theta = 2 * math.pi * i / j
                     r = random.uniform(0.1, 0.15)
@@ -179,7 +180,7 @@ class AdditionNumbers(Experiment):
                     )
 
                 # left rewards
-                k = random.randint(0, 6)
+                k = random.randint(0, max_reward)
                 for i in range(k):  # [0,k)
                     theta = 2 * math.pi * i / k
                     r = random.uniform(0.1, 0.15)
@@ -196,7 +197,7 @@ class AdditionNumbers(Experiment):
                     )
 
                 # mid rewards
-                l = random.randint(0, 6)
+                l = random.randint(0, max_reward)
                 for i in range(l):  # [0,l)
                     theta = 2 * math.pi * i / l
                     r = random.uniform(0.1, 0.15)
@@ -245,7 +246,9 @@ class AdditionNumbers(Experiment):
 
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
-            action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
+            action='SetObjectPoses',
+            objectPoses=initialPoses,
+            placeStationary=False
         )
 
         current_objects = self.last_event.metadata["objects"]
@@ -345,23 +348,3 @@ class AdditionNumbers(Experiment):
         else:  # left == right
             out = 0
         print(out)
-
-    def save_frames_to_folder(self, SAVE_DIR):
-
-        if not os.path.isdir(SAVE_DIR):
-            os.makedirs(f"{SAVE_DIR}/addition_numbers_agent")
-            os.makedirs(f"{SAVE_DIR}/addition_numbers_monkey")
-
-        print("num frames", len(self.frame_list))
-        height, width, channels = self.frame_list[0].shape
-
-        for i, frame in enumerate(tqdm(self.frame_list)):
-            img = Image.fromarray(frame)
-            img.save(f"{SAVE_DIR}/addition_numbers_agent/{i}.jpeg")
-
-        print("num frames", len(self.third_party_camera_frames))
-        height, width, channels = self.third_party_camera_frames[0].shape
-
-        for i, frame in enumerate(tqdm(self.third_party_camera_frames)):
-            img = Image.fromarray(frame)
-            img.save(f"{SAVE_DIR}/addition_numbers_monkey/{i}.jpeg")
