@@ -9,28 +9,41 @@ import random
 from tqdm import tqdm
 from math import erf, sqrt
 #unity directory
-
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-# CONSTANTS
-MOVEUP_MAGNITUDE = 0.3
-MOVE_RECEP_AHEAD_MAG = 0.3
+
+#PREDETERMINED CONSTANTS
+MOVEUP_MAGNITUDE = 0.45
+MOVE_RECEP_AHEAD_MAG = 0.45
 
 class VideoBenchmark(Controller):
 
     def __init__(self):
+        import argparse
 
-        random.seed(10)
-        np.random.seed(10)
+        msg = "Adding description"
+        # Initialize parser
+        my_parser = argparse.ArgumentParser(description = msg)
 
+        my_parser.add_argument('--height', action='store', type=int, help = "height of the frame")
+        my_parser.add_argument('--width', action='store', type=int, help = "width of the frame")
+        my_parser.add_argument('-r', '--reward', action='store', type=int, help = "reward type \n Egg = 0\n Potato = 1\n Apple = 2\n Tomato = 3")
+        my_parser.add_argument('-c', '--container', action='store', type=int, help = "receptacle type \n Pot = 0\n Mug = 1\n Cup = 2")
+        my_parser.add_argument('--case', action='store', type=int, help = "case number \n Single Transposition = 1\n Double unbaited transposition = 2\n Double baited transposition = 3")
+        my_parser.add_argument('--position', action='store', type=int, help = "reward initial position \n right = 0\n middle = 1\n left = 2")
+
+        args = my_parser.parse_args()
+
+        # random.seed(10)
+
+        #initialize lists to store frame from agent view (frame_list) and monkey view (third_party_camera_frames)
         self.frame_list = []
-        self.saved_frames = []
         self.third_party_camera_frames = []
-        # controller = Controller(
-        super().__init__(
 
+        #expected answer to feed ML model, 0 = right, 1 = middle, 2 = left
+        self.out = None
+        super().__init__(
             #local build
             local_executable_path=f"{BASE_DIR}/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-
             agentMode="default",
             visibilityDistance=2,
             scene="FloorPlan1",
@@ -45,11 +58,12 @@ class VideoBenchmark(Controller):
             renderInstanceSegmentation=False,
 
             # # camera properties
-            width=2000,
-            height=2000,
+            width=args.width if args.width != None else 2000,
+            height=args.height if args.height != None else 2000,
             fieldOfView=random.randint(90,140)
         )
 
+        #add camera that captures agent action from monkey's perspective
         self.step(
             action="AddThirdPartyCamera",
             position=dict(x=-1.5, y=1, z=0),
@@ -61,7 +75,7 @@ class VideoBenchmark(Controller):
         self.step(
             action="RandomizeMaterials")
 
-        #Randomize Lighting in the scene
+        #Randomize Lightings in the scene
         self.step(
             action="RandomizeLighting",
             brightness=(0.5, 1.5),
@@ -72,18 +86,21 @@ class VideoBenchmark(Controller):
         )
 
         #Possible receptacle types
-        receptableTypes = ["Pot", "Mug", "Cup"]
+        receptacleTypes = ["Pot", "Mug", "Cup"]
 
-        #Randomly chose a receptacle type
-        receptableType = random.sample(receptableTypes, 1)[0]
+        #Set Receptable type from paste in argument or randomly choose one
+        receptacleType = receptacleTypes[args.container] if args.container != None else random.sample(receptacleTypes, 1)[0]
 
         #Possible reward objects (Egg, Ball, ...) types
-        rewardTypes = ["Egg", "Potato", "Tomato", "Apple"]
+        self.rewardTypes = ["Egg", "Potato", "Tomato", "Apple"]
 
-        #Randomly chose a reward type
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+        #Set reward type from paste in argument or randomly choose one
+        self.rewardType = self.rewardTypes[args.reward] if args.reward != None else random.sample(self.rewardTypes, 1)[0]
+        
+        print("Receptacle: ", receptacleType)
+        print("Reward: ", self.rewardType)
 
-        #List of initial poses (Pots' poses)
+        #List of initial poses (receptacle_name_and_z_coor' poses)
         initialPoses = []
         #A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
         #https://ai2thor.allenai.org/ithor/documentation/objects/domain-randomization/#random-spawn-excludedreceptacles
@@ -94,7 +111,6 @@ class VideoBenchmark(Controller):
         #Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         #and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
-
             #current Pose of the object
             initialPose = {"objectName": obj["name"],
                               "position": obj["position"],
@@ -110,7 +126,7 @@ class VideoBenchmark(Controller):
                             )
 
             #Set recetacles location, initialize 3 times on the table at pre-determined positions
-            if obj["objectType"] == receptableType:
+            if obj["objectType"] == receptacleType:
                 initialPoses.append(
                             {"objectName": obj["name"],
                             "rotation": {'x': -0.0, 'y': 0, 'z': 0},
@@ -128,7 +144,7 @@ class VideoBenchmark(Controller):
                             }
                             )
             #Ignore reward and receptacles object, they will not be randomized place behind the table
-            if obj["objectType"] in [self.rewardType] + receptableTypes:
+            if obj["objectType"] in [self.rewardType] + receptacleTypes:
                 pass
             else:
                 initialPoses.append(initialPose)
@@ -144,7 +160,7 @@ class VideoBenchmark(Controller):
         #exclude the chosen reward and receptacles from location randomization,
         # only randomize pickupable objects
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] in [self.rewardType] + receptableTypes:
+            if obj["objectType"] in [self.rewardType] + receptacleTypes:
                 excludeList.append(obj["objectId"])
             elif obj["pickupable"]:
                 randomObjects.append(obj["objectId"])
@@ -161,55 +177,51 @@ class VideoBenchmark(Controller):
             numPlacementAttempts=5,
             placeStationary=True,
             numDuplicatesOfType = [
-
             ],
 
             #Objects could randomly spawn in any suitable receptacles except for the simulating receptacles themselves
-            excludedReceptacles= [receptableType],
-
+            excludedReceptacles= [receptacleType],
             excludedObjectIds= excludeList + excludeRandomObjects
-
         )
 
+        #receptacle z coordinate to move reward in
+        # receptacle_z = []
 
+        #receptacle name and z coor
+        self.receptacle_name_and_z_coor = []
 
-
-        #receptable z coordinate
-        pot_zs = []
-
-        #receptable name
-        self.pots = []
-
-        #get the z coordinates of the rewardId (Egg) and receptables (Pot) and also get the receptable ids
+        #get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
                 rewardId = obj["objectId"]
-                egg_z = obj["position"]["z"]
-            if obj["objectType"] == receptableType:
-                self.pots.append(obj["name"])
-                pot_zs.append(obj["position"]["z"])
+                reward_z = obj["position"]["z"]
+            if obj["objectType"] == receptacleType:
+                self.receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
 
-        #sample 1 random receptable to put the rewardId (Egg) in
-        correct_pot_z = random.sample(pot_zs,1)[0]
+        #sort receptacle by z coordinate from positive to negative
+        self.receptacle_name_and_z_coor.sort(key = lambda x : -x[1])
+
+        #sample 1 random receptacle to put the reward (Egg) in or paste in from argument
+        chosen_receptacle_z = self.receptacle_name_and_z_coor[args.position][1] if args.position != None else random.sample(self.receptacle_name_and_z_coor,1)[0][1]
 
         #Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        egg_move_left_mag = correct_pot_z - egg_z
+        reward_move_left_mag = chosen_receptacle_z - reward_z
 
         #Move agent to fit the screen
         self.step("MoveRight")
 
-        #move the reward to the pre-selected receptable then drop it
-        _, self.frame_list, self.third_party_camera_frames = move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -egg_move_left_mag, 0), (0, 0, -MOVEUP_MAGNITUDE)], self.frame_list, self.third_party_camera_frames)
+        #move the reward to the pre-selected receptacle then drop it
+        _, self.frame_list, self.third_party_camera_frames = move_object(self, rewardId, [(0,0, MOVEUP_MAGNITUDE), (0, -reward_move_left_mag, 0), (0, 0, -MOVEUP_MAGNITUDE)], self.frame_list, self.third_party_camera_frames)
         # self.frame_list.append(self.last_event.frame)
 
-    #Swap 2 receptables
-    def swap(self, swap_receptables):
-      """ swap_receptables: list of 2 pots object to swap
+    #Swap 2 receptacles
+    def swap(self, swap_receptacles):
+      """ swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
       return None
       """
       event = self.last_event
-      recep1_name = swap_receptables[0]
-      recep2_name = swap_receptables[1]
+      recep1_name = swap_receptacles[0][0]
+      recep2_name = swap_receptacles[1][0]
       recep1_id = get_objectId(recep1_name, self)
       recep2_id = get_objectId(recep2_name, self)
 
@@ -227,7 +239,7 @@ class VideoBenchmark(Controller):
       # self.frame_list.append(self.last_event.frame)
 
       # every time an object is moved, its id is changed
-      # update 1st receptable ID
+      # update 1st receptacle ID
       recep1_id = get_objectId(recep1_name, self)
 
       #move 1st recep to second recep place
@@ -236,30 +248,32 @@ class VideoBenchmark(Controller):
       # self.frame_list.append(self.last_event.frame)
 
     def perform_action(self):
-        for i in range(random.randint(1,3)):
-            self.swap(random.sample(self.pots,2))
+        self.swap(random.sample(self.receptacle_name_and_z_coor,2))
 
-        #get egg final z coordinates
+        #get reward final z coordinates
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
-                egg_final_z = obj["position"]["z"]
+                reward_final_z = obj["position"]["z"]
 
         out = None
-        #determine which pot egg finally in.
-        #0 = left, 1 = middle, 2 = right
-        if egg_final_z > -1 and egg_final_z < -0.35:
+
+        #determine which receptacle that reward finally in from monkey perspective
+        #0 = right, 1 = middle, 2 = left
+        if reward_final_z > -1 and reward_final_z < -0.35:
             out = 2
-        elif egg_final_z >= -0.35 and egg_final_z <= 0.35:
+            print("left")
+        elif reward_final_z >= -0.35 and reward_final_z <= 0.35:
             out = 1
-        elif egg_final_z > 0.35 and egg_final_z < 1:
+            print("middle")
+        elif reward_final_z > 0.35 and reward_final_z < 1:
             out = 0
-
+            print("right")
         #dummy moves for debugging purposes
-        self.step("MoveBack")
-        self = self.step("MoveBack")
+        self.out = out
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude = 0)
 
-        print(out)
-        return out
+        
 
 
     def save_frames_to_file(self):
@@ -283,7 +297,7 @@ class VideoBenchmark(Controller):
 
 vid = VideoBenchmark()
 vid.perform_action()
-vid.save_frames_to_file()
+# vid.save_frames_to_file()
 
 
 
