@@ -17,9 +17,20 @@ class VideoBenchmark(Controller):
     
     def __init__(self):
 
-        random.seed(10)
-        np.random.seed(10)
+        import argparse
 
+        msg = "Adding description"
+        # Initialize parser
+        my_parser = argparse.ArgumentParser(description = msg)
+
+        my_parser.add_argument('--height', action='store', type=int, help = "height of the frame")
+        my_parser.add_argument('--width', action='store', type=int, help = "width of the frame")
+        my_parser.add_argument('-r', '--reward', action='store', type=int, help = "reward type \n Potato = 0\n Tomato = 1\n Apple = 2")
+        my_parser.add_argument('--left', action='store', type=int, help = "enter number of rewards on left plate\n")
+        my_parser.add_argument('--right', action='store', type=int, help = "enter number of rewards on right plate \n")
+        my_parser.add_argument('--middle', action='store', type=int, help = "enter number of rewards on middle plate \n")
+
+        args = my_parser.parse_args()
         self.frame_list = []
         self.saved_frames = []
         self.third_party_camera_frames = []
@@ -41,8 +52,8 @@ class VideoBenchmark(Controller):
             renderInstanceSegmentation=False,
 
             # # camera properties
-            width=2000,
-            height=2000,
+            width=args.width if args.width != None else 2000,
+            height=args.height if args.height != None else 2000,
             fieldOfView=random.randint(90,120),
             makeAgentsVisible = False
         )
@@ -70,21 +81,22 @@ class VideoBenchmark(Controller):
 
         rewardTypes = ["Potato", "Tomato", "Apple"]
 
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+        self.rewardType = rewardTypes[args.reward] if args.reward != None else random.sample(rewardTypes, 1)[0]
 
-# #Randomize Materials in the scene
-# controller.step(
-#     action="RandomizeMaterials")
 
-# #Randomize Lighting in the scene
-# controller.step(
-#     action="RandomizeLighting",
-#     brightness=(0.5, 1.5),
-#     randomizeColor=True,
-#     hue=(0, 1),
-#     saturation=(0.5, 1),
-#     synchronized=False
-# )
+        #Randomize Materials in the scene
+        self.step(
+            action="RandomizeMaterials")
+
+        #Randomize Lighting in the scene
+        self.step(
+            action="RandomizeLighting",
+            brightness=(0.5, 1.5),
+            randomizeColor=True,
+            hue=(0, 1),
+            saturation=(0.5, 1),
+            synchronized=False
+        )
 
 
         #List of initial poses (receptacle_names' poses)
@@ -156,8 +168,8 @@ class VideoBenchmark(Controller):
             
             #randomly spawn between 0 to 9 food on each plate
             if obj["objectType"] == self.rewardType:
-                #right rewards
-                j = random.randint(0,6)
+                #left rewards
+                j = args.left if args.left != None else random.randint(0,6)
                 for i in range(j):        #[0,j)
                     theta = 2*math.pi*i/j
                     r = random.uniform(0.1, 0.15)
@@ -168,8 +180,8 @@ class VideoBenchmark(Controller):
                                 }
                                 )
 
-                #left rewards
-                k = random.randint(0,6)
+                #right rewards
+                k = args.right if args.right != None else random.randint(0,6)
                 for i in range(k):        #[0,k)
                     theta = 2*math.pi*i/k
                     r = random.uniform(0.1, 0.15)
@@ -181,7 +193,7 @@ class VideoBenchmark(Controller):
                                 )
                 
                 #mid rewards
-                l = random.randint(0,6)
+                l = args.middle if args.middle != None else random.randint(0,6)
                 for i in range(l):        #[0,l) 
                     theta = 2*math.pi*i/l
                     r = random.uniform(0.1, 0.15)
@@ -191,10 +203,10 @@ class VideoBenchmark(Controller):
                                 "position": {'x': 0 + r*math.cos(theta), 'y': 1.205, 'z': 0 + + r*math.cos(theta)}
                                 }
                                 )
-                print(j,k,l)
+                # print(j,k,l)
             #Put lids on 3 plates
             if obj["name"] == "BigBowl":
-                #right plate (z < 0)
+                #left plate (z < 0)
                 initialPoses.append(
                             {"objectName": obj["name"],
                             "rotation": {'x': -0.0, 'y': 0, 'z': 180},
@@ -202,7 +214,7 @@ class VideoBenchmark(Controller):
                             }
                             )
 
-                #left plate (z > 0)
+                #right plate (z > 0)
                 initialPoses.append(
                             {"objectName": obj["name"],
                             "rotation": {'x': -0.0, 'y': 0, 'z': 180},
@@ -223,9 +235,9 @@ class VideoBenchmark(Controller):
 
         #set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
-        action='SetObjectPoses',
-        objectPoses = initialPoses,
-        placeStationary=False
+                action='SetObjectPoses',
+                objectPoses = initialPoses,
+                placeStationary=False
         )
 
         current_objects = self.last_event.metadata["objects"]
@@ -266,30 +278,30 @@ class VideoBenchmark(Controller):
             if obj["name"].startswith(self.rewardType) and abs(obj["position"]["z"]) < 0.3:
                 _, self.frame_list, self.third_party_camera_frames = move_object(self, obj["objectId"], [(0, 0, 0.4), (-0.25, 0, 0),(0, -0.6* multiplier, 0), (0, 0, -0.3)], self.frame_list, self.third_party_camera_frames)
 
-        
-        self.step("MoveBack")
-        self.step("MoveAhead")
-        self.step("MoveBack")
-        self.step("MoveAhead")
+        #dummy moves for debugging
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveAhead", moveMagnitude = 0)
+
         #count rewards to get output
-        out = None
+        self.out = None
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
                 if obj["position"]["z"] > 0:
-                    left += 1
+                    right += 1
                 if obj["position"]["z"] < 0:
-                    right +=1
+                    left +=1
         if left > right:
-            out = -1
+            self.out = -1
+            print("left")
         elif left < right:
-            out = 1
+            self.out = 1
+            print("right")
         else:   #left == right
-            out = 0
-        print(out)
-
+            self.out = 0
+            print("middle")
 
     def save_frames_to_file(self):
         from PIL import Image
@@ -312,4 +324,4 @@ class VideoBenchmark(Controller):
 
 
 vid = VideoBenchmark()
-vid.save_frames_to_file()
+# vid.save_frames_to_file()

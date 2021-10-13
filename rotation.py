@@ -16,12 +16,23 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 class VideoBenchmark(Controller):
     
     def __init__(self):
+        
+        import argparse
+
+        msg = "Adding description"
+        # Initialize parser
+        my_parser = argparse.ArgumentParser(description = msg)
+
+        my_parser.add_argument('--height', action='store', type=int, help = "height of the frame")
+        my_parser.add_argument('--width', action='store', type=int, help = "width of the frame")
+        my_parser.add_argument('-r', '--reward', action='store', type=int, help = "reward type \n Potato = 0\n Tomato = 1\n Apple = 2")
+        my_parser.add_argument('--case', action='store', type=int, help = "case number (1 2 or 3)")
+
+        args = my_parser.parse_args()
 
         #set case according to the spreadsheet
-        case = 1
+        case = args.case if args.case !=None else 1
 
-        random.seed(10)
-        np.random.seed(10)
 
         self.frame_list = []
         self.saved_frames = []
@@ -44,8 +55,8 @@ class VideoBenchmark(Controller):
             renderInstanceSegmentation=False,
 
             # # camera properties
-            width=2000,
-            height=2000,
+            width=args.width if args.width != None else 2000,
+            height=args.height if args.height != None else 2000,
             fieldOfView=random.randint(90,120),
             makeAgentsVisible = False
         )
@@ -73,7 +84,7 @@ class VideoBenchmark(Controller):
 
         rewardTypes = ["Potato", "Tomato", "Apple"]
 
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+        self.rewardType = rewardTypes[args.reward] if args.reward != None else random.sample(rewardTypes, 1)[0]
 
         #List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -117,33 +128,6 @@ class VideoBenchmark(Controller):
                                 "position": obj["position"],
                                 "rotation": obj["rotation"]}
                 
-                # if obj["name"] == "Tray":
-                #     #mid occluder
-                #     initialPoses.append(
-                #                 {"objectName": obj["name"],
-                #                 "rotation": {'x': -0.0, 'y': angle, 'z': 0},
-                #                 "position": {'x': 0, 'y': 1.105, 'z': 0}
-                #                 }
-                #                 )
-                # if obj["objectType"] == "Potato":
-                #     initialPoses.append(
-                #                 {"objectName": obj["name"],
-                #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                #                 "position": {'x': 0 + 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': 0.4*math.cos(angle_radian)}
-                #                 }
-                #                 )
-                #     initialPoses.append(
-                #                 {"objectName": obj["name"],
-                #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                #                 "position": {'x': 0 + 0 * math.sin(angle_radian), 'y': 1.205, 'z': 0*math.cos(angle_radian)}
-                #                 }
-                #                 )
-                #     initialPoses.append(
-                #                 {"objectName": obj["name"],
-                #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                #                 "position": {'x': 0 - 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': -0.4*math.cos(angle_radian)}
-                #                 }
-                #                 )
                 if obj["name"] != "Tray" and obj["objectType"] != "Potato" and obj["name"][:4] != "Cup1":
                     initialPoses.append(initialPose)
             
@@ -210,8 +194,8 @@ class VideoBenchmark(Controller):
 
 
         #dummy moves for debug
-        self.step("MoveBack")
-        self.step("MoveAhead")
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveAhead", moveMagnitude = 0)
 
 
     def save_frames_to_file(self):
@@ -235,4 +219,4 @@ class VideoBenchmark(Controller):
 
 
 vid = VideoBenchmark()
-vid.save_frames_to_file()
+# vid.save_frames_to_file()
