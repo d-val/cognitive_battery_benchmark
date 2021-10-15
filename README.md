@@ -32,6 +32,11 @@ metadata = event.metadata
 print(event, event.metadata.keys())
 ```
 By installing the ai2thor package, it should automatically download all the required packages. You can check them in `requirements.txt`.
+
+## Clone this repo
+```python
+git clone https://github.com/d-val/nguyen_cognitive_battery.git
+```
 ## Requirements
 Python 3.7 or 3.8
 
@@ -47,16 +52,11 @@ unzip thor-OSXIntel64-local.zip -d experiments/utils
 rm thor-OSXIntel64-local.zip
 ```
 
-
-## Clone this repo
-```commandline
-git clone https://github.com/d-val/cognitive_battery_benchmark/tree/neil_test
-```
-
 ## Running Example Experiment [`SimpleSwap`]
 
 Run `cd experiments`:
 ```python
+
 from simple_swap import SimpleSwap 
 
 SimpleSwapExperiment = SimpleSwap()
@@ -65,7 +65,15 @@ SimpleSwapExperiment.save_frames_to_folder('output')
 ```
 
 If success, a window with size `2000x2000` will pop up, and the experiment will run in the terminal.
+## Saving Images
 
+To save images of a simulation, uncomment the last line
+```python
+SimpleSwapExperiment.save_to_folder()
+### UNCOMMENT THE FOLLOWING LINE TO SAVE IMAGES
+# vid.save_frames_to_file()
+
+```
 ## Module Structure
 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
