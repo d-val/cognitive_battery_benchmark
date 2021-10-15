@@ -40,7 +40,7 @@ class AdditionNumbers(Experiment):
                 "width": 2000,
                 "height": 2000,
                 "fieldOfView": random.randint(90, 120) if fov is None else fov,
-                "makeAgentsVisible": False
+                "makeAgentsVisible": False,
             }
         )
 
@@ -48,7 +48,7 @@ class AdditionNumbers(Experiment):
             action="AddThirdPartyCamera",
             position=dict(x=1.5, y=1.8, z=0),
             rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90
+            fieldOfView=90,
         )
 
         # Randomize Materials in the scene
@@ -64,9 +64,6 @@ class AdditionNumbers(Experiment):
             synchronized=False,
         )
 
-
-
-
         # #Randomize Materials in the scene
         # controller.step(
         #     action="RandomizeMaterials")
@@ -81,7 +78,9 @@ class AdditionNumbers(Experiment):
         #     synchronized=False
         # )
 
-    def run(self, rewardTypes = ["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6):
+    def run(
+        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6
+    ):
 
         self.rewardType = random.sample(rewardTypes, 1)[0]
 
@@ -246,9 +245,7 @@ class AdditionNumbers(Experiment):
 
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
-            action='SetObjectPoses',
-            objectPoses=initialPoses,
-            placeStationary=False
+            action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
         )
 
         current_objects = self.last_event.metadata["objects"]
