@@ -14,6 +14,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class RelativeNumbers(Experiment):
     def __init__(self, seed=0):
+        # TODO: add parameter for left and right plates # of rewards
         super().__init__(
             {
                 # local build
@@ -34,7 +35,6 @@ class RelativeNumbers(Experiment):
                 "fieldOfView": random.randint(90, 120),
                 "makeAgentsVisible": False,
             },
-            seed,
         )
         # TODO: ask about num_agents here
         self.step(
@@ -83,7 +83,7 @@ class RelativeNumbers(Experiment):
 
             # Set the Plates location (pre-determined)
             if object["objectType"] == "Plate":
-                # right plate (z < 0)
+                # left plate (z < 0)
                 initialPoses.append(
                     {
                         "objectName": object["name"],
@@ -92,7 +92,7 @@ class RelativeNumbers(Experiment):
                     }
                 )
 
-                # left plate (z > 0)
+                # right plate (z > 0)
                 initialPoses.append(
                     {
                         "objectName": object["name"],
@@ -104,7 +104,7 @@ class RelativeNumbers(Experiment):
             # Set the rewards'locations randomly around the plate
             if object["objectType"] == rewardType:
 
-                # right plate
+                # left plate - TODO: change reward number here
                 for i in range(0, random.randint(0, 8)):
                     initialPoses.append(
                         {
@@ -117,7 +117,7 @@ class RelativeNumbers(Experiment):
                             },
                         }
                     )
-                # left plate
+                # right plate
                 for i in range(0, random.randint(0, 8)):
                     initialPoses.append(
                         {
@@ -159,30 +159,26 @@ class RelativeNumbers(Experiment):
             forceVisible=True,
             numPlacementAttempts=5,
             placeStationary=True,
-            numDuplicatesOfType=[],
             excludedObjectIds=excludedRewardsId,
         )
 
         # count rewards to get output
-        out = None
+        self.out = None
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == rewardType:
                 if obj["position"]["z"] > 0:
-                    left += 1
-                if obj["position"]["z"] < 0:
                     right += 1
+                if obj["position"]["z"] < 0:
+                    left += 1
         if left > right:
-            out = -1
+            self.out = -1
         elif left < right:
-            out = 1
+            self.out = 1
         else:  # left == right
-            out = 0
-
-        print(out)
-
+            self.out = 0
         # dummy move for visual
-        self.step("MoveBack")
-        self.step("MoveBack")
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude = 0)

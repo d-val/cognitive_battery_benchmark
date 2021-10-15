@@ -60,15 +60,16 @@ class SimpleSwap(Experiment):
 
     def run(
         self,
-        moveup_magnitude=0.3,
-        move_recep_ahead_mag=0.3,
-        receptableType=None,
-        receptableTypes=["Pot", "Mug", "Cup"],
+        moveup_magnitude=0.45,
+        move_recep_ahead_mag=0.45,
+        receptacleType=None,
+        receptacleTypes=["Pot", "Mug", "Cup"],
         reward_pot=None,
         rewardType=None,
         rewardTypes=["Egg", "Potato", "Tomato", "Apple"],
         swaps=None,
         pots_to_swap=None,
+        reward_position=None
     ):
 
         self.MOVEUP_MAGNITUDE = moveup_magnitude
@@ -76,13 +77,13 @@ class SimpleSwap(Experiment):
         self.swaps = random.randint(1, 3) if swaps is None else swaps
 
         # Possible receptacle types
-        self.receptableTypes = receptableTypes
+        self.receptacleTypes = receptacleTypes
 
         # Randomly chose a receptacle type
-        self.receptableType = (
-            random.sample(self.receptableTypes, 1)[0]
-            if receptableType is None
-            else receptableType
+        self.receptacleType = (
+            random.sample(self.receptacleTypes, 1)[0]
+            if receptacleType is None
+            else receptacleType
         )
 
         # Randomly chose a reward type
@@ -124,7 +125,7 @@ class SimpleSwap(Experiment):
                 )
 
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
-            if obj["objectType"] == self.receptableType:
+            if obj["objectType"] == self.receptacleType:
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -159,7 +160,7 @@ class SimpleSwap(Experiment):
                     }
                 )
             # Ignore reward and receptacles object, they will not be randomized place behind the table
-            if obj["objectType"] in [self.rewardType] + self.receptableTypes:
+            if obj["objectType"] in [self.rewardType] + self.receptacleTypes:
                 pass
             else:
                 initialPoses.append(initialPose)
@@ -170,7 +171,7 @@ class SimpleSwap(Experiment):
         # exclude the chosen reward and receptacles from location randomization,
         # only randomize pickupable objects
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] in [self.rewardType] + self.receptableTypes:
+            if obj["objectType"] in [self.rewardType] + self.receptacleTypes:
                 excludeList.append(obj["objectId"])
             elif obj["pickupable"]:
                 randomObjects.append(obj["objectId"])
@@ -189,89 +190,147 @@ class SimpleSwap(Experiment):
             placeStationary=True,
             numDuplicatesOfType=[],
             # Objects could randomly spawn in any suitable receptacles except for the simulating receptacles themselves
-            excludedReceptacles=[self.receptableType],
+            excludedReceptacles=[self.receptacleType],
             excludedObjectIds=excludeList + excludeRandomObjects,
         )
+        # receptacle z coordinate to move reward in
+        # receptacle_z = []
 
-        # receptable z coordinate
-        pot_zs = []
+        # receptacle name and z coor
+        self.receptacle_name_and_z_coor = []
 
-        # receptable name
-        self.pots = []
-
-        # get the z coordinates of the rewardId (Egg) and receptables (Pot) and also get the receptable ids
+        # get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
                 rewardId = obj["objectId"]
-                egg_z = obj["position"]["z"]
-            if obj["objectType"] == self.receptableType:
-                self.pots.append(obj["name"])
-                pot_zs.append(obj["position"]["z"])
+                reward_z = obj["position"]["z"]
+            if obj["objectType"] == self.receptacleType:
+                self.receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
 
-        # sample 1 random receptable to put the rewardId (Egg) in
-        correct_pot_z = (
-            pot_zs[reward_pot][0]
-            if reward_pot is not None
-            else random.sample(pot_zs, 1)[0]
-        )
-        self.pots_to_swap = (
-            [random.sample(self.pots, 2) for _ in range(self.swaps)]
-            if pots_to_swap is None
-            else pots_to_swap
-        )
+        # sort receptacle by z coordinate from positive to negative
+        self.receptacle_name_and_z_coor.sort(key=lambda x: -x[1])
+
+        # sample 1 random receptacle to put the reward (Egg) in or paste in from argument
+        chosen_receptacle_z = self.receptacle_name_and_z_coor[reward_position] if reward_position is not None else random.sample(self.receptacle_name_and_z_coor, 1)[0][1]
 
         # Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        egg_move_left_mag = correct_pot_z - egg_z
+        reward_move_left_mag = chosen_receptacle_z - reward_z
 
         # Move agent to fit the screen
         self.step("MoveRight")
 
-        # move the reward to the pre-selected receptable then drop it
-        _, self.frame_list, self.third_party_camera_frames = move_object(
-            self,
-            rewardId,
-            [
-                (0, 0, self.MOVEUP_MAGNITUDE),
-                (0, -egg_move_left_mag, 0),
-                (0, 0, -self.MOVEUP_MAGNITUDE),
-            ],
-            self.frame_list,
-            self.third_party_camera_frames,
-        )
+        # move the reward to the pre-selected receptacle then drop it
+        _, self.frame_list, self.third_party_camera_frames = move_object(self, rewardId, [(0, 0, self.MOVEUP_MAGNITUDE),
+                                                                                          (0, -reward_move_left_mag, 0),
+                                                                                          (0, 0, -self.MOVEUP_MAGNITUDE)],
+                                                                         self.frame_list,
+                                                                         self.third_party_camera_frames)
         # self.frame_list.append(self.last_event.frame)
 
-        for pot_swap in self.pots_to_swap:
-            self.swap(pot_swap)
 
-        # get egg final z coordinates
+        self.swap(random.sample(self.receptacle_name_and_z_coor,2))
+
+        #get reward final z coordinates
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
-                egg_final_z = obj["position"]["z"]
+                reward_final_z = obj["position"]["z"]
 
         out = None
-        # determine which pot egg finally in.
-        # 0 = left, 1 = middle, 2 = right
-        if -1 < egg_final_z < -0.35:
+
+        #determine which receptacle that reward finally in from monkey perspective
+        #0 = right, 1 = middle, 2 = left
+        if reward_final_z > -1 and reward_final_z < -0.35:
             out = 2
-        elif -0.35 <= egg_final_z <= 0.35:
+            print("left")
+        elif reward_final_z >= -0.35 and reward_final_z <= 0.35:
             out = 1
-        elif 0.35 < egg_final_z < 1:
+            print("middle")
+        elif reward_final_z > 0.35 and reward_final_z < 1:
             out = 0
+            print("right")
+        #dummy moves for debugging purposes
+        self.out = out
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude = 0)
+        # #receptacle z coordinate to move reward in
+        # # receptacle_z = []
+        #
+        # #receptacle name and z coor
+        # self.receptacle_name_and_z_coor = []
+        #
+        # #get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
+        # for obj in self.last_event.metadata["objects"]:
+        #     if obj["objectType"] == self.rewardType:
+        #         rewardId = obj["objectId"]
+        #         reward_z = obj["position"]["z"]
+        #     if obj["objectType"] == receptacleType:
+        #         self.receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
+        #
+        # # sample 1 random receptacle to put the rewardId (Egg) in
+        # correct_pot_z = (
+        #     pot_zs[reward_pot][0]
+        #     if reward_pot is not None
+        #     else random.sample(pot_zs, 1)[0]
+        # )
+        # self.pots_to_swap = (
+        #     [random.sample(self.pots, 2) for _ in range(self.swaps)]
+        #     if pots_to_swap is None
+        #     else pots_to_swap
+        # )
+        #
+        # # Calculate how much the egg should be moved to the left to be on top of the intended Pot
+        # egg_move_left_mag = correct_pot_z - egg_z
+        #
+        # # Move agent to fit the screen
+        # self.step("MoveRight")
+        #
+        # # move the reward to the pre-selected receptacle then drop it
+        # _, self.frame_list, self.third_party_camera_frames = move_object(
+        #     self,
+        #     rewardId,
+        #     [
+        #         (0, 0, self.MOVEUP_MAGNITUDE),
+        #         (0, -egg_move_left_mag, 0),
+        #         (0, 0, -self.MOVEUP_MAGNITUDE),
+        #     ],
+        #     self.frame_list,
+        #     self.third_party_camera_frames,
+        # )
+        # # self.frame_list.append(self.last_event.frame)
+        #
+        # for pot_swap in self.pots_to_swap:
+        #     self.swap(pot_swap)
+        #
+        # # get egg final z coordinates
+        # for obj in self.last_event.metadata["objects"]:
+        #     if obj["objectType"] == self.rewardType:
+        #         egg_final_z = obj["position"]["z"]
+        #
+        # out = None
+        # # determine which pot egg finally in.
+        # # 0 = left, 1 = middle, 2 = right
+        # if -1 < egg_final_z < -0.35:
+        #     out = 2
+        # elif -0.35 <= egg_final_z <= 0.35:
+        #     out = 1
+        # elif 0.35 < egg_final_z < 1:
+        #     out = 0
+        #
+        # # dummy moves for debugging purposes
+        # self.step("MoveBack")
+        # self = self.step("MoveBack")
+        #
+        # print(out)
+        # return out
 
-        # dummy moves for debugging purposes
-        self.step("MoveBack")
-        self = self.step("MoveBack")
-
-        print(out)
-        return out
-
-    # Swap 2 receptables
-    def swap(self, swap_receptables):
-        """swap_receptables: list of 2 pots object to swap
+    # Swap 2 receptacles
+    def swap(self, swap_receptacles):
+        """ swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
         return None
         """
-        recep1_name = swap_receptables[0]
-        recep2_name = swap_receptables[1]
+        event = self.last_event
+        recep1_name = swap_receptacles[0][0]
+        recep2_name = swap_receptacles[1][0]
         recep1_id = get_objectId(recep1_name, self)
         recep2_id = get_objectId(recep2_name, self)
 
@@ -306,7 +365,7 @@ class SimpleSwap(Experiment):
         # self.frame_list.append(self.last_event.frame)
 
         # every time an object is moved, its id is changed
-        # update 1st receptable ID
+        # update 1st receptacle ID
         recep1_id = get_objectId(recep1_name, self)
 
         # move 1st recep to second recep place

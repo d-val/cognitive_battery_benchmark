@@ -238,5 +238,5 @@ class Rotation(Experiment):
         print(out)
 
         # dummy moves for debug
-        self.step("MoveBack")
-        self.step("MoveAhead")
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveAhead", moveMagnitude = 0)

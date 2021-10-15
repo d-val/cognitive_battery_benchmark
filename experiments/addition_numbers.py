@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy as np
-from PIL import Image
 from ai2thor.controller import Controller
 import random
 import cv2
@@ -81,7 +80,7 @@ class AdditionNumbers(Experiment):
     def run(
         self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6
     ):
-
+        #TODO: add ability to specify number of items in each plate
         self.rewardType = random.sample(rewardTypes, 1)[0]
 
         # List of initial poses (receptacle_names' poses)
@@ -133,7 +132,7 @@ class AdditionNumbers(Experiment):
                 )
 
             if obj["name"] == "Occluder":
-                # right occluder
+                # left occluder
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -141,7 +140,7 @@ class AdditionNumbers(Experiment):
                         "position": {"x": 0.15, "y": 1.105, "z": -0.6},
                     }
                 )
-                # left occluder
+                # right occluder
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -161,7 +160,7 @@ class AdditionNumbers(Experiment):
 
             # randomly spawn between 0 to 9 food on each plate
             if obj["objectType"] == self.rewardType:
-                # right rewards
+                # left rewards
                 j = random.randint(0, max_reward)
                 for i in range(j):  # [0,j)
                     theta = 2 * math.pi * i / j
@@ -178,7 +177,7 @@ class AdditionNumbers(Experiment):
                         }
                     )
 
-                # left rewards
+                # right rewards
                 k = random.randint(0, max_reward)
                 for i in range(k):  # [0,k)
                     theta = 2 * math.pi * i / k
@@ -214,7 +213,7 @@ class AdditionNumbers(Experiment):
                 print(j, k, l)
             # Put lids on 3 plates
             if obj["name"] == "BigBowl":
-                # right plate (z < 0)
+                # left plate (z < 0)
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -223,7 +222,7 @@ class AdditionNumbers(Experiment):
                     }
                 )
 
-                # left plate (z > 0)
+                # right plate (z > 0)
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
@@ -323,25 +322,24 @@ class AdditionNumbers(Experiment):
                     self.third_party_camera_frames,
                 )
 
-        self.step("MoveBack")
-        self.step("MoveAhead")
-        self.step("MoveBack")
-        self.step("MoveAhead")
-        # count rewards to get output
-        out = None
+        #dummy moves for debugging
+        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveAhead", moveMagnitude = 0)
+
+        #count rewards to get output
+        self.out = None
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
                 if obj["position"]["z"] > 0:
-                    left += 1
-                if obj["position"]["z"] < 0:
                     right += 1
+                if obj["position"]["z"] < 0:
+                    left += 1
         if left > right:
-            out = -1
+            self.out = -1
         elif left < right:
-            out = 1
+            self.out = 1
         else:  # left == right
-            out = 0
-        print(out)
+            self.out = 0
