@@ -2,6 +2,8 @@ import os
 from PIL import Image
 from ai2thor.controller import Controller
 from tqdm import tqdm
+import yaml
+import sys
 
 
 class Experiment(Controller):
@@ -24,7 +26,16 @@ class Experiment(Controller):
             img = Image.fromarray(frame)
             img.save(f"frames/{SAVE_DIR}/{i}.jpeg")
 
-# def runExperimentJob(experiment, iterations):
-#
-#     for _ in range(iterations):
-#         it_exp = experiment
+    def run(self):
+        raise NotImplementedError
+
+
+def runExperimentJob(renderer_file, experiment_file):
+    def str_to_class(classname):
+        return getattr(sys.modules[__name__], classname)
+
+    with open(f"{experiment_file}", "r") as stream:
+        experiment_data = yaml.safe_load(stream)
+
+    for experiment, parameters in experiment_data.items():
+        print(experiment, parameters)

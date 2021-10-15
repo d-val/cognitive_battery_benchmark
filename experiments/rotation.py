@@ -62,12 +62,21 @@ class Rotation(Experiment):
             synchronized=False,
         )
 
-
-    def run(self, case=1, d1=-0.4, d2=0, d3=0.4, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None):
+    def run(
+        self,
+        case=1,
+        d1=-0.4,
+        d2=0,
+        d3=0.4,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        rewardType=None,
+    ):
         # List of initial poses (receptacle_names' poses)
 
         distances = {"d1": d1, "d2": d2, "d3": d3}
-        self.rewardType = random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
+        self.rewardType = (
+            random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
+        )
 
         initialPoses = []
         # A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
@@ -135,9 +144,9 @@ class Rotation(Experiment):
                 #                 }
                 #                 )
                 if (
-                        obj["name"] != "Tray"
-                        and obj["objectType"] != "Potato"
-                        and obj["name"][:4] != "Cup1"
+                    obj["name"] != "Tray"
+                    and obj["objectType"] != "Potato"
+                    and obj["name"][:4] != "Cup1"
                 ):
                     initialPoses.append(initialPose)
 
