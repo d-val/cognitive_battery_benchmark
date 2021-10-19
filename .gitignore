@@ -1,5 +1,5 @@
 thor-OSXIntel64-local.zip
-thor-OSXIntel64-local.app/
+experiments/utils/thor-OSXIntel64-local.app/
 *.app
 *.zip
 venv/
@@ -7,9 +7,6 @@ venv/
 __pycache__/*
 *.DS_Store
 *.pyc
-frames/
-addition_numbers_agent/
-addition_numbers_monkey/
-rotation_agent_view/
-rotation_monkey_view/
-videos/
+.DS_Store
+*.DS_Store
+experiments/frames/
