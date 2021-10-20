@@ -103,7 +103,8 @@ class ObjectPermanence(Experiment):
             }
 
             # Set reward inital position (pre-determined) to the right of the table
-            if object["objectType"] == rewardType:
+            # if object["objectType"] == rewardType:
+            if object["name"] == "Cup_Opaque":
                 initialPoses.append(
                     {
                         "objectName": object["name"],
@@ -112,7 +113,8 @@ class ObjectPermanence(Experiment):
                     }
                 )
 
-            if object["name"] == "Cup_Opaque":
+            # if object["name"] == "Cup_Opaque":
+            if object["objectType"] == rewardType:
                 initialPoses.append(
                     {
                         "objectName": object["name"],
@@ -129,21 +131,21 @@ class ObjectPermanence(Experiment):
                     {
                         "objectName": object["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.43, "y": 1.5, "z": 0.5},
+                        "position": {"x": -0.2, "y": 1.5, "z": 0.5},
                     }
                 )
                 initialPoses.append(
                     {
                         "objectName": object["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.43, "y": 1.5, "z": -7.855288276914507e-05},
+                        "position": {"x": -0.2, "y": 1.5, "z": -7.855288276914507e-05},
                     }
                 )
                 initialPoses.append(
                     {
                         "objectName": object["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.43, "y": 1.5, "z": -0.5},
+                        "position": {"x": -0.2, "y": 1.5, "z": -0.5},
                     }
                 )
             # Ignore reward and receptacles object, they will not be randomized place behind the table
@@ -194,45 +196,49 @@ class ObjectPermanence(Experiment):
         # get the z coordinates of the rewardId (Egg) and receptables (Pot) and also get the receptable ids
         # get opaque cup Id and x coordinate
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == rewardType:
-                rewardId = obj["objectId"]
-                egg_z = obj["position"]["z"]
-                egg_x = obj["position"]["x"]
+            # if obj["objectType"] == rewardType:
+            if obj["name"] == "Cup_Opaque":
+                cupOpaqueId = obj["objectId"]
+                cupOpaque_z = obj["position"]["z"]
+                cupOpaque_x = obj["position"]["x"]
             if obj["objectType"] == receptableType and obj["name"] != "Cup_Opaque":
                 receptacle_names.append(obj["name"])
                 receptacle_ids.append(obj["objectId"])
                 receptacle_zs.append(obj["position"]["z"])
-            if obj["name"] == "Cup_Opaque":
-                cupOpaqueId = obj["objectId"]
-                cupOpaque_x = obj["position"]["x"]
+            # if obj["name"] == "Cup_Opaque":
+            if obj["objectType"] == rewardType:
+                rewardId = obj["objectId"]
+                egg_x = obj["position"]["x"]
 
         # sample 1 random receptable to put the (opaque cup + egg) compound under
         correct_receptacle_z = random.sample(receptacle_zs, 1)[0]
 
         # Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        egg_move_left_mag = correct_receptacle_z - egg_z
+        egg_move_left_mag = correct_receptacle_z - cupOpaque_z
 
         # Calculate how much to move the opaque back to be on the egg
-        receptacle_move_back = cupOpaque_x - egg_x
+        receptacle_move_back =  egg_x - cupOpaque_x
 
         print(receptacle_ids)
         # move the opaque cup onto the egg
         move_object(
             self,
-            cupOpaqueId,
+            rewardId,
             [(0, 0, self.MOVEUP_MAGNITUDE), (-receptacle_move_back, 0, 0)],
             self.frame_list,
             self.third_party_camera_frames
         )
 
-        self.step(
-            action="PickupObject",
-            objectId=cupOpaqueId,
-            forceAction=True,
-            manualInteract=True,
+
+        move_object(
+            self,
+            cupOpaqueId,
+            [(0, -egg_move_left_mag, 0)],
+            self.frame_list,
+            self.third_party_camera_frames
         )
 
-        self.step(action="MoveHeldObject", ahead=0.3, right=0, up=0, forceVisible=False)
+        # self.step(action="MoveHeldObject", ahead=0, right=0.3, up=0, forceVisible=False)
 
         self.step("MoveBack")
 
@@ -240,42 +246,7 @@ class ObjectPermanence(Experiment):
 
         self.step("MoveBack")
 
-        # move_object(controller, cupOpaqueId, [(receptacle_move_back,0, 0)])
-
-        # Swap 2 receptables
-        # def swap(swap_receptables):
-        #   """ swap_receptables: list of 2 receptacle_names object to swap
-        #   return None
-        #   """
-        #   event = controller.last_event
-        #   recep1_name = swap_receptables[0]
-        #   recep2_name = swap_receptables[1]
-        #   recep1_id = get_objectId(recep1_name, controller)
-        #   recep2_id = get_objectId(recep2_name, controller)
-
-        #   #calculate the z-different to move the receps
-        #   z_different = get_object(recep1_name, controller)["position"]["z"] - get_object(recep2_name, controller)["position"]["z"]
-
-        #   #move first recep far away
-        #   move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (MOVE_RECEP_AHEAD_MAG, 0, 0)])
-        # #   img_array.append(controller.last_event.frame)
-
-        #   #move 2nd recep to 1st recep place
-        #   move_object(controller, recep2_id, [(0, 0, MOVEUP_MAGNITUDE), (0, -z_different, 0)])
-        # #   img_array.append(controller.last_event.frame)
-
-        #   # every time an object is moved, its id is changed
-        #   # update 1st receptable ID
-        #   recep1_id = get_objectId(recep1_name, controller)
-
-        #   #move 1st recep to second recep place
-        #   move_object(controller, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (0, z_different, 0), (-MOVE_RECEP_AHEAD_MAG, 0, 0)])
-
-        # #   img_array.append(controller.last_event.frame)
-
-        # for i in range(random.randint(1,10)):
-        #     swap(random.sample(receptacle_names,2))
-
+        
         # get egg final z coordinates
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == rewardType:

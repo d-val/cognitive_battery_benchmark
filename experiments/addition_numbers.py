@@ -39,7 +39,7 @@ class AdditionNumbers(Experiment):
                 "width": 2000,
                 "height": 2000,
                 "fieldOfView": random.randint(90, 120) if fov is None else fov,
-                "makeAgentsVisible": False,
+                "makeAgentsVisible": True,
             }
         )
 
@@ -193,7 +193,7 @@ class AdditionNumbers(Experiment):
                             "position": {
                                 "x": 0 + r * math.cos(theta),
                                 "y": 1.205,
-                                "z": 0 + +r * math.cos(theta),
+                                "z": 0 + r * math.cos(theta),
                             },
                         }
                     )
@@ -332,4 +332,4 @@ class AdditionNumbers(Experiment):
             self.out = 0
 x = AdditionNumbers()
 x.run()
-# x.save_frames_to_folder('output')
+x.save_frames_to_folder('output')
