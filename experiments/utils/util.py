@@ -103,12 +103,16 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
         controller.step(
             action="MoveHeldObject", ahead=ahead, right=right, up=up, forceVisible=False
         )
+        
         last_image = controller.last_event.frame
         frame_list.append(last_image)
         third_party_camera_frames.append(
             controller.last_event.third_party_camera_frames[0]
         )
         checkError(controller)
+        #terminate if moving causing error
+        if controller.last_event.metadata["errorMessage"]:
+            break
     return controller.last_event, frame_list, third_party_camera_frames
 
 
@@ -126,6 +130,7 @@ def move_object(
     return: the event after drop the object
     """
     last_event = pickup(controller, objectId)
+    # print('object', controller.last_event.metadata["lastAction"])
     frame_list.append(last_event.frame)
     third_party_camera_frames.append(last_event.third_party_camera_frames[0])
     directions = interpolate_between_2points(directions, num_interpolations=10)

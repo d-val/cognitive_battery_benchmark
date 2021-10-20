@@ -63,19 +63,6 @@ class AdditionNumbers(Experiment):
             synchronized=False,
         )
 
-        # #Randomize Materials in the scene
-        # controller.step(
-        #     action="RandomizeMaterials")
-
-        # #Randomize Lighting in the scene
-        # controller.step(
-        #     action="RandomizeLighting",
-        #     brightness=(0.5, 1.5),
-        #     randomizeColor=True,
-        #     hue=(0, 1),
-        #     saturation=(0.5, 1),
-        #     synchronized=False
-        # )
 
     def run(
         self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6
@@ -284,7 +271,7 @@ class AdditionNumbers(Experiment):
 
         current_objects = self.last_event.metadata["objects"]
         # put sides occluder back
-        for obj in current_objects:
+        for obj in self.last_event.metadata["objects"]:
             # only put right and left occluders back
             if obj["name"][:8] == "Occluder" and abs(obj["position"]["z"]) > 0.3:
                 _, self.frame_list, self.third_party_camera_frames = move_object(
@@ -343,3 +330,6 @@ class AdditionNumbers(Experiment):
             self.out = 1
         else:  # left == right
             self.out = 0
+x = AdditionNumbers()
+x.run()
+# x.save_frames_to_folder('output')

@@ -5,7 +5,7 @@ from ai2thor.controller import Controller
 import random
 import cv2
 import random
-
+import math
 # unity directory
 from experiment import Experiment
 
@@ -105,28 +105,34 @@ class RelativeNumbers(Experiment):
             if object["objectType"] == rewardType:
 
                 # left plate - TODO: change reward number here
-                for i in range(0, random.randint(0, 8)):
+                l = random.randint(0, 6)
+                for i in range(0, l):
+                    theta = 2 * math.pi * i / l
+                    r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
                             "objectName": object["name"],
                             "rotation": {"x": 0.0, "y": 0, "z": 0},
                             "position": {
-                                "x": -0.34 + random.uniform(-0.13, 0.13),
-                                "y": 1.15 + 0.001 * i,
-                                "z": -0.34 + random.uniform(-0.13, 0.13),
+                                "x": -0.34 +  r * math.sin(theta),
+                                "y": 1.15 + 0.01 * i,
+                                "z": -0.34 + r * math.cos(theta),
                             },
                         }
                     )
                 # right plate
-                for i in range(0, random.randint(0, 8)):
+                k = random.randint(0, 6)
+                for i in range(0, k):
+                    theta = 2 * math.pi * i / k
+                    r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
                             "objectName": object["name"],
                             "rotation": {"x": 0.0, "y": 0, "z": 0},
                             "position": {
-                                "x": -0.34 + random.uniform(-0.13, 0.13),
-                                "y": 1.15 + 0.001 * i,
-                                "z": 0.34 + random.uniform(-0.13, 0.13),
+                                "x": -0.34 +  r * math.sin(theta),
+                                "y": 1.15 + 0.01 * i,
+                                "z": 0.34 + r * math.cos(theta),
                             },
                         }
                     )
@@ -182,3 +188,4 @@ class RelativeNumbers(Experiment):
         # dummy move for visual
         self.step("MoveBack", moveMagnitude = 0)
         self.step("MoveBack", moveMagnitude = 0)
+x = RelativeNumbers()
