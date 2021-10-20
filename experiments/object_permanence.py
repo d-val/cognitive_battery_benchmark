@@ -37,8 +37,15 @@ class ObjectPermanence(Experiment):
                 "height": 2000,
                 "fieldOfView": random.randint(90, 120),
                 "makeAgentsVisible": False,
-            },
-            seed,
+            }
+        )
+
+        #add 3rd party camera
+        self.step(
+            action="AddThirdPartyCamera",
+            position=dict(x=-1.5, y=1, z=0),
+            rotation=dict(x=0, y=90, z=0),
+            fieldOfView=90,
         )
 
         # Move agents to fit the screen
@@ -214,6 +221,8 @@ class ObjectPermanence(Experiment):
             self,
             cupOpaqueId,
             [(0, 0, self.MOVEUP_MAGNITUDE), (-receptacle_move_back, 0, 0)],
+            self.frame_list,
+            self.third_party_camera_frames
         )
 
         self.step(
@@ -289,3 +298,5 @@ class ObjectPermanence(Experiment):
         # for rendering cv2 image
         # for i,e in enumerate(multi_agent_event.events):
         #     cv2.imshow('agent%s' % i, e.cv2img)
+x = ObjectPermanence()
+x.run()

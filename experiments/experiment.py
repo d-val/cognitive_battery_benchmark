@@ -13,7 +13,7 @@ class Experiment(Controller):
         self.saved_frames = []
         self.third_party_camera_frames = []
 
-    def save_frames_to_folder(self, SAVE_DIR, first_person=True):
+    def save_frames_to_folder(self, SAVE_DIR, first_person=False):
 
         if not os.path.isdir(f"frames/{SAVE_DIR}"):
             os.makedirs(f"frames/{SAVE_DIR}")

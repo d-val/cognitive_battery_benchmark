@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import random
-
+import itertools
 import numpy as np
 
 # unity directory
@@ -69,7 +69,8 @@ class SimpleSwap(Experiment):
         rewardTypes=["Egg", "Potato", "Tomato", "Apple"],
         swaps=None,
         pots_to_swap=None,
-        reward_position=None
+        reward_position=None,
+        case = 3
     ):
 
         self.MOVEUP_MAGNITUDE = moveup_magnitude
@@ -211,10 +212,11 @@ class SimpleSwap(Experiment):
         self.receptacle_name_and_z_coor.sort(key=lambda x: -x[1])
 
         # sample 1 random receptacle to put the reward (Egg) in or paste in from argument
-        chosen_receptacle_z = self.receptacle_name_and_z_coor[reward_position] if reward_position is not None else random.sample(self.receptacle_name_and_z_coor, 1)[0][1]
-
+        if reward_position is None:
+            reward_position = random.randint(0, 2)
+        chosen_receptacle_z = self.receptacle_name_and_z_coor[reward_position]
         # Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        reward_move_left_mag = chosen_receptacle_z - reward_z
+        reward_move_left_mag = chosen_receptacle_z[1] - reward_z
 
         # Move agent to fit the screen
         self.step("MoveRight")
@@ -227,8 +229,39 @@ class SimpleSwap(Experiment):
                                                                          self.third_party_camera_frames)
         # self.frame_list.append(self.last_event.frame)
 
-
-        self.swap(random.sample(self.receptacle_name_and_z_coor,2))
+        #swap baited with empty in all case
+        swap_positions = []
+        possible_pos = [0,1,2]
+        possible_pos.remove(reward_position)
+        random.shuffle(possible_pos)
+        possible_pos = possible_pos[1:]
+        possible_pos.append(reward_position)
+        # reward_position = possible_pos[0]        #swap (x, reward_pos) so new reward_pos is x
+        random.shuffle(possible_pos)
+        recep1 = possible_pos[0]
+        recep2 = possible_pos[1]
+        self.swap([self.receptacle_name_and_z_coor[recep1] , self.receptacle_name_and_z_coor[recep2]])
+        if case == 1:
+            pass
+        if case == 2:
+            possible_pos = [0,1,2]
+            possible_pos.remove(reward_position)
+            print(reward_position)
+            random.shuffle(possible_pos)
+            recep1 = possible_pos[0]
+            recep2 = possible_pos[1]
+            print(recep1, recep2)
+            self.swap([self.receptacle_name_and_z_coor[recep1] , self.receptacle_name_and_z_coor[recep2]])
+        if case == 3:
+            possible_pos = [0,1,2]
+            possible_pos.remove(reward_position)
+            random.shuffle(possible_pos)
+            possible_pos = possible_pos[1:]
+            possible_pos.append(reward_position)
+            random.shuffle(possible_pos)
+            recep1 = possible_pos[0]
+            recep2 = possible_pos[1]
+            self.swap([self.receptacle_name_and_z_coor[recep1] , self.receptacle_name_and_z_coor[recep2]])
 
         #get reward final z coordinates
         for obj in self.last_event.metadata["objects"]:
@@ -252,79 +285,11 @@ class SimpleSwap(Experiment):
         self.out = out
         self.step("MoveBack", moveMagnitude = 0)
         self.step("MoveBack", moveMagnitude = 0)
-        # #receptacle z coordinate to move reward in
-        # # receptacle_z = []
-        #
-        # #receptacle name and z coor
-        # self.receptacle_name_and_z_coor = []
-        #
-        # #get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
-        # for obj in self.last_event.metadata["objects"]:
-        #     if obj["objectType"] == self.rewardType:
-        #         rewardId = obj["objectId"]
-        #         reward_z = obj["position"]["z"]
-        #     if obj["objectType"] == receptacleType:
-        #         self.receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
-        #
-        # # sample 1 random receptacle to put the rewardId (Egg) in
-        # correct_pot_z = (
-        #     pot_zs[reward_pot][0]
-        #     if reward_pot is not None
-        #     else random.sample(pot_zs, 1)[0]
-        # )
-        # self.pots_to_swap = (
-        #     [random.sample(self.pots, 2) for _ in range(self.swaps)]
-        #     if pots_to_swap is None
-        #     else pots_to_swap
-        # )
-        #
-        # # Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        # egg_move_left_mag = correct_pot_z - egg_z
-        #
-        # # Move agent to fit the screen
-        # self.step("MoveRight")
-        #
-        # # move the reward to the pre-selected receptacle then drop it
-        # _, self.frame_list, self.third_party_camera_frames = move_object(
-        #     self,
-        #     rewardId,
-        #     [
-        #         (0, 0, self.MOVEUP_MAGNITUDE),
-        #         (0, -egg_move_left_mag, 0),
-        #         (0, 0, -self.MOVEUP_MAGNITUDE),
-        #     ],
-        #     self.frame_list,
-        #     self.third_party_camera_frames,
-        # )
-        # # self.frame_list.append(self.last_event.frame)
-        #
-        # for pot_swap in self.pots_to_swap:
-        #     self.swap(pot_swap)
-        #
-        # # get egg final z coordinates
-        # for obj in self.last_event.metadata["objects"]:
-        #     if obj["objectType"] == self.rewardType:
-        #         egg_final_z = obj["position"]["z"]
-        #
-        # out = None
-        # # determine which pot egg finally in.
-        # # 0 = left, 1 = middle, 2 = right
-        # if -1 < egg_final_z < -0.35:
-        #     out = 2
-        # elif -0.35 <= egg_final_z <= 0.35:
-        #     out = 1
-        # elif 0.35 < egg_final_z < 1:
-        #     out = 0
-        #
-        # # dummy moves for debugging purposes
-        # self.step("MoveBack")
-        # self = self.step("MoveBack")
-        #
-        # print(out)
-        # return out
+        
 
     # Swap 2 receptacles
     def swap(self, swap_receptacles):
+        print(swap_receptacles)
         """ swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
         return None
         """
@@ -382,3 +347,5 @@ class SimpleSwap(Experiment):
         )
 
         # self.frame_list.append(self.last_event.frame)
+SimpleSwapExperiment = SimpleSwap()
+SimpleSwapExperiment.run()
