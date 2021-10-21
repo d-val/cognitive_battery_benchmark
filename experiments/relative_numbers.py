@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+from collections import namedtuple
+
 import numpy as np
 from ai2thor.controller import Controller
 import random
@@ -13,30 +15,24 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class RelativeNumbers(Experiment):
-    def __init__(
-        self, rewardType=None, rewardTypes=["Potato", "Tomato", "Apple"], seed=0
-    ):
+    def __init__(self, controller_args, fov=[90, 120], visibilityDistance=2, seed=0):
         self.seed = seed
+        self.stats = {
+            "visibility_distance": visibilityDistance
+            if type(visibilityDistance) != list
+            else random.randint(*visibilityDistance),
+            "fov": fov if type(fov) != list else random.randint(*fov),
+        }
         super().__init__(
             {
-                # local build
-                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "visibilityDistance": 2,
-                "scene": "FloorPlan1",
-                # step sizes
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                # image modalities
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                # # camera properties
-                "width": 2000,
-                "height": 2000,
-                "fieldOfView": random.randint(90, 120),
-                "makeAgentsVisible": False,
-            },
+                **{
+                    # local build
+                    "visibilityDistance": self.stats["visibility_distance"],
+                    # camera properties
+                    "fieldOfView": self.stats["fov"],
+                },
+                **controller_args,
+            }
         )
         self.step(
             action="Teleport",
@@ -44,10 +40,6 @@ class RelativeNumbers(Experiment):
             rotation=dict(x=0, y=90, z=0),
             horizon=0,
             standing=True,
-        )
-
-        self.rewardType = (
-            rewardType if rewardType is not None else random.sample(rewardTypes, 1)[0]
         )
 
         # Randomize Materials in the scene
@@ -63,7 +55,13 @@ class RelativeNumbers(Experiment):
             synchronized=False,
         )
 
-    def run(self, max_rewards=[8, 8], defined_rewards=None):
+    def run(
+        self,
+        rewardType=None,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        max_rewards=[8, 8],
+        defined_rewards=None,
+    ):
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
         # A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
@@ -72,6 +70,9 @@ class RelativeNumbers(Experiment):
         excludeList = []  # Egg and Pot exclude from randomization
         randomObjects = []  # store all other Pickupable objects
 
+        rewardType = (
+            rewardType if rewardType is not None else random.sample(rewardTypes, 1)[0]
+        )
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for object in self.last_event.metadata["objects"]:
@@ -102,18 +103,20 @@ class RelativeNumbers(Experiment):
                         "position": {"x": -0.34, "y": 1.105, "z": 0.34},
                     }
                 )
+            reward = namedtuple("reward", ["left", "middle", "right"])
 
-            defined_left_reward, defined_right_reward = (
-                defined_rewards
-                if defined_rewards is not None
-                else [np.random.randint(0, max_r) for max_r in max_rewards]
+
+            defined_rewards = (
+                reward(*[np.random.randint(0, max_r) for max_r in max_rewards])
+                if defined_rewards is None
+                else reward(*defined_rewards)
             )
 
             # Set the rewards'locations randomly around the plate
-            if object["objectType"] == self.rewardType:
+            if object["objectType"] == rewardType:
 
                 # left plate
-                for i in range(0, defined_left_reward):
+                for i in range(0, defined_rewards.left):
                     initialPoses.append(
                         {
                             "objectName": object["name"],
@@ -126,7 +129,7 @@ class RelativeNumbers(Experiment):
                         }
                     )
                 # right plate
-                for i in range(0, defined_right_reward):
+                for i in range(0, defined_rewards.right):
                     initialPoses.append(
                         {
                             "objectName": object["name"],
@@ -140,7 +143,7 @@ class RelativeNumbers(Experiment):
                     )
 
             # Ignore reward and receptacles object, they will not be randomized on the table
-            if object["objectType"] in {"Plate", self.rewardType}:
+            if object["objectType"] in {"Plate", rewardType}:
                 pass
             elif not object["moveable"] and not object["pickupable"]:
                 pass
@@ -155,7 +158,7 @@ class RelativeNumbers(Experiment):
         # Store all rewards Id in list to be exclude from randomization
         excludedRewardsId = []
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == self.rewardType:
+            if obj["objectType"] == rewardType:
                 excludedRewardsId.append(
                     obj["objectId"]
                 )  # useful for randomization of non-rewards
@@ -171,22 +174,31 @@ class RelativeNumbers(Experiment):
         )
 
         # count rewards to get output
-        self.out = 0  # left == right
+        out = 'center'  # left == right
 
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == self.rewardType:
+            if obj["objectType"] == rewardType:
                 if obj["position"]["z"] > 0:
                     right += 1
                 if obj["position"]["z"] < 0:
                     left += 1
         if left > right:
-            self.out = -1
+            out = 'left'
         elif left < right:
-            self.out = 1
+            out = 'right'
 
         # dummy move for visual
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveBack", moveMagnitude=0)
+
+        self.frame_list = [self.last_event.frame]
+
+        self.stats.update({
+            "reward_type": rewardType,
+            "defined_left_reward": defined_rewards.left,
+            "defined_right_reward": defined_rewards.right,
+            "final_greater_side": out
+        })

@@ -2,8 +2,12 @@ import os
 from PIL import Image
 from ai2thor.controller import Controller
 from tqdm import tqdm
+from collections import namedtuple
+import random
 import yaml
 import sys
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class Experiment(Controller):
@@ -19,23 +23,10 @@ class Experiment(Controller):
             os.makedirs(f"frames/{SAVE_DIR}")
 
         fov_frames = self.frame_list if first_person else self.third_party_camera_frames
-        print("num frames", len(fov_frames))
-        height, width, channels = fov_frames[0].shape
-
+        # height, width, channels = fov_frames[0].shape
         for i, frame in enumerate(tqdm(fov_frames)):
             img = Image.fromarray(frame)
-            img.save(f"frames/{SAVE_DIR}/{i}.jpeg")
+            img.save(f"frames/{SAVE_DIR}/frame_{i}.jpeg")
 
     def run(self):
         raise NotImplementedError
-
-
-def runExperimentJob(renderer_file, experiment_file):
-    def str_to_class(classname):
-        return getattr(sys.modules[__name__], classname)
-
-    with open(f"{experiment_file}", "r") as stream:
-        experiment_data = yaml.safe_load(stream)
-
-    for experiment, parameters in experiment_data.items():
-        print(experiment, parameters)

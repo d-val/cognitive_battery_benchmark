@@ -14,30 +14,20 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class ObjectPermanence(Experiment):
-    def __init__(self, moveup_magnitude=0.3, move_recep_ahead_mag=0.3, seed=0):
+    def __init__(self, controller_args, fov=[90,120], visibilityDistance=2, moveup_magnitude=0.3, move_recep_ahead_mag=0.3, seed=0):
         img_array = []
         self.MOVEUP_MAGNITUDE = moveup_magnitude
         self.MOVE_RECEP_AHEAD_MAG = move_recep_ahead_mag
+        if type(fov) == list:
+            fov = random.randint(*fov)
         super().__init__(
-            {
+            {**{
                 # local build
-                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "visibilityDistance": 2,
-                "scene": "FloorPlan1",
-                # step sizes
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                # image modalities
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                # # camera properties
-                "width": 2000,
-                "height": 2000,
-                "fieldOfView": random.randint(90, 120),
-                "makeAgentsVisible": False,
-            }
+                "visibilityDistance": visibilityDistance if type(visibilityDistance) != list else random.randint(
+                    *visibilityDistance),
+                # camera properties
+                "fieldOfView": fov if type(fov) != list else random.randint(*fov),
+            }, **controller_args}
         )
 
         # Move agents to fit the screen
@@ -280,8 +270,6 @@ class ObjectPermanence(Experiment):
             out = 1
         elif 0.35 < egg_final_z < 1:
             out = 0
-
-        print(out)
         # dummy moves for debugging purposes
         self.step("MoveBack")
 
