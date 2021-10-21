@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class Rotation(Experiment):
-    # set distance of cups to the center of tray (d1,d2,d3)
+    # set distance of cups to the center of tray (left,middle,right)
     def __init__(self, controller_args, fov=[90,120], visibilityDistance=5, seed=0):
 
         random.seed(seed)
@@ -65,9 +65,9 @@ class Rotation(Experiment):
         rewardType=None,
     ):
         # List of initial poses (receptacle_names' poses)
-        case = case if case is None else random.randint(1,3)
+        case = case if case is not None else random.randint(1,3)
         distances = (
-            distances if distances is not None else {"d1": -0.4, "d2": 0, "d3": 0.4}
+            distances if distances is not None else {"left": 0.4, "middle": 0, "right": -0.4}
         )
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
@@ -87,15 +87,15 @@ class Rotation(Experiment):
         # rotate 180, food in middle
         if case == 1:
             num_rotate = 6
-            food_dist = distances["d2"]
+            food_dist = distances["middle"]
         # rotate 360, food in left or right
         if case == 2:
             num_rotate = 11
-            food_dist = random.choice([distances["d1"], distances["d3"]])
+            food_dist = random.choice([distances["left"], distances["right"]])
         # rotate 180, food in left or right
         if case == 3:
             num_rotate = 6
-            food_dist = random.choice([distances["d1"], distances["d3"]])
+            food_dist = random.choice([distances["left"], distances["right"]])
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for i in range(0, num_rotate):
@@ -138,12 +138,19 @@ class Rotation(Experiment):
                 #                 "position": {'x': 0 - 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': -0.4*math.cos(angle_radian)}
                 #                 }
                 #                 )
-                if (
-                    obj["name"] != "Tray"
-                    and obj["objectType"] != rewardType
-                    and obj["name"][:4] != "Cup1"
-                ):
-                    initialPoses.append(initialPose)
+                if obj["objectType"] == rewardType:
+                    print('added')
+                    initialPoses.append(
+                        {
+                            "objectName": obj['name'],
+                            "rotation": {"x": -0.0, "y": angle, "z": 0},
+                            "position": {
+                                "x": food_dist * math.sin(angle_radian),
+                                "y": 1.205,
+                                "z": food_dist * math.cos(angle_radian),
+                            },
+                        }
+                    )
 
             initialPoses.append(
                 {
@@ -157,9 +164,9 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": 0 + distances["d3"] * math.sin(angle_radian),
+                        "x": 0 + distances["right"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d3"] * math.cos(angle_radian),
+                        "z": distances["right"] * math.cos(angle_radian),
                     },
                 }
             )
@@ -168,9 +175,9 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": distances["d2"] * math.sin(angle_radian),
+                        "x": distances["middle"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d2"] * math.cos(angle_radian),
+                        "z": distances["middle"] * math.cos(angle_radian),
                     },
                 }
             )
@@ -179,24 +186,13 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": distances["d1"] * math.sin(angle_radian),
+                        "x": distances["left"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d1"] * math.cos(angle_radian),
+                        "z": distances["left"] * math.cos(angle_radian),
                     },
                 }
             )
-            if obj["object_type"] == rewardType:
-                initialPoses.append(
-                    {
-                        "objectName": obj['name'],
-                        "rotation": {"x": -0.0, "y": angle, "z": 0},
-                        "position": {
-                            "x": food_dist * math.sin(angle_radian),
-                            "y": 1.205,
-                            "z": food_dist * math.cos(angle_radian),
-                        },
-                    }
-                )
+
             # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
             self.step(
                 action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
@@ -222,22 +218,26 @@ class Rotation(Experiment):
         # return value
         # 1 = right, 0 = middle, -1 = left
         for obj in self.last_event.metadata["objects"]:
-            if obj["name"] == rewardType:
+            if obj["objectType"] == rewardType:
                 dist = obj["position"]["z"]
-                if dist > 0.3:
+                if dist < 0.3:
                     out = 'right'
-                if dist < -0.3:
+                if dist > -0.3:
                     out = 'left'
-                if abs(dist) < 0.1:
+                if abs(dist) <= 0.3:
                     out = 'middle'
 
         # dummy moves for debug
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveAhead", moveMagnitude=0)
-        
+
+        for loc, val in distances.items():
+            if val == food_dist: initialLoc = loc
+
         self.stats.update({
             'case': case,
             'distances': distances,
             'reward_type': rewardType,
+            'initial_object_location': initialLoc,
             'final_object_location': out
         })
