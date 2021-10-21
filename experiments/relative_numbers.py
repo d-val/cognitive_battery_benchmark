@@ -103,7 +103,7 @@ class RelativeNumbers(Experiment):
                         "position": {"x": -0.34, "y": 1.105, "z": 0.34},
                     }
                 )
-            reward = namedtuple("reward", ["left", "middle", "right"])
+            reward = namedtuple("reward", ["left", "right"])
 
 
             defined_rewards = (
@@ -124,7 +124,7 @@ class RelativeNumbers(Experiment):
                             "position": {
                                 "x": -0.34 + random.uniform(-0.13, 0.13),
                                 "y": 1.15 + 0.001 * i,
-                                "z": -0.34 + random.uniform(-0.13, 0.13),
+                                "z": 0.34 + random.uniform(-0.13, 0.13),
                             },
                         }
                     )
@@ -137,7 +137,7 @@ class RelativeNumbers(Experiment):
                             "position": {
                                 "x": -0.34 + random.uniform(-0.13, 0.13),
                                 "y": 1.15 + 0.001 * i,
-                                "z": 0.34 + random.uniform(-0.13, 0.13),
+                                "z": -0.34 + random.uniform(-0.13, 0.13),
                             },
                         }
                     )
@@ -174,16 +174,16 @@ class RelativeNumbers(Experiment):
         )
 
         # count rewards to get output
-        out = 'center'  # left == right
+        out = 'equal'  # left == right
 
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == rewardType:
-                if obj["position"]["z"] > 0:
-                    right += 1
                 if obj["position"]["z"] < 0:
+                    right += 1
+                if obj["position"]["z"] > 0:
                     left += 1
         if left > right:
             out = 'left'
