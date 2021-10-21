@@ -14,20 +14,32 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class ObjectPermanence(Experiment):
-    def __init__(self, controller_args, fov=[90,120], visibilityDistance=2, moveup_magnitude=0.3, move_recep_ahead_mag=0.3, seed=0):
+    def __init__(
+        self,
+        controller_args,
+        fov=[90, 120],
+        visibilityDistance=2,
+        moveup_magnitude=0.3,
+        move_recep_ahead_mag=0.3,
+        seed=0,
+    ):
         img_array = []
         self.MOVEUP_MAGNITUDE = moveup_magnitude
         self.MOVE_RECEP_AHEAD_MAG = move_recep_ahead_mag
         if type(fov) == list:
             fov = random.randint(*fov)
         super().__init__(
-            {**{
-                # local build
-                "visibilityDistance": visibilityDistance if type(visibilityDistance) != list else random.randint(
-                    *visibilityDistance),
-                # camera properties
-                "fieldOfView": fov if type(fov) != list else random.randint(*fov),
-            }, **controller_args}
+            {
+                **{
+                    # local build
+                    "visibilityDistance": visibilityDistance
+                    if type(visibilityDistance) != list
+                    else random.randint(*visibilityDistance),
+                    # camera properties
+                    "fieldOfView": fov if type(fov) != list else random.randint(*fov),
+                },
+                **controller_args,
+            }
         )
 
         # Move agents to fit the screen

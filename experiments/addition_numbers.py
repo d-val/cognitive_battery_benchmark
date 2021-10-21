@@ -215,9 +215,6 @@ class AdditionNumbers(Experiment):
                             },
                         }
                     )
-                print(
-                    f"Left Reward: {defined_rewards[0]} | Mid Reward: {defined_rewards[1]} | Right Reward: {defined_rewards[2]}"
-                )
             # Put lids on 3 plates
             if obj["name"] == "BigBowl":
                 # left plate (z < 0)
@@ -348,7 +345,6 @@ class AdditionNumbers(Experiment):
             out = "left"
         elif left < right:
             out = "right"
-        print(defined_rewards[0], defined_rewards[1], defined_rewards[2])
         self.stats.update(
             {
                 "reward_type": rewardType,

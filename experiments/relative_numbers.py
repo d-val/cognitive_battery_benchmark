@@ -105,7 +105,6 @@ class RelativeNumbers(Experiment):
                 )
             reward = namedtuple("reward", ["left", "right"])
 
-
             defined_rewards = (
                 reward(*[np.random.randint(0, max_r) for max_r in max_rewards])
                 if defined_rewards is None
@@ -174,7 +173,7 @@ class RelativeNumbers(Experiment):
         )
 
         # count rewards to get output
-        out = 'equal'  # left == right
+        out = "equal"  # left == right
 
         left = 0
         right = 0
@@ -186,9 +185,9 @@ class RelativeNumbers(Experiment):
                 if obj["position"]["z"] > 0:
                     left += 1
         if left > right:
-            out = 'left'
+            out = "left"
         elif left < right:
-            out = 'right'
+            out = "right"
 
         # dummy move for visual
         self.step("MoveBack", moveMagnitude=0)
@@ -196,9 +195,11 @@ class RelativeNumbers(Experiment):
 
         self.frame_list = [self.last_event.frame]
 
-        self.stats.update({
-            "reward_type": rewardType,
-            "defined_left_reward": defined_rewards.left,
-            "defined_right_reward": defined_rewards.right,
-            "final_greater_side": out
-        })
+        self.stats.update(
+            {
+                "reward_type": rewardType,
+                "defined_left_reward": defined_rewards.left,
+                "defined_right_reward": defined_rewards.right,
+                "final_greater_side": out,
+            }
+        )

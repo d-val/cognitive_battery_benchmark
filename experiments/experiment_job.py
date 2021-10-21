@@ -18,7 +18,7 @@ class ExperimentJob:
 
         for experiment, parameters in self.experiment_data.items():
             if not all(
-                    x in ["init", "run", "iterations", "controllerArgs"] for x in parameters
+                x in ["init", "run", "iterations", "controllerArgs"] for x in parameters
             ):
                 raise AssertionError(
                     f"Unknown field found for {experiment} in YAML file."
@@ -32,7 +32,7 @@ class ExperimentJob:
                 if test_run:
                     experimentClass.run(**parameters["run"])
 
-    def run(self, name=None, seed_pattern='iterative'):
+    def run(self, name=None, seed_pattern="iterative"):
         self.jobName = datetime.datetime.now() if name is None else name
         self.make_folder(f"frames/{self.jobName}")
 
@@ -44,26 +44,34 @@ class ExperimentJob:
 
         for experiment, parameters in self.experiment_data.items():
             for iteration in range(parameters["iterations"]):
-                if seed_pattern == 'iterative': seed = iteration
+                if seed_pattern == "iterative":
+                    seed = iteration
                 experimentClass = self.str_to_class(experiment)(
                     {**self.renderer_data, **parameters.get("controllerArgs", {})},
                     **parameters.get("init", {}),
-                    seed=seed
+                    seed=seed,
                 )
                 experimentClass.run(**parameters["run"])
+                experimentClass.stop()
                 self.make_folder(f"frames/{self.jobName}/{experiment}/{iteration}")
-                with open(f"frames/{self.jobName}/{experiment}/{iteration}/experiment_stats.yaml", "w") as yaml_file:
-                    yaml.dump(experimentClass.stats, yaml_file, default_flow_style=False)
+                with open(
+                    f"frames/{self.jobName}/{experiment}/{iteration}/experiment_stats.yaml",
+                    "w",
+                ) as yaml_file:
+                    yaml.dump(
+                        experimentClass.stats, yaml_file, default_flow_style=False
+                    )
                 experimentClass.save_frames_to_folder(
                     f"{self.jobName}/{experiment}/{iteration}"
                 )
-                experimentClass.stop()
+
     @staticmethod
     def make_folder(name):
         if not os.path.isdir(name):
             os.makedirs(name)
         else:
             raise Exception("Job folder already exists.")
+
     @staticmethod
     def str_to_class(classname):
         return getattr(sys.modules[__name__], classname)

@@ -198,9 +198,7 @@ class SimpleSwap(Experiment):
                 rewardId = obj["objectId"]
                 reward_z = obj["position"]["z"]
             if obj["objectType"] == receptacleType:
-                receptacle_name_and_z_coor.append(
-                    (obj["name"], obj["position"]["z"])
-                )
+                receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
 
         # sort receptacle by z coordinate from positive to negative
         receptacle_name_and_z_coor.sort(key=lambda x: -x[1])
@@ -232,13 +230,16 @@ class SimpleSwap(Experiment):
         )
         # self.frame_list.append(self.last_event.frame)
         pots_to_swap = (
-                [random.sample(receptacle_name_and_z_coor, 2) for _ in range(self.swaps)]
-                if pots_to_swap is None
-                else pots_to_swap
-            )
+            [random.sample(receptacle_name_and_z_coor, 2) for _ in range(self.swaps)]
+            if pots_to_swap is None
+            else pots_to_swap
+        )
         for pot_swap in pots_to_swap:
             self.swap(pot_swap)
-        swap_directions = [[self.determine_reward_loc(-pot1[1]), self.determine_reward_loc(-pot2[1])] for pot1, pot2 in pots_to_swap]
+        swap_directions = [
+            [self.determine_reward_loc(-pot1[1]), self.determine_reward_loc(-pot2[1])]
+            for pot1, pot2 in pots_to_swap
+        ]
         # get reward final z coordinates
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == rewardType:
@@ -251,19 +252,21 @@ class SimpleSwap(Experiment):
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveBack", moveMagnitude=0)
 
-        self.stats.update({
-            'moveup_magnitude': self.moveup_magnitude,
-            'move_recep_ahead_mag': self.move_recep_ahead_mag,
-            'receptacleType': receptacleType,
-            'rewardType': rewardType,
-            'initial_object_location': self.determine_reward_loc(chosen_receptacle_z),
-            'num_swaps': swaps,
-            'swap_directions': swap_directions,
-            'final_object_location': self.determine_reward_loc(reward_final_z)
+        self.stats.update(
+            {
+                "moveup_magnitude": self.moveup_magnitude,
+                "move_recep_ahead_mag": self.move_recep_ahead_mag,
+                "receptacleType": receptacleType,
+                "rewardType": rewardType,
+                "initial_object_location": self.determine_reward_loc(
+                    chosen_receptacle_z
+                ),
+                "num_swaps": swaps,
+                "swap_directions": swap_directions,
+                "final_object_location": self.determine_reward_loc(reward_final_z),
+            }
+        )
 
-
-        })
-        
         # #receptacle z coordinate to move reward in
         # # receptacle_z = []
         #
@@ -334,14 +337,16 @@ class SimpleSwap(Experiment):
         #
         # print(out)
         # return out
+
     @staticmethod
     def determine_reward_loc(z_coor):
         if -1 < z_coor < -0.35:
-            return 'right'
+            return "right"
         elif -0.35 <= z_coor <= 0.35:
-            return 'middle'
+            return "middle"
         elif 0.35 < z_coor < 1:
-            return 'left'
+            return "left"
+
     # Swap 2 receptacles
     def swap(self, swap_receptacles):
         """swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
@@ -401,4 +406,3 @@ class SimpleSwap(Experiment):
         )
 
         # self.frame_list.append(self.last_event.frame)
-

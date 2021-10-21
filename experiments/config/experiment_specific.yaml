@@ -1,35 +1,35 @@
-#AdditionNumbers:
-#  iterations: 1
-#  controllerArgs:
-#    width: 400
-#    height: 400
-#  init:
-#    fov: [ 90, 120 ]
-#    visibilityDistance: 5
-#  run:
-#    rewardTypes: ["Potato", "Tomato", "Apple"]
-#    rewardType: null
-#    max_rewards: [ 6, 6, 6 ]
-#    defined_rewards: null
-#
-#RelativeNumbers:
-#  iterations: 10
-#  run:
-#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-#    rewardType: null
-#    max_rewards: [ 8, 8 ]
-#    defined_rewards: null
+AdditionNumbers:
+  iterations: 100
+  controllerArgs:
+    width: 300
+    height: 300
+  init:
+    fov: [ 90, 120 ]
+    visibilityDistance: 5
+  run:
+    rewardTypes: ["Potato", "Tomato", "Apple"]
+    rewardType: null
+    max_rewards: [ 6, 6, 6 ]
+    defined_rewards: null
 
-#Rotation:
-#  iterations: 1
-#  run:
-#    case: null
-#    distances: null
-#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-#    rewardType: null
+RelativeNumbers:
+  iterations: 100
+  run:
+    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+    rewardType: null
+    max_rewards: [ 8, 8 ]
+    defined_rewards: null
+
+Rotation:
+  iterations: 100
+  run:
+    case: null
+    distances: null
+    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+    rewardType: null
 
 SimpleSwap:
-  iterations: 1
+  iterations: 100
   run:
     moveup_magnitude: 0.45
     move_recep_ahead_mag: 0.45
