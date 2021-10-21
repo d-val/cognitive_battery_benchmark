@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class Rotation(Experiment):
     # set distance of cups to the center of tray (left,middle,right)
-    def __init__(self, controller_args, fov=[90,120], visibilityDistance=5, seed=0):
+    def __init__(self, controller_args, fov=[90, 120], visibilityDistance=5, seed=0):
 
         random.seed(seed)
         np.random.seed(seed)
@@ -65,9 +65,11 @@ class Rotation(Experiment):
         rewardType=None,
     ):
         # List of initial poses (receptacle_names' poses)
-        case = case if case is not None else random.randint(1,3)
+        case = case if case is not None else random.randint(1, 3)
         distances = (
-            distances if distances is not None else {"left": 0.4, "middle": 0, "right": -0.4}
+            distances
+            if distances is not None
+            else {"left": 0.4, "middle": 0, "right": -0.4}
         )
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
@@ -139,10 +141,9 @@ class Rotation(Experiment):
                 #                 }
                 #                 )
                 if obj["objectType"] == rewardType:
-                    print('added')
                     initialPoses.append(
                         {
-                            "objectName": obj['name'],
+                            "objectName": obj["name"],
                             "rotation": {"x": -0.0, "y": angle, "z": 0},
                             "position": {
                                 "x": food_dist * math.sin(angle_radian),
@@ -221,23 +222,26 @@ class Rotation(Experiment):
             if obj["objectType"] == rewardType:
                 dist = obj["position"]["z"]
                 if dist < 0.3:
-                    out = 'right'
+                    out = "right"
                 if dist > -0.3:
-                    out = 'left'
+                    out = "left"
                 if abs(dist) <= 0.3:
-                    out = 'middle'
+                    out = "middle"
 
         # dummy moves for debug
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveAhead", moveMagnitude=0)
 
         for loc, val in distances.items():
-            if val == food_dist: initialLoc = loc
+            if val == food_dist:
+                initialLoc = loc
 
-        self.stats.update({
-            'case': case,
-            'distances': distances,
-            'reward_type': rewardType,
-            'initial_object_location': initialLoc,
-            'final_object_location': out
-        })
+        self.stats.update(
+            {
+                "case": case,
+                "distances": distances,
+                "reward_type": rewardType,
+                "initial_object_location": initialLoc,
+                "final_object_location": out,
+            }
+        )
