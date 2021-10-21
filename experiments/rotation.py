@@ -14,31 +14,26 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class Rotation(Experiment):
     # set distance of cups to the center of tray (d1,d2,d3)
-    def __init__(self, fov=None, seed=0):
+    def __init__(self, controller_args, fov=[90,120], visibilityDistance=5, seed=0):
 
         random.seed(seed)
         np.random.seed(seed)
 
-        # set case according to the spreadsheet
+        self.stats = {
+            "visibility_distance": visibilityDistance
+            if type(visibilityDistance) != list
+            else random.randint(*visibilityDistance),
+            "fov": fov if type(fov) != list else random.randint(*fov),
+        }
         super().__init__(
             {
-                # local build
-                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "visibilityDistance": 5,
-                "scene": "FloorPlan1",
-                # step sizes
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                # image modalities
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                # # camera properties
-                "width": 2000,
-                "height": 2000,
-                "fieldOfView": random.randint(90, 120) if fov is None else fov,
-                "makeAgentsVisible": False,
+                **{
+                    # local build
+                    "visibilityDistance": self.stats["visibility_distance"],
+                    # camera properties
+                    "fieldOfView": self.stats["fov"],
+                },
+                **controller_args,
             }
         )
 
@@ -64,17 +59,17 @@ class Rotation(Experiment):
 
     def run(
         self,
-        case=1,
+        case=None,
         distances=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
     ):
         # List of initial poses (receptacle_names' poses)
-
-        self.distances = (
-            distances if distances is None else {"d1": -0.4, "d2": 0, "d3": 0.4}
+        case = case if case is None else random.randint(1,3)
+        distances = (
+            distances if distances is not None else {"d1": -0.4, "d2": 0, "d3": 0.4}
         )
-        self.rewardType = (
+        rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
         )
 
@@ -145,7 +140,7 @@ class Rotation(Experiment):
                 #                 )
                 if (
                     obj["name"] != "Tray"
-                    and obj["objectType"] != "Potato"
+                    and obj["objectType"] != rewardType
                     and obj["name"][:4] != "Cup1"
                 ):
                     initialPoses.append(initialPose)
@@ -190,18 +185,18 @@ class Rotation(Experiment):
                     },
                 }
             )
-            initialPoses.append(
-                {
-                    "objectName": "Potato_35885ea7",
-                    "rotation": {"x": -0.0, "y": angle, "z": 0},
-                    "position": {
-                        "x": food_dist * math.sin(angle_radian),
-                        "y": 1.205,
-                        "z": food_dist * math.cos(angle_radian),
-                    },
-                }
-            )
-            print(len(initialPoses))
+            if obj["object_type"] == rewardType:
+                initialPoses.append(
+                    {
+                        "objectName": obj['name'],
+                        "rotation": {"x": -0.0, "y": angle, "z": 0},
+                        "position": {
+                            "x": food_dist * math.sin(angle_radian),
+                            "y": 1.205,
+                            "z": food_dist * math.cos(angle_radian),
+                        },
+                    }
+                )
             # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
             self.step(
                 action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
@@ -227,16 +222,22 @@ class Rotation(Experiment):
         # return value
         # 1 = right, 0 = middle, -1 = left
         for obj in self.last_event.metadata["objects"]:
-            if obj["name"] == "Potato_35885ea7":
+            if obj["name"] == rewardType:
                 dist = obj["position"]["z"]
                 if dist > 0.3:
-                    out = 1
+                    out = 'right'
                 if dist < -0.3:
-                    out = -1
+                    out = 'left'
                 if abs(dist) < 0.1:
-                    out = 0
-        print(out)
+                    out = 'middle'
 
         # dummy moves for debug
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveAhead", moveMagnitude=0)
+        
+        self.stats.update({
+            'case': case,
+            'distances': distances,
+            'reward_type': rewardType,
+            'final_object_location': out
+        })
