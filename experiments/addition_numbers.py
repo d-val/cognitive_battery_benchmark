@@ -78,9 +78,12 @@ class AdditionNumbers(Experiment):
         # )
 
     def run(
-        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6
+        self,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        rewardType=None,
+        max_rewards=[6, 6, 6],
+        defined_rewards=None,
     ):
-        #TODO: add ability to specify number of items in each plate
         self.rewardType = random.sample(rewardTypes, 1)[0]
 
         # List of initial poses (receptacle_names' poses)
@@ -158,12 +161,17 @@ class AdditionNumbers(Experiment):
                     }
                 )
 
+            defined_left_reward, defined_mid_reward, defined_right_reward = (
+                defined_rewards
+                if defined_rewards is not None
+                else [np.random.randint(0, max_r) for max_r in max_rewards]
+            )
+
             # randomly spawn between 0 to 9 food on each plate
             if obj["objectType"] == self.rewardType:
                 # left rewards
-                j = random.randint(0, max_reward)
-                for i in range(j):  # [0,j)
-                    theta = 2 * math.pi * i / j
+                for i in range(defined_left_reward):  # [0,j)
+                    theta = 2 * math.pi * i / defined_left_reward
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -178,9 +186,8 @@ class AdditionNumbers(Experiment):
                     )
 
                 # right rewards
-                k = random.randint(0, max_reward)
-                for i in range(k):  # [0,k)
-                    theta = 2 * math.pi * i / k
+                for i in range(defined_right_reward):  # [0,k)
+                    theta = 2 * math.pi * i / defined_right_reward
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -195,9 +202,8 @@ class AdditionNumbers(Experiment):
                     )
 
                 # mid rewards
-                l = random.randint(0, max_reward)
-                for i in range(l):  # [0,l)
-                    theta = 2 * math.pi * i / l
+                for i in range(defined_mid_reward):  # [0,l)
+                    theta = 2 * math.pi * i / defined_mid_reward
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -210,7 +216,9 @@ class AdditionNumbers(Experiment):
                             },
                         }
                     )
-                print(j, k, l)
+                print(
+                    f"Left Reward: {defined_left_reward} | Mid Reward: {defined_mid_reward} | Right Reward: {defined_right_reward}"
+                )
             # Put lids on 3 plates
             if obj["name"] == "BigBowl":
                 # left plate (z < 0)
@@ -322,12 +330,12 @@ class AdditionNumbers(Experiment):
                     self.third_party_camera_frames,
                 )
 
-        #dummy moves for debugging
-        self.step("MoveBack", moveMagnitude = 0)
-        self.step("MoveAhead", moveMagnitude = 0)
+        # dummy moves for debugging
+        self.step("MoveBack", moveMagnitude=0)
+        self.step("MoveAhead", moveMagnitude=0)
 
-        #count rewards to get output
-        self.out = None
+        # count rewards to get output
+        self.out = 0  # left == right
         left = 0
         right = 0
 
@@ -341,5 +349,3 @@ class AdditionNumbers(Experiment):
             self.out = -1
         elif left < right:
             self.out = 1
-        else:  # left == right
-            self.out = 0
