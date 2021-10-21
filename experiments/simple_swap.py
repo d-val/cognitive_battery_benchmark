@@ -69,7 +69,7 @@ class SimpleSwap(Experiment):
         rewardTypes=["Egg", "Potato", "Tomato", "Apple"],
         swaps=None,
         pots_to_swap=None,
-        reward_position=None
+        reward_position=None,
     ):
 
         self.MOVEUP_MAGNITUDE = moveup_magnitude
@@ -205,13 +205,19 @@ class SimpleSwap(Experiment):
                 rewardId = obj["objectId"]
                 reward_z = obj["position"]["z"]
             if obj["objectType"] == self.receptacleType:
-                self.receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
+                self.receptacle_name_and_z_coor.append(
+                    (obj["name"], obj["position"]["z"])
+                )
 
         # sort receptacle by z coordinate from positive to negative
         self.receptacle_name_and_z_coor.sort(key=lambda x: -x[1])
 
         # sample 1 random receptacle to put the reward (Egg) in or paste in from argument
-        chosen_receptacle_z = self.receptacle_name_and_z_coor[reward_position] if reward_position is not None else random.sample(self.receptacle_name_and_z_coor, 1)[0][1]
+        chosen_receptacle_z = (
+            self.receptacle_name_and_z_coor[reward_position]
+            if reward_position is not None
+            else random.sample(self.receptacle_name_and_z_coor, 1)[0][1]
+        )
 
         # Calculate how much the egg should be moved to the left to be on top of the intended Pot
         reward_move_left_mag = chosen_receptacle_z - reward_z
@@ -220,25 +226,30 @@ class SimpleSwap(Experiment):
         self.step("MoveRight")
 
         # move the reward to the pre-selected receptacle then drop it
-        _, self.frame_list, self.third_party_camera_frames = move_object(self, rewardId, [(0, 0, self.MOVEUP_MAGNITUDE),
-                                                                                          (0, -reward_move_left_mag, 0),
-                                                                                          (0, 0, -self.MOVEUP_MAGNITUDE)],
-                                                                         self.frame_list,
-                                                                         self.third_party_camera_frames)
+        _, self.frame_list, self.third_party_camera_frames = move_object(
+            self,
+            rewardId,
+            [
+                (0, 0, self.MOVEUP_MAGNITUDE),
+                (0, -reward_move_left_mag, 0),
+                (0, 0, -self.MOVEUP_MAGNITUDE),
+            ],
+            self.frame_list,
+            self.third_party_camera_frames,
+        )
         # self.frame_list.append(self.last_event.frame)
 
+        self.swap(random.sample(self.receptacle_name_and_z_coor, 2))
 
-        self.swap(random.sample(self.receptacle_name_and_z_coor,2))
-
-        #get reward final z coordinates
+        # get reward final z coordinates
         for obj in self.last_event.metadata["objects"]:
             if obj["objectType"] == self.rewardType:
                 reward_final_z = obj["position"]["z"]
 
         out = None
 
-        #determine which receptacle that reward finally in from monkey perspective
-        #0 = right, 1 = middle, 2 = left
+        # determine which receptacle that reward finally in from monkey perspective
+        # 0 = right, 1 = middle, 2 = left
         if reward_final_z > -1 and reward_final_z < -0.35:
             out = 2
             print("left")
@@ -248,10 +259,10 @@ class SimpleSwap(Experiment):
         elif reward_final_z > 0.35 and reward_final_z < 1:
             out = 0
             print("right")
-        #dummy moves for debugging purposes
+        # dummy moves for debugging purposes
         self.out = out
-        self.step("MoveBack", moveMagnitude = 0)
-        self.step("MoveBack", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude=0)
+        self.step("MoveBack", moveMagnitude=0)
         # #receptacle z coordinate to move reward in
         # # receptacle_z = []
         #
@@ -325,7 +336,7 @@ class SimpleSwap(Experiment):
 
     # Swap 2 receptacles
     def swap(self, swap_receptacles):
-        """ swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
+        """swap_receptacles: list of 2 receptacle_name_and_z_coor object to swap
         return None
         """
         event = self.last_event

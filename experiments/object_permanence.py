@@ -37,8 +37,7 @@ class ObjectPermanence(Experiment):
                 "height": 2000,
                 "fieldOfView": random.randint(90, 120),
                 "makeAgentsVisible": False,
-            },
-            seed,
+            }
         )
 
         # Move agents to fit the screen

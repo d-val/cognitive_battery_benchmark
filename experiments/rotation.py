@@ -65,15 +65,15 @@ class Rotation(Experiment):
     def run(
         self,
         case=1,
-        d1=-0.4,
-        d2=0,
-        d3=0.4,
+        distances=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
     ):
         # List of initial poses (receptacle_names' poses)
 
-        distances = {"d1": d1, "d2": d2, "d3": d3}
+        self.distances = (
+            distances if distances is None else {"d1": -0.4, "d2": 0, "d3": 0.4}
+        )
         self.rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
         )
@@ -238,5 +238,5 @@ class Rotation(Experiment):
         print(out)
 
         # dummy moves for debug
-        self.step("MoveBack", moveMagnitude = 0)
-        self.step("MoveAhead", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude=0)
+        self.step("MoveAhead", moveMagnitude=0)
