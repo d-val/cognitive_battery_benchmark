@@ -12,7 +12,7 @@ pip install -r setup/requirements.txt
 #### With conda:
 
 ```bash
-conda env create -f environment.yml
+conda env create -f setup/environment.yml
 conda activate cognitive-battery-benchmark
 ```
 

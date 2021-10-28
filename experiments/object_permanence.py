@@ -12,7 +12,19 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 class ObjectPermanence(Experiment):
     def __init__(
         self,
-        controller_args,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
         fov=[90, 120],
         visibilityDistance=2,
         moveup_magnitude=0.3,
@@ -284,4 +296,3 @@ class ObjectPermanence(Experiment):
         # for rendering cv2 image
         # for i,e in enumerate(multi_agent_event.events):
         #     cv2.imshow('agent%s' % i, e.cv2img)
-
