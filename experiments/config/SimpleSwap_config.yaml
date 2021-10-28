@@ -1,0 +1,13 @@
+SimpleSwap:
+  iterations: 100
+  run:
+    moveup_magnitude: 0.45
+    move_recep_ahead_mag: 0.45
+    receptacleType: null
+    receptacleTypes: ["Pot", "Mug", "Cup"]
+    reward_pot: null
+    rewardType: null
+    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
+    swaps: null
+    pots_to_swap: null
+    reward_position: null

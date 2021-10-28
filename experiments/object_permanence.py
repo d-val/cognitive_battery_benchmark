@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import numpy as np
-from ai2thor.controller import Controller
-import random
-import cv2
 import random
 
 # unity directory
@@ -288,3 +284,4 @@ class ObjectPermanence(Experiment):
         # for rendering cv2 image
         # for i,e in enumerate(multi_agent_event.events):
         #     cv2.imshow('agent%s' % i, e.cv2img)
+
