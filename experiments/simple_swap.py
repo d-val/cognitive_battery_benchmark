@@ -286,6 +286,7 @@ class SimpleSwap(Experiment):
             }
         )
 
+        self.label = self.determine_reward_loc(reward_final_z)
         # #receptacle z coordinate to move reward in
         # # receptacle_z = []
         #

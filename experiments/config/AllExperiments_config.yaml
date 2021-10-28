@@ -1,5 +1,5 @@
 AdditionNumbers:
-  iterations: 100
+  iterations: 10
   controllerArgs:
     width: 300
     height: 300
@@ -13,7 +13,7 @@ AdditionNumbers:
     defined_rewards: null
 
 RelativeNumbers:
-  iterations: 100
+  iterations: 10
   run:
     rewardTypes: [ "Potato", "Tomato", "Apple" ]
     rewardType: null
@@ -21,7 +21,7 @@ RelativeNumbers:
     defined_rewards: null
 
 Rotation:
-  iterations: 100
+  iterations: 10
   run:
     case: null
     distances: null
@@ -29,7 +29,7 @@ Rotation:
     rewardType: null
 
 SimpleSwap:
-  iterations: 100
+  iterations: 10
   run:
     moveup_magnitude: 0.45
     move_recep_ahead_mag: 0.45

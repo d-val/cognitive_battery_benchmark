@@ -1,4 +1,6 @@
 import os
+import pickle
+
 from PIL import Image
 from ai2thor.controller import Controller
 from collections import namedtuple
@@ -36,22 +38,50 @@ class Experiment(Controller):
         self.saved_frames = []
         self.third_party_camera_frames = []
 
-    def save_frames_to_folder(self, SAVE_DIR, first_person=True, save_stats=True):
-
-        if not os.path.isdir(f"{SAVE_DIR}"):
-            os.makedirs(f"{SAVE_DIR}")
-        if save_stats:
-            with open(
-                f"{SAVE_DIR}/experiment_stats.yaml",
-                "w",
-            ) as yaml_file:
-                yaml.dump(self.stats, yaml_file, default_flow_style=False)
-
+    def save_frames_to_folder(
+        self, SAVE_DIR, first_person=True, save_stats=True, db_mode=True
+    ):
         fov_frames = self.frame_list if first_person else self.third_party_camera_frames
-        # height, width, channels = fov_frames[0].shape
-        for i, frame in enumerate(fov_frames):
-            img = Image.fromarray(frame)
-            img.save(f"{SAVE_DIR}/frame_{i}.jpeg")
+
+        if db_mode:
+            db_SAVE_DIRS = {
+                "human": f"{SAVE_DIR}/human_readable",
+                "machine": f"{SAVE_DIR}/machine_readable",
+            }
+            for name, folder in db_SAVE_DIRS.items():
+                if not os.path.isdir(f"{folder}"):
+                    if name == "human":
+                        os.makedirs(f"{folder}/frames")
+                    else:
+                        os.makedirs(f"{folder}")
+                with open(
+                    f"{folder}/experiment_stats.yaml",
+                    "w",
+                ) as yaml_file:
+                    yaml.dump(self.stats, yaml_file, default_flow_style=False)
+
+                if name == "human":
+                    for i, frame in enumerate(fov_frames):
+                        img = Image.fromarray(frame)
+                        img.save(f"{folder}/frames/frame_{i}.jpeg")
+                elif name == "machine":
+                    iter_data = {
+                        "images": fov_frames,
+                        "label": self.label,
+                        "stats": self.stats,
+                    }
+                    with open(f"{folder}/iteration_data.pickle", "wb") as handle:
+                        pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            if not os.path.isdir(f"{SAVE_DIR}"):
+                os.makedirs(f"{SAVE_DIR}")
+
+            elif save_stats:
+                with open(
+                    f"{SAVE_DIR}/experiment_stats.yaml",
+                    "w",
+                ) as yaml_file:
+                    yaml.dump(self.stats, yaml_file, default_flow_style=False)
 
     def run(self):
         raise NotImplementedError
