@@ -13,7 +13,25 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class SimpleSwap(Experiment):
-    def __init__(self, controller_args, fov=[90, 140], visibilityDistance=2, seed=0):
+    def __init__(
+        self,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[90, 140],
+        visibilityDistance=2,
+        seed=0,
+    ):
 
         random.seed(seed)
         np.random.seed(seed)

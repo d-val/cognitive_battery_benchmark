@@ -12,7 +12,25 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class RelativeNumbers(Experiment):
-    def __init__(self, controller_args, fov=[90, 120], visibilityDistance=2, seed=0):
+    def __init__(
+        self,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[90, 120],
+        visibilityDistance=2,
+        seed=0,
+    ):
         self.seed = seed
         self.stats = {
             "visibility_distance": visibilityDistance
@@ -201,6 +219,7 @@ class RelativeNumbers(Experiment):
             }
         )
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run AdditionNumbers from file")
     parser.add_argument(
@@ -268,9 +287,11 @@ if __name__ == "__main__":
         visibilityDistance=args.visDist,
         seed=args.seed,
     )
-    experiment.run(rewardType=args.rewType,
-                   rewardTypes=args.rewTypes,
-                   max_rewards=args.maxRew,
-                   defined_rewards=args.defRew)
+    experiment.run(
+        rewardType=args.rewType,
+        rewardTypes=args.rewTypes,
+        max_rewards=args.maxRew,
+        defined_rewards=args.defRew,
+    )
     experiment.stop()
     experiment.save_frames_to_folder(args.saveTo, args.saveFov)

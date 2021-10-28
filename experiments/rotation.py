@@ -15,7 +15,25 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class Rotation(Experiment):
     # set distance of cups to the center of tray (left,middle,right)
-    def __init__(self, controller_args, fov=[90, 120], visibilityDistance=5, seed=0):
+    def __init__(
+        self,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[90, 120],
+        visibilityDistance=5,
+        seed=0,
+    ):
 
         random.seed(seed)
         np.random.seed(seed)
@@ -314,9 +332,11 @@ if __name__ == "__main__":
         visibilityDistance=args.visDist,
         seed=args.seed,
     )
-    experiment.run(case=args.case,
-                   distances=args.distances,
-                   rewardTypes=args.rewTypes,
-                   rewardType=args.rewType)
+    experiment.run(
+        case=args.case,
+        distances=args.distances,
+        rewardTypes=args.rewTypes,
+        rewardType=args.rewType,
+    )
     experiment.stop()
     experiment.save_frames_to_folder(args.saveTo, args.saveFov)
