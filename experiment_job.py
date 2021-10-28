@@ -1,20 +1,22 @@
 import os, sys, yaml, datetime
 from shutil import copyfile
-from addition_numbers import AdditionNumbers
-from relative_numbers import RelativeNumbers
-from rotation import Rotation
-from simple_swap import SimpleSwap
+from experiments.addition_numbers import AdditionNumbers
+from experiments.relative_numbers import RelativeNumbers
+from experiments.rotation import Rotation
+from experiments.simple_swap import SimpleSwap
+from tqdm import tqdm
 
 
 class ExperimentJob:
-    def __init__(self, renderer_file, experiment_file, test_init=False, test_run=False):
+    def __init__(self, renderer_file, experiment_files, test_init=False, test_run=False):
         self.experiments = {}
 
         with open(f"{renderer_file}", "r") as stream:
             self.renderer_data = yaml.safe_load(stream)
 
-        with open(f"{experiment_file}", "r") as stream:
-            self.experiment_data = yaml.safe_load(stream)
+        for experiment_file in experiment_files:
+            with open(f"{experiment_file}", "r") as stream:
+                self.experiment_data.update(yaml.safe_load(stream))
 
         for experiment, parameters in self.experiment_data.items():
             if not all(
@@ -43,7 +45,10 @@ class ExperimentJob:
             yaml.dump(self.experiment_data, yaml_file, default_flow_style=False)
 
         for experiment, parameters in self.experiment_data.items():
-            for iteration in range(parameters["iterations"]):
+            print(
+                f'Running Experiment: {experiment} | {parameters["iterations"]} Iterations'
+            )
+            for iteration in tqdm(range(parameters["iterations"])):
                 if seed_pattern == "iterative":
                     seed = iteration
                 experimentClass = self.str_to_class(experiment)(
@@ -53,16 +58,8 @@ class ExperimentJob:
                 )
                 experimentClass.run(**parameters["run"])
                 experimentClass.stop()
-                self.make_folder(f"frames/{self.jobName}/{experiment}/{iteration}")
-                with open(
-                    f"frames/{self.jobName}/{experiment}/{iteration}/experiment_stats.yaml",
-                    "w",
-                ) as yaml_file:
-                    yaml.dump(
-                        experimentClass.stats, yaml_file, default_flow_style=False
-                    )
                 experimentClass.save_frames_to_folder(
-                    f"{self.jobName}/{experiment}/{iteration}"
+                    f"frames/{self.jobName}/{experiment}/{iteration}"
                 )
 
     @staticmethod

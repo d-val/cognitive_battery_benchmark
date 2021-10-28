@@ -3,9 +3,6 @@ import os
 from collections import namedtuple
 
 import numpy as np
-from ai2thor.controller import Controller
-import random
-import cv2
 import random
 
 # unity directory
@@ -203,3 +200,77 @@ class RelativeNumbers(Experiment):
                 "final_greater_side": out,
             }
         )
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run AdditionNumbers from file")
+    parser.add_argument(
+        "saveTo",
+        action="store",
+        type=str,
+        help="which folder to save frames to",
+    )
+    parser.add_argument(
+        "--saveFov",
+        action="store",
+        type=str,
+        help="which perspective video to save",
+    )
+    parser.add_argument(
+        "--fov", action="store", default=[90, 120], help="field of view"
+    )
+    parser.add_argument(
+        "--visDist", action="store", default=5, help="visibility distance of camera"
+    )
+    parser.add_argument(
+        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+    )
+
+    parser.add_argument(
+        "--height", action="store", type=int, default=800, help="height of the frame"
+    )
+    parser.add_argument(
+        "--width", action="store", type=int, default=800, help="width of the frame"
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=int,
+        help="reward type \n Potato = 0\n Tomato = 1\n Apple = 2",
+    )
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Potato", "Tomato", "Apple"],
+        help='list of possible rewards types, such as ["Potato", "Tomato", "Apple"]',
+    )
+    parser.add_argument(
+        "--maxRew",
+        action="store",
+        type=list,
+        default=[8, 8],
+        help="maximum rewards across the [left, middle, right] plate",
+    )
+    parser.add_argument(
+        "--defRew",
+        action="store",
+        type=list,
+        help="defined rewards across the [left, middle, right] plate",
+    )
+
+    args = parser.parse_args()
+    # TODO: add assertion on types and values here, reorder inputs
+
+    experiment = RelativeNumbers(
+        {"height": args.height, "width": args.width},
+        fov=args.fov,
+        visibilityDistance=args.visDist,
+        seed=args.seed,
+    )
+    experiment.run(rewardType=args.rewType,
+                   rewardTypes=args.rewTypes,
+                   max_rewards=args.maxRew,
+                   defined_rewards=args.defRew)
+    experiment.stop()
+    experiment.save_frames_to_folder(args.saveTo, args.saveFov)

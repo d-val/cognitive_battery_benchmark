@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import random
 
@@ -406,3 +407,129 @@ class SimpleSwap(Experiment):
         )
 
         # self.frame_list.append(self.last_event.frame)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run SimpleSwap from file")
+    parser.add_argument(
+        "saveTo",
+        action="store",
+        type=str,
+        help="which folder to save frames to",
+    )
+    parser.add_argument(
+        "--saveFov",
+        action="store",
+        type=str,
+        help="which perspective video to save",
+    )
+    parser.add_argument(
+        "--fov", action="store", default=[90, 140], help="field of view"
+    )
+    parser.add_argument(
+        "--visDist", action="store", default=5, help="visibility distance of camera"
+    )
+    parser.add_argument(
+        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+    )
+
+    parser.add_argument(
+        "--height", action="store", type=int, default=800, help="height of the frame"
+    )
+    parser.add_argument(
+        "--width", action="store", type=int, default=800, help="width of the frame"
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=int,
+        help="reward type \n Potato = 0\n Tomato = 1\n Apple = 2",
+    )
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Potato", "Tomato", "Apple"],
+        help='list of possible rewards types, such as ["Potato", "Tomato", "Apple"]',
+    )
+    parser.add_argument(
+        "--moveUpMag",
+        action="store",
+        type=float,
+        default=0.45,
+        help="magnitude to move receptacle up",
+    )
+    parser.add_argument(
+        "--moveForMag",
+        action="store",
+        type=float,
+        default=0.45,
+        help="magnitude to move receptacle ahead",
+    )
+
+    parser.add_argument(
+        "--rewPot",
+        action="store",
+        type=str,
+        help="which receptacle to put the reward into",
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=str,
+        help="the object type of the reward",
+    )
+
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Egg", "Potato", "Tomato", "Apple"],
+        help="the object type of the reward",
+    )
+
+    parser.add_argument(
+        "--swaps",
+        action="store",
+        type=int,
+        help="number of swaps",
+    )
+
+    parser.add_argument(
+        "--potsSwap",
+        action="store",
+        type=list,
+        help="directions for pots to swap",
+    )
+
+    parser.add_argument(
+        "--rewPos",
+        action="store",
+        type=int,
+        help="position of reward",
+    )
+
+    args = parser.parse_args()
+
+    experiment = SimpleSwap(
+        {"height": args.height, "width": args.width},
+        fov=args.fov,
+        visibilityDistance=args.visDist,
+        seed=args.seed,
+    )
+    experiment.run(
+        moveup_magnitude=args.moveUpMag,
+        move_recep_ahead_mag=args.moveForMag,
+        receptacleType=args.rewType,
+        receptacleTypes=args.rewTypes,
+        reward_pot=args.rewPot,
+        rewardType=args.rewType,
+        rewardTypes=args.rewTypes,
+        swaps=args.swaps,
+        pots_to_swap=args.potsSwap,
+        reward_position=args.rewPos,
+    )
+    experiment.stop()
+    experiment.save_frames_to_folder(args.saveTo, args.saveFov)
