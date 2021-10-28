@@ -219,6 +219,8 @@ class RelativeNumbers(Experiment):
             }
         )
 
+        self.label = out
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run AdditionNumbers from file")
