@@ -39,6 +39,8 @@ def pickup(controller, object_ID):
         manualInteract=True,
         # manualInteract=False,
     )
+    if controller.last_event.metadata["errorMessage"]:
+                print(controller.last_event.metadata["errorMessage"])
     # images = []
     # # for i in range(10):
     # while not controller.last_event.metadata["isSceneAtRest"]:
