@@ -224,4 +224,4 @@ class Shape(Experiment):
         
 x = Shape()
 x.run()
-x.save_frames_to_folder('shape')
+# x.save_frames_to_folder('shape')
