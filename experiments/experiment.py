@@ -1,14 +1,19 @@
+import logging
 import os
 import pickle
+import warnings
 
+import numpy as np
 from PIL import Image
 from ai2thor.controller import Controller
+import imageio
 from collections import namedtuple
 import random
 import yaml
 import sys
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 
 
 class Experiment(Controller):
@@ -39,7 +44,12 @@ class Experiment(Controller):
         self.third_party_camera_frames = []
 
     def save_frames_to_folder(
-        self, SAVE_DIR, first_person=True, save_stats=True, db_mode=True
+        self,
+        SAVE_DIR,
+        first_person=True,
+        save_stats=True,
+        db_mode=True,
+        save_video=True,
     ):
         fov_frames = self.frame_list if first_person else self.third_party_camera_frames
 
@@ -82,6 +92,16 @@ class Experiment(Controller):
                     "w",
                 ) as yaml_file:
                     yaml.dump(self.stats, yaml_file, default_flow_style=False)
+
+        if save_video:
+            imageio.mimwrite(
+                f"{SAVE_DIR}/experiment_video.mp4",
+                fov_frames,
+                fps=30,
+                quality=9.5,
+                macro_block_size=16,
+                ffmpeg_log_level="error",
+            )
 
     def run(self):
         raise NotImplementedError
