@@ -12,7 +12,7 @@ pip install -r setup/requirements.txt
 #### With conda:
 
 ```bash
-conda env create -f environment.yml
+conda env create -f setup/environment.yml
 conda activate cognitive-battery-benchmark
 ```
 
@@ -35,13 +35,13 @@ By installing the ai2thor package, it should automatically download all the requ
 
 ## Clone this repo
 ```python
-git clone https://github.com/d-val/nguyen_cognitive_battery.git
+git clone https://github.com/d-val/cognitive_battery_benchmark
 ```
 ## Requirements
 Python 3.7 or 3.8
 
 - Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
-- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/utils` folder
+- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/utils` folder
 
 OR
 
@@ -92,3 +92,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation
+  
+
+## Issues & Debugging
+- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file. 
