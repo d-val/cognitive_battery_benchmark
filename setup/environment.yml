@@ -13,6 +13,8 @@ dependencies:
     - click
     - Flask
     - idna
+    - imageio
+    - imageio-ffmpeg
     - itsdangerous
     - Jinja2
     - jmespath

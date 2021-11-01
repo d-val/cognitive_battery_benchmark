@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+from collections import namedtuple
+
 import numpy as np
-from ai2thor.controller import Controller
 import random
-import cv2
-import random
-from tqdm import tqdm
 import math
+import argparse
 
 # unity directory
 from experiment import Experiment
@@ -16,30 +15,43 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class AdditionNumbers(Experiment):
-    def __init__(self, fov=None, seed=0):
+    def __init__(
+        self,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[90, 120],
+        visibilityDistance=5,
+        seed=0,
+    ):
 
         random.seed(seed)
         np.random.seed(seed)
-
+        self.stats = {
+            "visibility_distance": visibilityDistance
+            if type(visibilityDistance) != list
+            else random.randint(*visibilityDistance),
+            "fov": fov if type(fov) != list else random.randint(*fov),
+        }
         super().__init__(
             {
-                # local build
-                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "visibilityDistance": 5,
-                "scene": "FloorPlan1",
-                # step sizes
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                # image modalities
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                # # camera properties
-                "width": 2000,
-                "height": 2000,
-                "fieldOfView": random.randint(90, 120) if fov is None else fov,
-                "makeAgentsVisible": False,
+                **{
+                    # local build
+                    "visibilityDistance": self.stats["visibility_distance"],
+                    # camera properties
+                    "fieldOfView": self.stats["fov"],
+                },
+                **controller_args,
             }
         )
 
@@ -78,10 +90,13 @@ class AdditionNumbers(Experiment):
         # )
 
     def run(
-        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, max_reward=6
+        self,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        rewardType=None,
+        max_rewards=[6, 6, 6],
+        defined_rewards=None,
     ):
-        #TODO: add ability to specify number of items in each plate
-        self.rewardType = random.sample(rewardTypes, 1)[0]
+        rewardType = random.sample(rewardTypes, 1)[0]
 
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -157,13 +172,19 @@ class AdditionNumbers(Experiment):
                         "position": {"x": 0.4, "y": 1.105, "z": 0},
                     }
                 )
+            reward = namedtuple("reward", ["left", "middle", "right"])
+
+            defined_rewards = (
+                reward(*[np.random.randint(0, max_r) for max_r in max_rewards])
+                if defined_rewards is None
+                else reward(*defined_rewards)
+            )
 
             # randomly spawn between 0 to 9 food on each plate
-            if obj["objectType"] == self.rewardType:
+            if obj["objectType"] == rewardType:
                 # left rewards
-                j = random.randint(0, max_reward)
-                for i in range(j):  # [0,j)
-                    theta = 2 * math.pi * i / j
+                for i in range(defined_rewards.left):  # [0,j)
+                    theta = 2 * math.pi * i / defined_rewards.left
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -172,15 +193,14 @@ class AdditionNumbers(Experiment):
                             "position": {
                                 "x": -0.25 + r * math.cos(theta),
                                 "y": 1.205,
-                                "z": -0.6 + r * math.sin(theta),
+                                "z": 0.6 + r * math.sin(theta),
                             },
                         }
                     )
 
                 # right rewards
-                k = random.randint(0, max_reward)
-                for i in range(k):  # [0,k)
-                    theta = 2 * math.pi * i / k
+                for i in range(defined_rewards.right):  # [0,k)
+                    theta = 2 * math.pi * i / defined_rewards.right
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -189,15 +209,14 @@ class AdditionNumbers(Experiment):
                             "position": {
                                 "x": -0.25 + r * math.cos(theta),
                                 "y": 1.205,
-                                "z": 0.6 + r * math.cos(theta),
+                                "z": -0.6 + r * math.cos(theta),
                             },
                         }
                     )
 
                 # mid rewards
-                l = random.randint(0, max_reward)
-                for i in range(l):  # [0,l)
-                    theta = 2 * math.pi * i / l
+                for i in range(defined_rewards.middle):  # [0,l)
+                    theta = 2 * math.pi * i / defined_rewards.middle
                     r = random.uniform(0.1, 0.15)
                     initialPoses.append(
                         {
@@ -210,7 +229,6 @@ class AdditionNumbers(Experiment):
                             },
                         }
                     )
-                print(j, k, l)
             # Put lids on 3 plates
             if obj["name"] == "BigBowl":
                 # left plate (z < 0)
@@ -297,18 +315,18 @@ class AdditionNumbers(Experiment):
 
         # transfer food
         current_objects = self.last_event.metadata["objects"]
-
+        # TODO: weird double movement of a single apple, point out
         # randomly choose left or right plate, pick random multiplier associates to the direction to move food
-        # right, multiplier = 1; left, multiplier = -1
-        if random.random() > 0.5:
-            multiplier = 1
-        else:
+        # right, multiplier = -1; left, multiplier = 1
+        move_side = random.random()
+        if move_side < 0.5:
             multiplier = -1
+            move_side = "right"
+        else:
+            multiplier = 1
+            move_side = "left"
         for obj in current_objects:
-            if (
-                obj["name"].startswith(self.rewardType)
-                and abs(obj["position"]["z"]) < 0.3
-            ):
+            if obj["name"].startswith(rewardType) and abs(obj["position"]["z"]) < 0.3:
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
@@ -322,24 +340,113 @@ class AdditionNumbers(Experiment):
                     self.third_party_camera_frames,
                 )
 
-        #dummy moves for debugging
-        self.step("MoveBack", moveMagnitude = 0)
-        self.step("MoveAhead", moveMagnitude = 0)
+        # dummy moves for debugging
+        self.step("MoveBack", moveMagnitude=0)
+        self.step("MoveAhead", moveMagnitude=0)
 
-        #count rewards to get output
-        self.out = None
+        # count rewards to get output
+        out = "equal"  # left == right
         left = 0
         right = 0
 
         for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == self.rewardType:
-                if obj["position"]["z"] > 0:
-                    right += 1
+            if obj["objectType"] == rewardType:
                 if obj["position"]["z"] < 0:
+                    right += 1
+                if obj["position"]["z"] > 0:
                     left += 1
         if left > right:
-            self.out = -1
+            out = "left"
         elif left < right:
-            self.out = 1
-        else:  # left == right
-            self.out = 0
+            out = "right"
+        self.stats.update(
+            {
+                "reward_type": rewardType,
+                "defined_left_reward": defined_rewards.left,
+                "defined_middle_reward": defined_rewards.middle,
+                "defined_right_reward": defined_rewards.right,
+                "move_side": move_side,
+                "final_greater_side": out,
+            }
+        )
+
+        self.label = out
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run AdditionNumbers from file")
+    parser.add_argument(
+        "saveTo",
+        action="store",
+        type=str,
+        help="which folder to save frames to",
+    )
+    parser.add_argument(
+        "--saveFov",
+        action="store",
+        type=str,
+        help="which perspective video to save",
+    )
+    parser.add_argument(
+        "--fov", action="store", default=[90, 120], help="field of view"
+    )
+    parser.add_argument(
+        "--visDist", action="store", default=5, help="visibility distance of camera"
+    )
+    parser.add_argument(
+        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+    )
+
+    parser.add_argument(
+        "--height", action="store", type=int, default=800, help="height of the frame"
+    )
+    parser.add_argument(
+        "--width", action="store", type=int, default=800, help="width of the frame"
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=int,
+        help="reward type \n Potato = 0\n Tomato = 1\n Apple = 2",
+    )
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Potato", "Tomato", "Apple"],
+        help='list of possible rewards types, such as ["Potato", "Tomato", "Apple"]',
+    )
+    parser.add_argument(
+        "--maxRew",
+        action="store",
+        type=list,
+        default=[6, 6, 6],
+        help="maximum rewards across the [left, middle, right] plate",
+    )
+    parser.add_argument(
+        "--defRew",
+        action="store",
+        type=list,
+        help="defined rewards across the [left, middle, right] plate",
+    )
+
+    args = parser.parse_args()
+    # TODO: add assertion on types and values here, reorder inputs
+
+    experiment = AdditionNumbers(
+        {"height": args.height, "width": args.width},
+        fov=args.fov,
+        visibilityDistance=args.visDist,
+        seed=args.seed,
+    )
+
+    experiment.run(
+        rewardTypes=args.rewTypes,
+        rewardType=args.rewType,
+        max_rewards=args.maxRew,
+        defined_rewards=args.defRew,
+    )
+
+    experiment.stop()
+    experiment.save_frames_to_folder(args.saveTo, args.saveFov)
