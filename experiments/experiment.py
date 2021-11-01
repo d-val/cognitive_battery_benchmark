@@ -1,41 +1,107 @@
+import logging
 import os
+import pickle
+import warnings
+
+import numpy as np
 from PIL import Image
 from ai2thor.controller import Controller
-from tqdm import tqdm
+import imageio
+from collections import namedtuple
+import random
 import yaml
 import sys
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 
 
 class Experiment(Controller):
     def __init__(self, controller_args):
-        super().__init__(**controller_args)
+        super().__init__(
+            **{
+                **{  # local build
+                    "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+                    "agentMode": "default",
+                    "scene": "FloorPlan1",
+                    # step sizes
+                    "gridSize": 0.25,
+                    "snapToGrid": False,
+                    "rotateStepDegrees": 90,
+                    # image modalities
+                    "renderDepthImage": False,
+                    "renderInstanceSegmentation": False,
+                    # camera properties
+                    "width": 300,
+                    "height": 300,
+                    "makeAgentsVisible": False,
+                },
+                **controller_args,
+            }
+        )
         self.frame_list = []
         self.saved_frames = []
         self.third_party_camera_frames = []
 
-    def save_frames_to_folder(self, SAVE_DIR, first_person=True):
-
-        if not os.path.isdir(f"frames/{SAVE_DIR}"):
-            os.makedirs(f"frames/{SAVE_DIR}")
-
+    def save_frames_to_folder(
+        self,
+        SAVE_DIR,
+        first_person=True,
+        save_stats=True,
+        db_mode=True,
+        save_video=True,
+    ):
         fov_frames = self.frame_list if first_person else self.third_party_camera_frames
-        print("num frames", len(fov_frames))
-        height, width, channels = fov_frames[0].shape
 
-        for i, frame in enumerate(tqdm(fov_frames)):
-            img = Image.fromarray(frame)
-            img.save(f"frames/{SAVE_DIR}/{i}.jpeg")
+        if db_mode:
+            db_SAVE_DIRS = {
+                "human": f"{SAVE_DIR}/human_readable",
+                "machine": f"{SAVE_DIR}/machine_readable",
+            }
+            for name, folder in db_SAVE_DIRS.items():
+                if not os.path.isdir(f"{folder}"):
+                    if name == "human":
+                        os.makedirs(f"{folder}/frames")
+                    else:
+                        os.makedirs(f"{folder}")
+                with open(
+                    f"{folder}/experiment_stats.yaml",
+                    "w",
+                ) as yaml_file:
+                    yaml.dump(self.stats, yaml_file, default_flow_style=False)
+
+                if name == "human":
+                    for i, frame in enumerate(fov_frames):
+                        img = Image.fromarray(frame)
+                        img.save(f"{folder}/frames/frame_{i}.jpeg")
+                elif name == "machine":
+                    iter_data = {
+                        "images": fov_frames,
+                        "label": self.label,
+                        "stats": self.stats,
+                    }
+                    with open(f"{folder}/iteration_data.pickle", "wb") as handle:
+                        pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            if not os.path.isdir(f"{SAVE_DIR}"):
+                os.makedirs(f"{SAVE_DIR}")
+
+            elif save_stats:
+                with open(
+                    f"{SAVE_DIR}/experiment_stats.yaml",
+                    "w",
+                ) as yaml_file:
+                    yaml.dump(self.stats, yaml_file, default_flow_style=False)
+
+        if save_video:
+            imageio.mimwrite(
+                f"{SAVE_DIR}/experiment_video.mp4",
+                fov_frames,
+                fps=30,
+                quality=9.5,
+                macro_block_size=16,
+                ffmpeg_log_level="error",
+            )
 
     def run(self):
         raise NotImplementedError
-
-
-def runExperimentJob(renderer_file, experiment_file):
-    def str_to_class(classname):
-        return getattr(sys.modules[__name__], classname)
-
-    with open(f"{experiment_file}", "r") as stream:
-        experiment_data = yaml.safe_load(stream)
-
-    for experiment, parameters in experiment_data.items():
-        print(experiment, parameters)

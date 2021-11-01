@@ -12,7 +12,7 @@ pip install -r setup/requirements.txt
 #### With conda:
 
 ```bash
-conda env create -f environment.yml
+conda env create -f setup/environment.yml
 conda activate cognitive-battery-benchmark
 ```
 
@@ -35,7 +35,7 @@ By installing the ai2thor package, it should automatically download all the requ
 
 ## Clone this repo
 ```python
-git clone https://github.com/d-val/nguyen_cognitive_battery.git
+git clone https://github.com/d-val/cognitive_battery_benchmark
 ```
 ## Requirements
 Python 3.7 or 3.8

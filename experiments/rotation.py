@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import random
 import math
@@ -13,32 +14,45 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class Rotation(Experiment):
-    # set distance of cups to the center of tray (d1,d2,d3)
-    def __init__(self, fov=None, seed=0):
+    # set distance of cups to the center of tray (left,middle,right)
+    def __init__(
+        self,
+        controller_args={
+            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[90, 120],
+        visibilityDistance=5,
+        seed=0,
+    ):
 
         random.seed(seed)
         np.random.seed(seed)
 
-        # set case according to the spreadsheet
+        self.stats = {
+            "visibility_distance": visibilityDistance
+            if type(visibilityDistance) != list
+            else random.randint(*visibilityDistance),
+            "fov": fov if type(fov) != list else random.randint(*fov),
+        }
         super().__init__(
             {
-                # local build
-                "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "visibilityDistance": 5,
-                "scene": "FloorPlan1",
-                # step sizes
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                # image modalities
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                # # camera properties
-                "width": 2000,
-                "height": 2000,
-                "fieldOfView": random.randint(90, 120) if fov is None else fov,
-                "makeAgentsVisible": False,
+                **{
+                    # local build
+                    "visibilityDistance": self.stats["visibility_distance"],
+                    # camera properties
+                    "fieldOfView": self.stats["fov"],
+                },
+                **controller_args,
             }
         )
 
@@ -64,17 +78,19 @@ class Rotation(Experiment):
 
     def run(
         self,
-        case=1,
-        d1=-0.4,
-        d2=0,
-        d3=0.4,
+        case=None,
+        distances=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
     ):
         # List of initial poses (receptacle_names' poses)
-
-        distances = {"d1": d1, "d2": d2, "d3": d3}
-        self.rewardType = (
+        case = case if case is not None else random.randint(1, 3)
+        distances = (
+            distances
+            if distances is not None
+            else {"left": 0.4, "middle": 0, "right": -0.4}
+        )
+        rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
         )
 
@@ -92,15 +108,15 @@ class Rotation(Experiment):
         # rotate 180, food in middle
         if case == 1:
             num_rotate = 6
-            food_dist = distances["d2"]
+            food_dist = distances["middle"]
         # rotate 360, food in left or right
         if case == 2:
             num_rotate = 11
-            food_dist = random.choice([distances["d1"], distances["d3"]])
+            food_dist = random.choice([distances["left"], distances["right"]])
         # rotate 180, food in left or right
         if case == 3:
             num_rotate = 6
-            food_dist = random.choice([distances["d1"], distances["d3"]])
+            food_dist = random.choice([distances["left"], distances["right"]])
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for i in range(0, num_rotate):
@@ -143,12 +159,18 @@ class Rotation(Experiment):
                 #                 "position": {'x': 0 - 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': -0.4*math.cos(angle_radian)}
                 #                 }
                 #                 )
-                if (
-                    obj["name"] != "Tray"
-                    and obj["objectType"] != "Potato"
-                    and obj["name"][:4] != "Cup1"
-                ):
-                    initialPoses.append(initialPose)
+                if obj["objectType"] == rewardType:
+                    initialPoses.append(
+                        {
+                            "objectName": obj["name"],
+                            "rotation": {"x": -0.0, "y": angle, "z": 0},
+                            "position": {
+                                "x": food_dist * math.sin(angle_radian),
+                                "y": 1.205,
+                                "z": food_dist * math.cos(angle_radian),
+                            },
+                        }
+                    )
 
             initialPoses.append(
                 {
@@ -162,9 +184,9 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": 0 + distances["d3"] * math.sin(angle_radian),
+                        "x": 0 + distances["right"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d3"] * math.cos(angle_radian),
+                        "z": distances["right"] * math.cos(angle_radian),
                     },
                 }
             )
@@ -173,9 +195,9 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": distances["d2"] * math.sin(angle_radian),
+                        "x": distances["middle"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d2"] * math.cos(angle_radian),
+                        "z": distances["middle"] * math.cos(angle_radian),
                     },
                 }
             )
@@ -184,24 +206,13 @@ class Rotation(Experiment):
                     "objectName": "Cup1",
                     "rotation": {"x": -0.0, "y": angle, "z": 180},
                     "position": {
-                        "x": distances["d1"] * math.sin(angle_radian),
+                        "x": distances["left"] * math.sin(angle_radian),
                         "y": 1.505,
-                        "z": distances["d1"] * math.cos(angle_radian),
+                        "z": distances["left"] * math.cos(angle_radian),
                     },
                 }
             )
-            initialPoses.append(
-                {
-                    "objectName": "Potato_35885ea7",
-                    "rotation": {"x": -0.0, "y": angle, "z": 0},
-                    "position": {
-                        "x": food_dist * math.sin(angle_radian),
-                        "y": 1.205,
-                        "z": food_dist * math.cos(angle_radian),
-                    },
-                }
-            )
-            print(len(initialPoses))
+
             # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
             self.step(
                 action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
@@ -227,16 +238,107 @@ class Rotation(Experiment):
         # return value
         # 1 = right, 0 = middle, -1 = left
         for obj in self.last_event.metadata["objects"]:
-            if obj["name"] == "Potato_35885ea7":
+            if obj["objectType"] == rewardType:
                 dist = obj["position"]["z"]
-                if dist > 0.3:
-                    out = 1
-                if dist < -0.3:
-                    out = -1
-                if abs(dist) < 0.1:
-                    out = 0
-        print(out)
+                if dist < 0.3:
+                    out = "right"
+                if dist > -0.3:
+                    out = "left"
+                if abs(dist) <= 0.3:
+                    out = "middle"
 
         # dummy moves for debug
-        self.step("MoveBack", moveMagnitude = 0)
-        self.step("MoveAhead", moveMagnitude = 0)
+        self.step("MoveBack", moveMagnitude=0)
+        self.step("MoveAhead", moveMagnitude=0)
+
+        for loc, val in distances.items():
+            if val == food_dist:
+                initialLoc = loc
+
+        self.stats.update(
+            {
+                "case": case,
+                "distances": distances,
+                "reward_type": rewardType,
+                "initial_object_location": initialLoc,
+                "final_object_location": out,
+            }
+        )
+
+        self.label = out
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Rotation from file")
+    parser.add_argument(
+        "saveTo",
+        action="store",
+        type=str,
+        help="which folder to save frames to",
+    )
+    parser.add_argument(
+        "--saveFov",
+        action="store",
+        type=str,
+        help="which perspective video to save",
+    )
+    parser.add_argument(
+        "--fov", action="store", default=[90, 120], help="field of view"
+    )
+    parser.add_argument(
+        "--visDist", action="store", default=5, help="visibility distance of camera"
+    )
+    parser.add_argument(
+        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+    )
+
+    parser.add_argument(
+        "--height", action="store", type=int, default=800, help="height of the frame"
+    )
+    parser.add_argument(
+        "--width", action="store", type=int, default=800, help="width of the frame"
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=int,
+        help="reward type \n Potato = 0\n Tomato = 1\n Apple = 2",
+    )
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Potato", "Tomato", "Apple"],
+        help='list of possible rewards types, such as ["Potato", "Tomato", "Apple"]',
+    )
+    parser.add_argument(
+        "--case",
+        action="store",
+        type=list,
+        help="specific rotation case",
+    )
+    parser.add_argument(
+        "--distances",
+        action="store",
+        type=list,
+        help="defined distances for the [left, middle, right] receptacle",
+    )
+
+    args = parser.parse_args()
+    # TODO: add assertion on types and values here, reorder inputs
+
+    experiment = Rotation(
+        {"height": args.height, "width": args.width},
+        fov=args.fov,
+        visibilityDistance=args.visDist,
+        seed=args.seed,
+    )
+    experiment.run(
+        case=args.case,
+        distances=args.distances,
+        rewardTypes=args.rewTypes,
+        rewardType=args.rewType,
+    )
+    experiment.stop()
+    experiment.save_frames_to_folder(args.saveTo, args.saveFov)
