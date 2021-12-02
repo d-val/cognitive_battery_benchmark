@@ -1,5 +1,5 @@
 thor-OSXIntel64-local.zip
-experiments/utils/thor-OSXIntel64-local.app/
+experiments/dataset_generation/utils/thor-OSXIntel64-local.app/
 *.app
 *.zip
 venv/
