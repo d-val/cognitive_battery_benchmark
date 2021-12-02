@@ -103,5 +103,13 @@ class Experiment(Controller):
                 ffmpeg_log_level="error",
             )
 
+    def label_to_int(self, label):
+        if label == "left":
+            return -1
+        elif label == "right":
+            return 1
+        else:
+            return 0
+
     def run(self):
         raise NotImplementedError
