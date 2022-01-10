@@ -96,7 +96,9 @@ class AdditionNumbers(Experiment):
         max_rewards=[6, 6, 6],
         defined_rewards=None,
     ):
-        rewardType = random.sample(rewardTypes, 1)[0]
+        rewardType = (
+            random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
+        )
 
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -109,6 +111,7 @@ class AdditionNumbers(Experiment):
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
+            print(obj["name"])
 
             # current Pose of the object
             initialPose = {
@@ -259,7 +262,6 @@ class AdditionNumbers(Experiment):
                 )
 
             initialPoses.append(initialPose)
-
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
             action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
@@ -343,7 +345,8 @@ class AdditionNumbers(Experiment):
         # dummy moves for debugging
         self.step("MoveBack", moveMagnitude=0)
         self.step("MoveAhead", moveMagnitude=0)
-
+        if self.last_event.metadata["errorMessage"]:
+            print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
         out = "equal"  # left == right
         left = 0
