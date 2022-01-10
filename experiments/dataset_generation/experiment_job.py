@@ -6,6 +6,7 @@ from relative_numbers import RelativeNumbers
 from rotation import Rotation
 from simple_swap import SimpleSwap
 from tqdm import tqdm
+import re
 
 
 class ExperimentJob:
@@ -39,7 +40,11 @@ class ExperimentJob:
                     experimentClass.run(**parameters["run"])
 
     def run(self, name=None, seed_pattern="iterative"):
-        self.jobName = datetime.datetime.now() if name is None else name
+        self.jobName = (
+            re.sub(r"[^\w\d-]", "_", str(datetime.datetime.now()))
+            if name is None
+            else name
+        )
         self.make_folder(f"frames/{self.jobName}")
 
         with open(f"frames/{self.jobName}/renderer.yaml", "w") as yaml_file:
