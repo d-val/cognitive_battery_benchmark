@@ -87,10 +87,9 @@ class Shape(Experiment):
         initialPoses = []
         afterPoses = []
 
-        # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
+        # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
-            print(obj["name"], obj["objectType"])
             # current Pose of the object
             initialPose = {
                 "objectName": obj["name"],
@@ -106,7 +105,6 @@ class Shape(Experiment):
 
             # Set the Plates location (pre-determined)
             if obj["objectType"] == "Plate":
-
                 cardboard1 = obj["objectId"]
                 # right Cardboard1 (z > 0)
                 initialPoses.append(
@@ -204,6 +202,7 @@ class Shape(Experiment):
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
+
         self.step(
             action="SetObjectPoses", objectPoses=afterPoses, placeStationary=False
         )
