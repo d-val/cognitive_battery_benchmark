@@ -93,6 +93,9 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation
   
+## To run:
+- 
+
 
 ## Issues & Debugging
 - When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file. 
