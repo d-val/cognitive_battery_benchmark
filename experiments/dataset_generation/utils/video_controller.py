@@ -11,12 +11,13 @@ Known issues:
 - Multi agent rotations don't work (since TeleportFull breaks when passing in an AgentID)
 """
 
-from ai2thor.controller import Controller
-import cv2
-import os
-from PIL import Image
 import math
+import os
 from math import erf, sqrt
+
+import cv2
+from PIL import Image
+from ai2thor.controller import Controller
 
 
 class VideoController(Controller):
