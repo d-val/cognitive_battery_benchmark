@@ -1,14 +1,11 @@
-import torch
-from torch.utils.data import Dataset
-from torchvision import transforms
 import os
-import pickle5 as pickle
+
 import numpy as np
+import pickle5 as pickle
+import torch
 import torchvision.models as models
 from torch import nn
-
-from torch.utils.data import DataLoader
-import torch.nn.functional as F
+from torch.utils.data import Dataset
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
@@ -99,24 +96,31 @@ class ImageClassifier:
         )
         return test_loss, correct
 
+
 class BenchmarkDataset(Dataset):
-  def __init__(self, folder, experiment, transform=None, target_transform=None):
-    super(BenchmarkDataset).__init__()
-    self.folder = folder
-    self.experiment = experiment
-    self.transform = transform
-    self.target_transform = target_transform
-    self.len = len(next(os.walk(os.path.join(self.folder, experiment)))[1])
+    def __init__(self, folder, experiment, transform=None, target_transform=None):
+        super(BenchmarkDataset).__init__()
+        self.folder = folder
+        self.experiment = experiment
+        self.transform = transform
+        self.target_transform = target_transform
+        self.len = len(next(os.walk(os.path.join(self.folder, experiment)))[1])
 
-  def __len__(self):
-    return self.len
+    def __len__(self):
+        return self.len
 
-  def __getitem__(self, idx):
-    with open(f"{self.folder}/{self.experiment}/{idx}/machine_readable/iteration_data.pickle", "rb") as iter_file:
-      iter_data = pickle.load(iter_file)
-    images, label = torch.from_numpy(np.moveaxis(iter_data['images'][0], 2, 0)), iter_data['label']
-    if self.transform:
-        images = self.transform(images)
-    if self.target_transform:
-        label = self.target_transform(label)
-    return images, label
+    def __getitem__(self, idx):
+        with open(
+            f"{self.folder}/{self.experiment}/{idx}/machine_readable/iteration_data.pickle",
+            "rb",
+        ) as iter_file:
+            iter_data = pickle.load(iter_file)
+        images, label = (
+            torch.from_numpy(np.moveaxis(iter_data["images"][0], 2, 0)),
+            iter_data["label"],
+        )
+        if self.transform:
+            images = self.transform(images)
+        if self.target_transform:
+            label = self.target_transform(label)
+        return images, label

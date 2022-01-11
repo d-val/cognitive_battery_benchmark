@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import argparse
+import math
 import os
+import random
 from collections import namedtuple
 
 import numpy as np
-import random
-import math
-import argparse
 
 # unity directory
 from experiment import Experiment

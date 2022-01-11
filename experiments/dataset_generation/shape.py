@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import numpy as np
-from ai2thor.controller import Controller
 import random
-import cv2
-from tqdm import tqdm
-import math
+
+import numpy as np
 
 # unity directory
 from experiment import Experiment
@@ -235,4 +232,4 @@ class Shape(Experiment):
 
 x = Shape()
 x.run()
-x.save_frames_to_folder('shape')
+x.save_frames_to_folder("shape")
