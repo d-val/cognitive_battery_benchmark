@@ -11,7 +11,7 @@ import re
 
 class ExperimentJob:
     def __init__(
-        self, renderer_file, experiment_files, test_init=False, test_run=False
+        self, renderer_file, experiment_files: list, test_init=False, test_run=False
     ):
         self.experiments = {}
 

@@ -1,37 +1,37 @@
-#AdditionNumbers:
-#  iterations: 10
-#  run:
-#    rewardTypes: ["Potato", "Tomato", "Apple"]
-#    rewardType: null
-#    max_rewards: [ 6, 6, 6 ]
-#    defined_rewards: null
+AdditionNumbers:
+  iterations: 1
+  run:
+    rewardTypes: ["Potato", "Tomato", "Apple"]
+    rewardType: null
+    max_rewards: [ 6, 6, 6 ]
+    defined_rewards: null
 
 RelativeNumbers:
-  iterations: 1000
+  iterations: 1
   run:
     rewardTypes: [ "Potato", "Tomato", "Apple" ]
     rewardType: null
     max_rewards: [ 8, 8 ]
     defined_rewards: null
 
-#Rotation:
-#  iterations: 10
-#  run:
-#    case: null
-#    distances: null
-#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-#    rewardType: null
-#
-#SimpleSwap:
-#  iterations: 10
-#  run:
-#    moveup_magnitude: 0.45
-#    move_recep_ahead_mag: 0.45
-#    receptacleType: null
-#    receptacleTypes: ["Pot", "Mug", "Cup"]
-#    reward_pot: null
-#    rewardType: null
-#    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
-#    swaps: null
-#    pots_to_swap: null
-#    reward_position: null
+Rotation:
+  iterations: 1
+  run:
+    case: null
+    distances: null
+    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+    rewardType: null
+
+SimpleSwap:
+  iterations: 1
+  run:
+    moveup_magnitude: 0.45
+    move_recep_ahead_mag: 0.45
+    receptacleType: null
+    receptacleTypes: ["Pot", "Mug", "Cup"]
+    reward_pot: null
+    rewardType: null
+    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
+    swaps: null
+    pots_to_swap: null
+    reward_position: null
