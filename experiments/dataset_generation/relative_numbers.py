@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import random
 from collections import namedtuple
 
 import numpy as np
-import random
 
 # unity directory
 from experiment import Experiment

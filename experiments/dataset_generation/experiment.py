@@ -1,16 +1,11 @@
 import logging
 import os
 import pickle
-import warnings
 
-import numpy as np
+import imageio
+import yaml
 from PIL import Image
 from ai2thor.controller import Controller
-import imageio
-from collections import namedtuple
-import random
-import yaml
-import sys
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
