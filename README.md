@@ -1,8 +1,21 @@
  
-# Cognitive Battery Benchmark
+# Human Cognitive Battery Benchmark
+
+This repository contains the simulated implementation (using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D) a series of cognitive science experiments that [are routinely run on monkeys, crows, humans, etc](https://dx.plos.org/10.1371/journal.pone.0032024 ).
+
 
 ## 💻 Installation
 
+
+### Clone this repo
+```python
+git clone https://github.com/d-val/cognitive_battery_benchmark
+```
+
+- Download our customized build from the following link [here](https://www.dropbox.com/s/dd0goyeihrwaxe6/thor-OSXIntel64-local.zip?dl=0)
+- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/utils` folder
+
+### Python 3.7 or 3.8 set-up:
 #### With pip:
 
 ```bash
@@ -16,43 +29,41 @@ conda env create -f setup/environment.yml
 conda activate cognitive-battery-benchmark
 ```
 
-#### With Docker
+## Running
+#### Minimal Example to test if AI2-THOR installation:
 
-[🐳 AI2-THOR Docker](https://github.com/allenai/ai2thor-docker) can be used, which adds the configuration for running a X server to be used by Unity 3D to render scenes.
-
-#### Minimal Example
-
-Once you've installed AI2-THOR, you can verify that everything is working correctly by running the following minimal example:
+Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents. 
+After running `pip` or `conda` install earlier, it should have installed AI2-THOR. you can verify that everything is working correctly by running the following minimal example:
 
 ```python
-from ai2thor.controller import Controller
-controller = Controller(scene="FloorPlan10")
-event = controller.step(action="RotateRight")
-metadata = event.metadata
-print(event, event.metadata.keys())
-```
-By installing the ai2thor package, it should automatically download all the required packages. You can check them in `requirements.txt`.
-
-## Clone this repo
-```python
-git clone https://github.com/d-val/cognitive_battery_benchmark
-```
-## Requirements
-Python 3.7 or 3.8
-
-- Download our customized build from the following link [here](https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip?dl=0)
-- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/utils` folder
-
-OR
-
-From inside the root `cognitive_battery_benchmark` folder:
-```commandline
-wget https://www.dropbox.com/s/jf69rhi08a7ve0r/thor-OSXIntel64-local.zip
-unzip thor-OSXIntel64-local.zip -d experiments/utils
-rm thor-OSXIntel64-local.zip
+python ai2-thor-minimal-example.py
 ```
 
-## Running Example Experiment [`SimpleSwap`]
+This will download some AI2-THOR Unity3D libraries which can take a while as they are big (~0.5 GB)
+
+```angular2html
+ai2thor/controller.py:1132: UserWarning: Build for the most recent commit: 47bafe1ca0e8012d29befc11c2639584f8f10d52 is not available.  Using commit build 5c1b4d6c3121d17161935a36baaf0b8ac00378e7
+  warnings.warn(thor-OSXIntel64-5c1b4d6c3121d17161935a36baaf0b8ac00378e7.zip: [|||||||||||||||||||||||||||||||||||||||                                                        42%   1.7 MiB/s]  of 521.MB
+```
+After this downloads, you will see a Unity simulator window open up:
+
+[comment]: <> (![unity]&#40;static/unity.png&#41;)
+<img src="static/unity.png" width="500">
+
+Followed by this terminal output:
+
+```angular2html
+success! <ai2thor.server.Event at 0x7fadd0b87250
+    .metadata["lastAction"] = RotateRight
+    .metadata["lastActionSuccess"] = True
+    .metadata["errorMessage"] = "
+    .metadata["actionReturn"] = None
+> dict_keys(['objects', 'isSceneAtRest', 'agent', 'heldObjectPose', 'arm', 'fov', 'cameraPosition', 'cameraOrthSize', 'thirdPartyCameras', 'collided', 'collidedObjects', 'inventoryObjects', 'sceneName', 'lastAction', 'errorMessage', 'errorCode', 'lastActionSuccess', 'screenWidth', 'screenHeight', 'agentId', 'colors', 'colorBounds', 'flatSurfacesOnGrid', 'distances', 'normals', 'isOpenableGrid', 'segmentedObjectIds', 'objectIdsInBox', 'actionIntReturn', 'actionFloatReturn', 'actionStringsReturn', 'actionFloatsReturn', 'actionVector3sReturn', 'visibleRange', 'currentTime', 'sceneBounds', 'updateCount', 'fixedUpdateCount', 'actionReturn'])
+```
+
+
+
+#### Running Human Cognitive Battery Experiment [`SimpleSwap`]
 
 Run `cd experiments`:
 ```python
