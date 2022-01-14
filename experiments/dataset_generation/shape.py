@@ -59,6 +59,7 @@ class Shape(Experiment):
             fieldOfView=90,
         )
 
+
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -73,7 +74,7 @@ class Shape(Experiment):
         )
 
     def run(
-        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, coveringTypes=["Plate", "Bowl"], coveringType=None, max_reward=6
+        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, coveringTypes=["Plate"], coveringType=None, max_reward=6
     ):
         # TODO: add ability to specify number of items in each plate
         self.rewardType, self.coveringType = (
@@ -102,7 +103,7 @@ class Shape(Experiment):
             }
 
             # Set the Plates location (pre-determined)
-            if obj["objectType"] == "Box":
+            if obj["objectType"] == self.coveringType:
                 cardboard1 = obj["objectId"]
                 # right Cardboard1 (z > 0)
                 initialPoses.append(
@@ -144,7 +145,7 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": 0.4},
+                        "position": {"x": -0.55, "y": 1.3587, "z": 0.28},
                     }
                 )
 
@@ -152,23 +153,23 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": -0.28},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": 0.4},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
                         "position": {"x": -0.55, "y": 1.3587, "z": -0.28},
+                    }
+                )
+
+                afterPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": 0.4, "y": 1.3587, "z": 0.28},
+                    }
+                )
+
+                afterPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": 0.4, "y": 1.3587, "z": -0.28},
                     }
                 )
 
@@ -192,12 +193,11 @@ class Shape(Experiment):
         )
 
         for obj in self.last_event.metadata["objects"]:
-            print(obj["objectType"])
             if obj["name"] == "Occluder":
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
-                    [(0, 0, 0.2), (-0.95, 0, 0), (0, 0, -0.2)],
+                    [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
@@ -205,7 +205,7 @@ class Shape(Experiment):
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
-                    [(0, 0, 0.2), (-0.95, 0, 0), (0, 0, -0.2)],
+                    [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
@@ -242,4 +242,4 @@ class Shape(Experiment):
 
 x = Shape()
 x.run()
-# x.save_frames_to_folder("shape")
+x.save_frames_to_folder("shape", first_person=False)
