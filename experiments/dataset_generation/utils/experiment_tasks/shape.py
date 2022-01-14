@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 # unity directory
-from experiments.dataset_generation.experiment import Experiment
+from utils.experiment import Experiment
 from utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -23,8 +23,8 @@ class Shape(Experiment):
             "rotateStepDegrees": 90,
             "renderDepthImage": False,
             "renderInstanceSegmentation": False,
-            "width": 1000,
-            "height": 1000,
+            "width": 300,
+            "height": 300,
             "makeAgentsVisible": False,
         },
         fov=[90, 120],
