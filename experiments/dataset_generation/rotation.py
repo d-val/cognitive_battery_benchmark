@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import argparse
+import math
 import os
 import random
-import math
 
 # unity directory
 import numpy as np
