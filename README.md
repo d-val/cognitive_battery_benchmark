@@ -47,8 +47,7 @@ ai2thor/controller.py:1132: UserWarning: Build for the most recent commit: 47baf
 ```
 After this downloads, you will see a Unity simulator window open up:
 
-[comment]: <> (![unity]&#40;static/unity.png&#41;)
-<img src="static/unity.png" width="100">
+<img src="static/unity.png" width="200">
 
 Followed by this terminal output:
 
