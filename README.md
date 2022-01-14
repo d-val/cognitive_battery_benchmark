@@ -29,7 +29,7 @@ conda env create -f setup/environment.yml
 conda activate cognitive-battery-benchmark
 ```
 
-## Running
+## 🕹️ Running simulation
 #### Minimal Example to test if AI2-THOR installation:
 
 Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents. 
@@ -74,16 +74,14 @@ If success, a window will pop up, and the experiment will run in the terminal.
 <img src="static/simpleswap.png" width="200">
 
 
-## Saving Images
+## 💾 Saving Images
 
-To save images of a simulation, uncomment the last line
-```python
-SimpleSwapExperiment.save_to_folder()
-### UNCOMMENT THE FOLLOWING LINE TO SAVE IMAGES
-# vid.save_frames_to_file()
+To save images of a simulation, uncomment the last line `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py`
 
-```
-## Module Structure
+This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
+
+
+## 🏗️ Module Structure TODO
 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
 
@@ -102,9 +100,5 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation
   
-## To run:
-- 
-
-
 ## Issues & Debugging
 - When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file. 
