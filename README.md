@@ -62,9 +62,10 @@ success! <ai2thor.server.Event at 0x7fadd0b87250
 
 
 
-#### Running Human Cognitive Battery Experiment `SimpleSwap`
+#### Running Human Cognitive Battery Experiment
 To run the experiment:
 
+#### `SimpleSwap` example
 ```
 cd experiments/dataset_generation
 python simple_swap_example.py
@@ -73,12 +74,30 @@ If success, a window will pop up, and the experiment will run in the terminal.
 
 <img src="static/simpleswap.png" width="200">
 
-
 ## 💾 Saving Images
 
 To save images of a simulation, uncomment the last line `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py`
 
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
+
+## 🤖️ Technical definitions and implementation summary:
+Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition. 
+
+TODO experiment job
+```
+python run_all_experiments.py
+```
+
+## 🤖️ Implemented simulations:
+
+### Simple swap 
+This is based on the famour shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
+
+```angular2html
+cd experiments/dataset_generation
+python simple_swap_example.py
+```
+[video](static/simple_swap_example.mp4) 
 
 
 ## 🏗️ Module Structure TODO

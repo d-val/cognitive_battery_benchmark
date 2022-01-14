@@ -3,7 +3,7 @@ import os
 import random
 
 # unity directory
-from experiment import Experiment
+from experiments.dataset_generation.experiment import Experiment
 from utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))

@@ -1,4 +1,4 @@
-from simple_swap import SimpleSwap
+from utils.experiment_tasks.simple_swap import SimpleSwap
 
 SimpleSwapExperiment = SimpleSwap()
 SimpleSwapExperiment.run()
