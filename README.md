@@ -99,6 +99,8 @@ python simple_swap_example.py
 ```
 [video](static/simple_swap_example.mp4) 
 
+https://user-images.githubusercontent.com/1942909/149583774-4e6220ea-8c3a-4e91-ac9a-2a1903a413b7.mp4
+
 
 ## 🏗️ Module Structure TODO
 
