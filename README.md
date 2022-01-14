@@ -4,6 +4,60 @@
 This repository contains the simulated implementation (using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D) a series of cognitive science experiments that [are routinely run on monkeys, crows, humans, etc](https://dx.plos.org/10.1371/journal.pone.0032024 ).
 
 
+
+## 🤖️ Implemented simulations:
+
+
+### Relative numbers
+This is the simplest experiment whereby the agent has to decide which plate has more rewards.
+
+![relative](static/relative_numbers.jpeg)
+
+```angular2html
+cd experiments/dataset_generation
+python relative_numbers_example.py
+```
+
+### Simple swap 
+This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
+
+```angular2html
+cd experiments/dataset_generation
+python simple_swap_example.py
+```
+
+https://user-images.githubusercontent.com/1942909/149583774-4e6220ea-8c3a-4e91-ac9a-2a1903a413b7.mp4
+
+
+### Shape causality
+In this experiment, the agent has to infer that the reward is under the object that is raised over the table as it is hiding a reward underneath. The idea is to infer a causal relationship between shape and reward position.
+
+```angular2html
+cd experiments/dataset_generation
+python shape_example.py
+```
+
+
+### Addition numbers
+In this experiment, the agent has to infer which plate (left or right) contains the higher number of reward that were transfered from the center plate.
+
+TODO fix ERROR1:InvalidOperationException: moveMagnitude must be > 0
+
+```angular2html
+cd experiments/dataset_generation
+python addition_numbers_example.py
+```
+
+### Rotation
+In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations. 
+
+```angular2html
+cd experiments/dataset_generation
+python rotation_example.py
+```
+
+
+
 ## 💻 Installation
 
 
@@ -87,58 +141,6 @@ TODO experiment job
 ```
 python run_all_experiments.py
 ```
-
-## 🤖️ Implemented simulations:
-
-
-### Relative numbers
-This is the simplest experiment whereby the agent has to decide which plate has more rewards.
-
-![relative](static/relative_numbers.jpeg)
-
-```angular2html
-cd experiments/dataset_generation
-python relative_numbers_example.py
-```
-
-### Simple swap 
-This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
-
-```angular2html
-cd experiments/dataset_generation
-python simple_swap_example.py
-```
-
-https://user-images.githubusercontent.com/1942909/149583774-4e6220ea-8c3a-4e91-ac9a-2a1903a413b7.mp4
-
-
-### Shape causality
-In this experiment, the agent has to infer that the reward is under the object that is raised over the table as it is hiding a reward underneath. The idea is to infer a causal relationship between shape and reward position.
-
-```angular2html
-cd experiments/dataset_generation
-python shape_example.py
-```
-
-
-### Addition numbers
-In this experiment, the agent has to infer which plate (left or right) contains the higher number of reward that were transfered from the center plate.
-
-TODO fix ERROR1:InvalidOperationException: moveMagnitude must be > 0
-
-```angular2html
-cd experiments/dataset_generation
-python addition_numbers_example.py
-```
-
-### Rotation
-In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations. 
-
-```angular2html
-cd experiments/dataset_generation
-python rotation_example.py
-```
-
 
 ## 🏗️ Module Structure TODO
 
