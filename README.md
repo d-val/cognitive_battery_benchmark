@@ -62,19 +62,18 @@ success! <ai2thor.server.Event at 0x7fadd0b87250
 
 
 
-#### Running Human Cognitive Battery Experiment [`SimpleSwap`]
+#### Running Human Cognitive Battery Experiment `SimpleSwap`
+To run the experiment:
 
-Run `cd experiments`:
-```python
-
-from simple_swap import SimpleSwap 
-
-SimpleSwapExperiment = SimpleSwap()
-SimpleSwapExperiment.run()
-SimpleSwapExperiment.save_frames_to_folder('output')
 ```
+cd experiments/dataset_generation
+python simple_swap_example.py
+```
+If success, a window will pop up, and the experiment will run in the terminal.
 
-If success, a window with size `2000x2000` will pop up, and the experiment will run in the terminal.
+<img src="static/simpleswap.png" width="200">
+
+
 ## Saving Images
 
 To save images of a simulation, uncomment the last line
