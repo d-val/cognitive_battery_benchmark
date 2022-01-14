@@ -8,7 +8,7 @@ from collections import namedtuple
 import numpy as np
 
 # unity directory
-from experiments.dataset_generation.experiment import Experiment
+from utils.experiment import Experiment
 from utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
