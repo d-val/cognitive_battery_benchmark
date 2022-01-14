@@ -1,26 +1,26 @@
-AdditionNumbers:
-  iterations: 1
-  run:
-    rewardTypes: ["Potato", "Tomato", "Apple"]
-    rewardType: null
-    max_rewards: [ 6, 6, 6 ]
-    defined_rewards: null
-
-RelativeNumbers:
-  iterations: 1
-  run:
-    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-    rewardType: null
-    max_rewards: [ 8, 8 ]
-    defined_rewards: null
-
-Rotation:
-  iterations: 1
-  run:
-    case: null
-    distances: null
-    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-    rewardType: null
+#AdditionNumbers:
+#  iterations: 1
+#  run:
+#    rewardTypes: ["Potato", "Tomato", "Apple"]
+#    rewardType: null
+#    max_rewards: [ 6, 6, 6 ]
+#    defined_rewards: null
+#
+#RelativeNumbers:
+#  iterations: 1
+#  run:
+#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+#    rewardType: null
+#    max_rewards: [ 8, 8 ]
+#    defined_rewards: null
+#
+#Rotation:
+#  iterations: 1
+#  run:
+#    case: null
+#    distances: null
+#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+#    rewardType: null
 
 SimpleSwap:
   iterations: 1

@@ -7,7 +7,7 @@ import random
 # unity directory
 import numpy as np
 
-from experiment import Experiment
+from utils.experiment import Experiment
 from utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))

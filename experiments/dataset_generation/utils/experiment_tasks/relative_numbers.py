@@ -6,7 +6,7 @@ from collections import namedtuple
 import numpy as np
 
 # unity directory
-from experiment import Experiment
+from utils.experiment import Experiment
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
