@@ -38,6 +38,10 @@ python shape_example.py
 ```
 
 
+https://user-images.githubusercontent.com/1942909/149588490-f703bd4d-fbde-425c-8a04-13f76c706440.mp4
+
+
+
 ### Addition numbers
 In this experiment, the agent has to infer which plate (left or right) contains the higher number of reward that were transfered from the center plate.
 
@@ -48,6 +52,12 @@ cd experiments/dataset_generation
 python addition_numbers_example.py
 ```
 
+
+https://user-images.githubusercontent.com/1942909/149588507-64be0e86-23de-481e-8ac3-810b6f52d1f1.mp4
+
+
+
+
 ### Rotation
 In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations. 
 
@@ -55,6 +65,10 @@ In this experiment, similar to the simple swap experiment, the agent has to wher
 cd experiments/dataset_generation
 python rotation_example.py
 ```
+
+
+
+https://user-images.githubusercontent.com/1942909/149588521-9d2ec7e3-02fe-42c8-8575-ff3122d2028f.mp4
 
 
 
