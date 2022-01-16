@@ -22,6 +22,14 @@ Rotation:
     rewardTypes: [ "Potato", "Tomato", "Apple" ]
     rewardType: null
 
+Shape:
+  iterations: 1
+  run:
+    rewardTypes: ["Potato", "Tomato", "Apple"]
+    rewardType: null
+    coveringTypes: ["Plate"]
+    coveringType: null
+
 SimpleSwap:
   iterations: 1
   run:
