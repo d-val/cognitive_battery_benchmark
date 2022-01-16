@@ -45,8 +45,6 @@ https://user-images.githubusercontent.com/1942909/149588490-f703bd4d-fbde-425c-8
 ### Addition numbers
 In this experiment, the agent has to infer which plate (left or right) contains the higher number of reward that were transfered from the center plate.
 
-TODO fix ERROR1:InvalidOperationException: moveMagnitude must be > 0
-
 ```angular2html
 cd experiments/dataset_generation
 python addition_numbers_example.py
