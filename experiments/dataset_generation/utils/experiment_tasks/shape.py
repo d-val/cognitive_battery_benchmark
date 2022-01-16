@@ -5,8 +5,8 @@ import random
 import numpy as np
 
 # unity directory
-from utils.experiment import Experiment
-from utils.util import move_object
+from .utils.experiment import Experiment
+from .utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -231,15 +231,10 @@ class Shape(Experiment):
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
-        # dummy moves for debugging
-        # self.step("MoveBack", moveMagnitude=0)
-        # self.step("MoveAhead", moveMagnitude=0)
+
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
         self.label = self.out
 
-
-x = Shape()
-x.run()
-x.save_frames_to_folder("shape", first_person=False)
+# TODO: add main run script for shape
