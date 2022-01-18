@@ -1,0 +1,7 @@
+model:
+  structure: "resnet-18"
+  frozen_layers: 9
+  epochs: 100
+
+dataLoader:
+  batch_size: 128

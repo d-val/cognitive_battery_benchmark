@@ -1,0 +1,18 @@
+# local build
+local_executable_path: "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR"
+agentMode: "default"
+scene: "FloorPlan1"
+
+# step sizes
+gridSize: 0.25
+snapToGrid: Off
+rotateStepDegrees: 90
+
+# image modalities
+renderDepthImage: Off
+renderInstanceSegmentation: Off
+
+# camera properties
+width: 300
+height: 300
+makeAgentsVisible: Off
