@@ -1,7 +1,0 @@
-RelativeNumbers:
-  iterations: 100
-  run:
-    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-    rewardType: null
-    max_rewards: [ 8, 8 ]
-    defined_rewards: null
