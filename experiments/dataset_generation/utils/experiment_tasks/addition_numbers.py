@@ -8,8 +8,8 @@ from collections import namedtuple
 import numpy as np
 
 # unity directory
-from utils.experiment import Experiment
-from utils.util import move_object
+from .utils.experiment import Experiment
+from .utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -111,8 +111,6 @@ class AdditionNumbers(Experiment):
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
-            print(obj["name"])
-
             # current Pose of the object
             initialPose = {
                 "objectName": obj["name"],
@@ -342,9 +340,6 @@ class AdditionNumbers(Experiment):
                     self.third_party_camera_frames,
                 )
 
-        # dummy moves for debugging
-        self.step("MoveBack", moveMagnitude=0)
-        self.step("MoveAhead", moveMagnitude=0)
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
