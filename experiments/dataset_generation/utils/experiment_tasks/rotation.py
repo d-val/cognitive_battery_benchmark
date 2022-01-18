@@ -7,8 +7,8 @@ import random
 # unity directory
 import numpy as np
 
-from utils.experiment import Experiment
-from utils.util import move_object
+from .utils.experiment import Experiment
+from .utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -119,11 +119,13 @@ class Rotation(Experiment):
             food_dist = random.choice([distances["left"], distances["right"]])
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
-        for i in range(0, num_rotate):
+        speed = 0.5
+        # TODO: add check that multiple is valid (360 degrees)
+        for i in range(0, int(num_rotate/speed)):
             # empty initial poses after each iteration to avoid duplicate
             initialPoses = []
             for obj in self.last_event.metadata["objects"]:
-                angle = i * 36
+                angle = i * 36 * speed
                 angle_radian = 2 * math.pi * angle / 360
                 # current Pose of the object
                 initialPose = {
@@ -246,10 +248,6 @@ class Rotation(Experiment):
                     out = "left"
                 if abs(dist) <= 0.3:
                     out = "middle"
-
-        # dummy moves for debug
-        self.step("MoveBack", moveMagnitude=0)
-        self.step("MoveAhead", moveMagnitude=0)
 
         for loc, val in distances.items():
             if val == food_dist:
