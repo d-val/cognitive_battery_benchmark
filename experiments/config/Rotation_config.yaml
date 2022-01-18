@@ -1,7 +1,0 @@
-Rotation:
-  iterations: 100
-  run:
-    case: null
-    distances: null
-    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-    rewardType: null
