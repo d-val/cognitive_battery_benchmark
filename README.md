@@ -45,8 +45,6 @@ https://user-images.githubusercontent.com/1942909/149588490-f703bd4d-fbde-425c-8
 ### Addition numbers
 In this experiment, the agent has to infer which plate (left or right) contains the higher number of reward that were transfered from the center plate.
 
-TODO fix ERROR1:InvalidOperationException: moveMagnitude must be > 0
-
 ```angular2html
 cd experiments/dataset_generation
 python addition_numbers_example.py
@@ -151,12 +149,31 @@ This will save the experiment inside of `experiments/dataset_generation/output` 
 ## 🤖️ Technical definitions and implementation summary:
 Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition. 
 
-TODO experiment job
+To run all experiments as a job, 
+
 ```
+cd experiments/dataset_generation
 python run_all_experiments.py
 ```
 
-## 🏗️ Module Structure TODO
+If all goes well, this will output:
+```angular2html
+Running Experiment: AdditionNumbers | 1 Iterations
+100%|█████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:30<00:00, 30.95s/it]
+Running Experiment: RelativeNumbers | 1 Iterations
+100%|█████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:04<00:00,  4.01s/it]
+Running Experiment: Rotation | 1 Iterations
+100%|█████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:06<00:00,  6.34s/it]
+Running Experiment: Shape | 1 Iterations
+100%|█████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:09<00:00,  9.99s/it]
+Running Experiment: SimpleSwap | 1 Iterations
+100%|█████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:12<00:00, 12.46s/it]
+
+```
+
+The created datasets will be stored in `cd experiments/dataset_generation/output`
+
+## 🏗️ Module Structure (in progress)
 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
 
