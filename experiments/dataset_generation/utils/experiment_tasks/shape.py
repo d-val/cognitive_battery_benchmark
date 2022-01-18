@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import random
 
 import numpy as np
 
 # unity directory
-from utils.experiment import Experiment
-from utils.util import move_object
+from .utils.experiment import Experiment
+from .utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -48,8 +49,11 @@ class Shape(Experiment):
                     # camera properties
                     "fieldOfView": self.stats["fov"],
                 },
+
                 **controller_args,
-            }
+
+            },
+            fov="back"
         )
 
         self.step(
@@ -231,15 +235,86 @@ class Shape(Experiment):
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
-        # dummy moves for debugging
-        # self.step("MoveBack", moveMagnitude=0)
-        # self.step("MoveAhead", moveMagnitude=0)
+
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
         self.label = self.out
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Shape from file")
+    parser.add_argument(
+        "saveTo",
+        action="store",
+        type=str,
+        help="which folder to save frames to",
+    )
+    parser.add_argument(
+        "--saveFov",
+        action="store",
+        type=str,
+        help="which perspective video to save",
+    )
+    parser.add_argument(
+        "--fov", action="store", default=[90, 120], help="field of view"
+    )
+    parser.add_argument(
+        "--visDist", action="store", default=5, help="visibility distance of camera"
+    )
+    parser.add_argument(
+        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+    )
 
-x = Shape()
-x.run()
-x.save_frames_to_folder("shape", first_person=False)
+    parser.add_argument(
+        "--height", action="store", type=int, default=800, help="height of the frame"
+    )
+    parser.add_argument(
+        "--width", action="store", type=int, default=800, help="width of the frame"
+    )
+
+    parser.add_argument(
+        "--rewType",
+        action="store",
+        type=int,
+        help="reward type \n Potato = 0\n Tomato = 1\n Apple = 2",
+    )
+    parser.add_argument(
+        "--rewTypes",
+        action="store",
+        type=list,
+        default=["Potato", "Tomato", "Apple"],
+        help='list of possible rewards types, such as ["Potato", "Tomato", "Apple"]',
+    )
+    parser.add_argument(
+        "--covType",
+        action="store",
+        type=int,
+        help="a specific covering type in ['Plate','Bowl']"
+    )
+    parser.add_argument(
+        "--covTypes",
+        action="store",
+        type=list,
+        default=["Plate","Bowl"],
+        help='list of possible covering types, such as ["Plate","Bowl"]',
+    )
+
+    args = parser.parse_args()
+    # TODO: add assertion on types and values here, reorder inputs
+
+    experiment = Shape(
+        {"height": args.height, "width": args.width},
+        fov=args.fov,
+        visibilityDistance=args.visDist,
+        seed=args.seed,
+    )
+
+    experiment.run(
+        rewardTypes=args.rewTypes,
+        rewardType=args.rewType,
+        coveringTypes=args.covTypes,
+        coveringType=args.covType,
+    )
+
+    experiment.stop()
+    experiment.save_frames_to_folder(args.saveTo, args.saveFov)

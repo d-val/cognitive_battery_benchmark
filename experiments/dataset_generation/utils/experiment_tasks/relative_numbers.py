@@ -6,7 +6,7 @@ from collections import namedtuple
 import numpy as np
 
 # unity directory
-from utils.experiment import Experiment
+from .utils.experiment import Experiment
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -203,10 +203,6 @@ class RelativeNumbers(Experiment):
             out = "left"
         elif left < right:
             out = "right"
-
-        # dummy move for visual
-        self.step("MoveBack", moveMagnitude=0)
-        self.step("MoveBack", moveMagnitude=0)
 
         self.frame_list = [self.last_event.frame]
 

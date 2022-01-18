@@ -3,8 +3,8 @@ import os
 import random
 
 # unity directory
-from experiments.dataset_generation.experiment import Experiment
-from utils.util import move_object
+from .utils.experiment import Experiment
+from .utils.util import move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -290,8 +290,7 @@ class ObjectPermanence(Experiment):
             out = 1
         elif 0.35 < egg_final_z < 1:
             out = 0
-        # dummy moves for debugging purposes
-        self.step("MoveBack")
+
 
         # for rendering cv2 image
         # for i,e in enumerate(multi_agent_event.events):
