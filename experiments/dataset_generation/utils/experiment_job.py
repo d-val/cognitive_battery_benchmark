@@ -14,6 +14,7 @@ from .experiment_tasks.rotation import Rotation
 from .experiment_tasks.shape import Shape
 from .experiment_tasks.simple_swap import SimpleSwap
 
+
 class ExperimentJob:
     def __init__(
         self, renderer_file, experiment_files: list, test_init=False, test_run=False
@@ -44,7 +45,7 @@ class ExperimentJob:
                 if test_run:
                     experimentClass.run(**parameters["run"])
 
-    def run(self, name=None, folder_name='output', seed_pattern="iterative"):
+    def run(self, name=None, folder_name="output", seed_pattern="iterative"):
         self.jobName = (
             re.sub(r"[^\w\d-]", "_", str(datetime.datetime.now()))
             if name is None

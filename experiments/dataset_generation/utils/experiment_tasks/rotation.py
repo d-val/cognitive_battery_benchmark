@@ -82,8 +82,8 @@ class Rotation(Experiment):
         distances=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
-            degree_rotation_per_frame=9,
-            moveup_magnitude=0.4
+        degree_rotation_per_frame=9,
+        moveup_magnitude=0.4,
     ):
         # List of initial poses (receptacle_names' poses)
         case = case if case is not None else random.randint(1, 3)
@@ -121,8 +121,10 @@ class Rotation(Experiment):
             food_dist = random.choice([distances["left"], distances["right"]])
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
-        assert degrees_to_rotate % degree_rotation_per_frame == 0, "Degrees to rotate must be divisible by degree_rotation_per_frame"
-        for i in range(0, int(degrees_to_rotate/degree_rotation_per_frame)+1):
+        assert (
+            degrees_to_rotate % degree_rotation_per_frame == 0
+        ), "Degrees to rotate must be divisible by degree_rotation_per_frame"
+        for i in range(0, int(degrees_to_rotate / degree_rotation_per_frame) + 1):
             # empty initial poses after each iteration to avoid duplicate
             initialPoses = []
             for obj in self.last_event.metadata["objects"]:
