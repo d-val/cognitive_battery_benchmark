@@ -315,7 +315,7 @@ class SimpleSwap(Experiment):
         _, self.frame_list, self.third_party_camera_frames = move_object(
             self,
             recep1_id,
-            [(0, 0, self.moveup_magnitude), (self.move_recep_ahead_mag, 0, 0)],
+            [(0, 0, self.moveup_magnitude), (self.move_recep_ahead_mag, 0, self.moveup_magnitude)],
             self.frame_list,
             self.third_party_camera_frames,
         )
