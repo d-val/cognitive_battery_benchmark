@@ -6,8 +6,8 @@ import random
 import numpy as np
 
 # unity directory
-from utils.experiment import Experiment
-from utils.util import get_objectId, get_object, move_object
+from .utils.experiment import Experiment
+from .utils.util import get_objectId, get_object, move_object
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -267,10 +267,6 @@ class SimpleSwap(Experiment):
         # determine which receptacle that reward finally in from monkey perspective
         # 0 = right, 1 = middle, 2 = left
 
-        # dummy moves for debugging purposes
-        self.step("MoveBack", moveMagnitude=0)
-        self.step("MoveBack", moveMagnitude=0)
-
         self.stats.update(
             {
                 "moveup_magnitude": self.moveup_magnitude,
@@ -287,76 +283,6 @@ class SimpleSwap(Experiment):
         )
 
         self.label = self.determine_reward_loc(reward_final_z)
-        # #receptacle z coordinate to move reward in
-        # # receptacle_z = []
-        #
-        # #receptacle name and z coor
-        # receptacle_name_and_z_coor = []
-        #
-        # #get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
-        # for obj in self.last_event.metadata["objects"]:
-        #     if obj["objectType"] == rewardType:
-        #         rewardId = obj["objectId"]
-        #         reward_z = obj["position"]["z"]
-        #     if obj["objectType"] == receptacleType:
-        #         receptacle_name_and_z_coor.append((obj["name"], obj["position"]["z"]))
-        #
-        # # sample 1 random receptacle to put the rewardId (Egg) in
-        # correct_pot_z = (
-        #     pot_zs[reward_pot][0]
-        #     if reward_pot is not None
-        #     else random.sample(pot_zs, 1)[0]
-        # )
-        # pots_to_swap = (
-        #     [random.sample(self.pots, 2) for _ in range(self.swaps)]
-        #     if pots_to_swap is None
-        #     else pots_to_swap
-        # )
-        #
-        # # Calculate how much the egg should be moved to the left to be on top of the intended Pot
-        # egg_move_left_mag = correct_pot_z - egg_z
-        #
-        # # Move agent to fit the screen
-        # self.step("MoveRight")
-        #
-        # # move the reward to the pre-selected receptacle then drop it
-        # _, self.frame_list, self.third_party_camera_frames = move_object(
-        #     self,
-        #     rewardId,
-        #     [
-        #         (0, 0, self.moveup_magnitude),
-        #         (0, -egg_move_left_mag, 0),
-        #         (0, 0, -self.moveup_magnitude),
-        #     ],
-        #     self.frame_list,
-        #     self.third_party_camera_frames,
-        # )
-        # # self.frame_list.append(self.last_event.frame)
-        #
-        # for pot_swap in pots_to_swap:
-        #     self.swap(pot_swap)
-        #
-        # # get egg final z coordinates
-        # for obj in self.last_event.metadata["objects"]:
-        #     if obj["objectType"] == rewardType:
-        #         egg_final_z = obj["position"]["z"]
-        #
-        # out = None
-        # # determine which pot egg finally in.
-        # # 0 = left, 1 = middle, 2 = right
-        # if -1 < egg_final_z < -0.35:
-        #     out = 2
-        # elif -0.35 <= egg_final_z <= 0.35:
-        #     out = 1
-        # elif 0.35 < egg_final_z < 1:
-        #     out = 0
-        #
-        # # dummy moves for debugging purposes
-        # self.step("MoveBack")
-        # self = self.step("MoveBack")
-        #
-        # print(out)
-        # return out
 
     @staticmethod
     def determine_reward_loc(z_coor):

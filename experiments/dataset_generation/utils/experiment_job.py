@@ -7,6 +7,12 @@ import yaml
 
 from tqdm import tqdm
 
+from .experiment_tasks.addition_numbers import AdditionNumbers
+from .experiment_tasks.object_permanence import ObjectPermanence
+from .experiment_tasks.relative_numbers import RelativeNumbers
+from .experiment_tasks.rotation import Rotation
+from .experiment_tasks.shape import Shape
+from .experiment_tasks.simple_swap import SimpleSwap
 
 class ExperimentJob:
     def __init__(
@@ -38,18 +44,18 @@ class ExperimentJob:
                 if test_run:
                     experimentClass.run(**parameters["run"])
 
-    def run(self, name=None, seed_pattern="iterative"):
+    def run(self, name=None, folder_name='output', seed_pattern="iterative"):
         self.jobName = (
             re.sub(r"[^\w\d-]", "_", str(datetime.datetime.now()))
             if name is None
             else name
         )
-        self.make_folder(f"frames/{self.jobName}")
+        self.make_folder(f"{folder_name}/{self.jobName}")
 
-        with open(f"frames/{self.jobName}/renderer.yaml", "w") as yaml_file:
+        with open(f"{folder_name}/{self.jobName}/renderer.yaml", "w") as yaml_file:
             yaml.dump(self.renderer_data, yaml_file, default_flow_style=False)
 
-        with open(f"frames/{self.jobName}/experiments.yaml", "w") as yaml_file:
+        with open(f"{folder_name}/{self.jobName}/experiments.yaml", "w") as yaml_file:
             yaml.dump(self.experiment_data, yaml_file, default_flow_style=False)
 
         for experiment, parameters in self.experiment_data.items():
@@ -67,7 +73,7 @@ class ExperimentJob:
                 experimentClass.run(**parameters["run"])
                 experimentClass.stop()
                 experimentClass.save_frames_to_folder(
-                    f"frames/{self.jobName}/{experiment}/{iteration}"
+                    f"{folder_name}/{self.jobName}/{experiment}/{iteration}"
                 )
 
     @staticmethod

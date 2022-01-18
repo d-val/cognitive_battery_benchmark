@@ -12,7 +12,7 @@ logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 
 
 class Experiment(Controller):
-    def __init__(self, controller_args):
+    def __init__(self, controller_args, fov='front'):
         super().__init__(
             **{
                 **{  # local build
@@ -37,16 +37,18 @@ class Experiment(Controller):
         self.frame_list = []
         self.saved_frames = []
         self.third_party_camera_frames = []
+        self.fov = fov
 
     def save_frames_to_folder(
         self,
         SAVE_DIR,
-        first_person=True,
+        first_person=None,
         save_stats=True,
         db_mode=True,
         save_video=True,
     ):
-        fov_frames = self.frame_list if first_person else self.third_party_camera_frames
+        fov = first_person if first_person is not None else self.fov
+        fov_frames = self.frame_list if self.fov == 'front' else self.third_party_camera_frames
 
         if db_mode:
             db_SAVE_DIRS = {
