@@ -13,7 +13,7 @@ AdditionNumbers:
     defined_rewards: null
 
 RelativeNumbers:
-  iterations: 10
+  iterations: 1
   run:
     rewardTypes: [ "Potato", "Tomato", "Apple" ]
     rewardType: null
