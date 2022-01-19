@@ -164,15 +164,15 @@ class AdditionNumbers(Experiment):
                         "position": {"x": 0.15, "y": 1.105, "z": 0.6},
                     }
                 )
-
-                # mid occluder
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": 0.4, "y": 1.105, "z": 0},
-                    }
-                )
+                #
+                # # mid occluder
+                # initialPoses.append(
+                #     {
+                #         "objectName": obj["name"],
+                #         "rotation": {"x": -0.0, "y": 0, "z": 0},
+                #         "position": {"x": 0.4, "y": 1.105, "z": 0},
+                #     }
+                # )
             reward = namedtuple("reward", ["left", "middle", "right"])
 
             defined_rewards = (
@@ -232,24 +232,6 @@ class AdditionNumbers(Experiment):
                     )
             # Put lids on 3 plates
             if obj["name"] == "BigBowl":
-                # left plate (z < 0)
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.25, "y": 1.455, "z": -0.6},
-                    }
-                )
-
-                # right plate (z > 0)
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.25, "y": 1.455, "z": 0.6},
-                    }
-                )
-
                 # mid plate
                 initialPoses.append(
                     {
@@ -269,24 +251,16 @@ class AdditionNumbers(Experiment):
         # set aside all occluders
         for obj in current_objects:
             if obj["name"][:8] == "Occluder":
+                dir = -0.75 if obj["position"]["z"] < 0 else 0.35
+
                 # left and right stay on table
-                if abs(obj["position"]["z"]) > 0.3:
-                    _, self.frame_list, self.third_party_camera_frames = move_object(
-                        self,
-                        obj["objectId"],
-                        [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)],
-                        self.frame_list,
-                        self.third_party_camera_frames,
-                    )
-                # middle goes away
-                else:
-                    _, self.frame_list, self.third_party_camera_frames = move_object(
-                        self,
-                        obj["objectId"],
-                        [(0, 0, 0.4), (-1.2, 0, 0), (0, 0, -0.5)],
-                        self.frame_list,
-                        self.third_party_camera_frames,
-                    )
+                _, self.frame_list, self.third_party_camera_frames = move_object(
+                    self,
+                    obj["objectId"],
+                    [(0, 0, 0.4), (-0.73, 0, 0), (0, dir*0.2, 0),(0, 0, -0.5)],
+                    self.frame_list,
+                    self.third_party_camera_frames,
+                )
 
         current_objects = self.last_event.metadata["objects"]
         # remove all bowls
@@ -295,20 +269,7 @@ class AdditionNumbers(Experiment):
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
-                    [(0, 0, 0.4), (-0.73, 0, 0), (0, 0, -0.5)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
-                )
-
-        current_objects = self.last_event.metadata["objects"]
-        # put sides occluder back
-        for obj in current_objects:
-            # only put right and left occluders back
-            if obj["name"][:8] == "Occluder" and abs(obj["position"]["z"]) > 0.3:
-                _, self.frame_list, self.third_party_camera_frames = move_object(
-                    self,
-                    obj["objectId"],
-                    [(0, 0, 0.4), (+0.73, 0, 0), (0, 0, -0.5)],
+                    [(0, 0, 0.4), (0.9, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.third_party_camera_frames,
                 )

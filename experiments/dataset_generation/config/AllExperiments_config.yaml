@@ -1,16 +1,16 @@
-#AdditionNumbers:
-#  iterations: 1
-#  controllerArgs:
-#    width: 300
-#    height: 300
-#  init:
-#    fov: [ 90, 120 ]
-#    visibilityDistance: 5
-#  run:
-#    rewardTypes: ["Potato", "Tomato", "Apple"]
-#    rewardType: null
-#    max_rewards: [ 6, 6, 6 ]
-#    defined_rewards: null
+AdditionNumbers:
+  iterations: 1
+  controllerArgs:
+    width: 300
+    height: 300
+  init:
+    fov: [ 90, 120 ]
+    visibilityDistance: 5
+  run:
+    rewardTypes: ["Potato", "Tomato", "Apple"]
+    rewardType: null
+    max_rewards: [ 6, 6, 6 ]
+    defined_rewards: null
 #
 #RelativeNumbers:
 #  iterations: 1
@@ -20,15 +20,15 @@
 #    max_rewards: [ 8, 8 ]
 #    defined_rewards: null
 #
-Rotation:
-  iterations: 1
-  run:
-    case: null
-    distances: null
-    rewardTypes: [ "Potato", "Tomato", "Apple" ]
-    rewardType: null
-    degree_rotation_per_frame: 9
-    moveup_magnitude: 0.4
+#Rotation:
+#  iterations: 1
+#  run:
+#    case: null
+#    distances: null
+#    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+#    rewardType: null
+#    degree_rotation_per_frame: 9
+#    moveup_magnitude: 0.4
 #
 #Shape:
 #  iterations: 1
