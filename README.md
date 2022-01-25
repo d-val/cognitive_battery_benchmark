@@ -154,7 +154,7 @@ TODO experiment job
 python run_all_experiments.py
 ```
 
-## 🏗️ Module Structure TODO
+## 🏗️ Module Structure (in progress)
 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
 
