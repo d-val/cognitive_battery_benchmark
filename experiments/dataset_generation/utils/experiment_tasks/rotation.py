@@ -129,7 +129,7 @@ class Rotation(Experiment):
             initialPoses = []
             for obj in self.last_event.metadata["objects"]:
                 angle = i * degree_rotation_per_frame
-                print(angle, i, degrees_to_rotate)
+                # print(angle, i, degrees_to_rotate)
                 angle_radian = 2 * math.pi * angle / 360
                 # current Pose of the object
                 initialPose = {
