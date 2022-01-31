@@ -1,4 +1,4 @@
- 
+
 # Human Cognitive Battery Benchmark
 
 This repository contains the simulated implementation (using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D) a series of cognitive science experiments that [are routinely run on monkeys, crows, humans, etc](https://dx.plos.org/10.1371/journal.pone.0032024 ).
@@ -18,7 +18,7 @@ cd experiments/dataset_generation
 python relative_numbers_example.py
 ```
 
-### Simple swap 
+### Simple swap
 This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
 
 ```angular2html
@@ -57,7 +57,7 @@ https://user-images.githubusercontent.com/1942909/149588507-64be0e86-23de-481e-8
 
 
 ### Rotation
-In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations. 
+In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations.
 
 ```angular2html
 cd experiments/dataset_generation
@@ -67,6 +67,25 @@ python rotation_example.py
 
 
 https://user-images.githubusercontent.com/1942909/149588521-9d2ec7e3-02fe-42c8-8575-ff3122d2028f.mp4
+
+
+### Gravity Bias
+This expirement tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
+
+Unlike the previous expirements, this expirement was built using Unity3D instead of AI2THOR. To set up the expirement, you need to:
+- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/zqttelu4va0nzbq/GravityBias.zip).
+- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/utils` folder.
+
+```angular2html
+cd experiments/dataset_generation
+python gravity_bias.py -r -s
+```
+The `-r` flag indicates whether to save the expirement output. The `-s` flag indicates whether to show the expirement while running.
+
+
+
+https://user-images.githubusercontent.com/45083797/151129645-a284595b-16fc-4aa8-9142-66918c56dc3b.mp4
+
 
 
 
@@ -98,7 +117,7 @@ conda activate cognitive-battery-benchmark
 ## 🕹️ Running simulation
 #### Minimal Example to test if AI2-THOR installation:
 
-Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents. 
+Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents.
 After running `pip` or `conda` install earlier, it should have installed AI2-THOR. you can verify that everything is working correctly by running the following minimal example:
 
 ```python
@@ -147,9 +166,9 @@ To save images of a simulation, uncomment the last line `SimpleSwapExperiment.sa
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
 
 ## 🤖️ Technical definitions and implementation summary:
-Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition. 
+Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition.
 
-To run all experiments as a job, 
+To run all experiments as a job,
 
 ```
 cd experiments/dataset_generation
@@ -180,7 +199,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
 - **experiments**: files necessary to run experiments, based on reference paper
   - `addition_numbers.py`: addition numbers test class
   - `experiment.py`: base experiment class
-  - [**not working**] `object_permanence.py`: object permanence test class 
+  - [**not working**] `object_permanence.py`: object permanence test class
   - [**not working**] `relative_numbers.py`: relative numbers test class
   - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
@@ -191,6 +210,6 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation
-  
+
 ## Issues & Debugging
-- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file. 
+- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
