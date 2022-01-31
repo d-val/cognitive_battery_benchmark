@@ -73,8 +73,8 @@ https://user-images.githubusercontent.com/1942909/149588521-9d2ec7e3-02fe-42c8-8
 This expirement tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
 
 Unlike the previous expirements, this expirement was built using Unity3D instead of AI2THOR. To set up the expirement, you need to:
-- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/zqttelu4va0nzbq/GravityBias.zip).
-- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/utils` folder.
+- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/l9fg5yva00z6i74/GravityBias.zip?dl=0).
+- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
 ```angular2html
 cd experiments/dataset_generation
@@ -98,7 +98,7 @@ git clone https://github.com/d-val/cognitive_battery_benchmark
 ```
 
 - Download our customized build from the following link [here](https://www.dropbox.com/s/dd0goyeihrwaxe6/thor-OSXIntel64-local.zip?dl=0)
-- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/utils` folder
+- Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder
 
 ### Python 3.7 or 3.8 set-up:
 #### With pip:
@@ -191,6 +191,8 @@ Running Experiment: SimpleSwap | 1 Iterations
 ```
 
 The created datasets will be stored in `cd experiments/dataset_generation/output`
+
+Here is a [link](https://www.dropbox.com/s/olexofguy109jli/2022-01-31_15_28_40_429894.zip?dl=0) to a zipped folder as an example of the expected output. 
 
 ## 🏗️ Module Structure (in progress)
 
