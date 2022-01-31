@@ -1,4 +1,4 @@
- 
+
 # Human Cognitive Battery Benchmark
 
 This repository contains the simulated implementation (using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D) a series of cognitive science experiments that [are routinely run on monkeys, crows, humans, etc](https://dx.plos.org/10.1371/journal.pone.0032024 ).
@@ -18,7 +18,7 @@ cd experiments/dataset_generation
 python relative_numbers_example.py
 ```
 
-### Simple swap 
+### Simple swap
 This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
 
 ```angular2html
@@ -57,7 +57,7 @@ https://user-images.githubusercontent.com/1942909/149588507-64be0e86-23de-481e-8
 
 
 ### Rotation
-In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations. 
+In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations.
 
 ```angular2html
 cd experiments/dataset_generation
@@ -117,7 +117,7 @@ conda activate cognitive-battery-benchmark
 ## 🕹️ Running simulation
 #### Minimal Example to test if AI2-THOR installation:
 
-Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents. 
+Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents.
 After running `pip` or `conda` install earlier, it should have installed AI2-THOR. you can verify that everything is working correctly by running the following minimal example:
 
 ```python
@@ -166,12 +166,31 @@ To save images of a simulation, uncomment the last line `SimpleSwapExperiment.sa
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
 
 ## 🤖️ Technical definitions and implementation summary:
-Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition. 
+Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition.
 
-TODO experiment job
+To run all experiments as a job,
+
 ```
+cd experiments/dataset_generation
 python run_all_experiments.py
 ```
+
+If all goes well, this will output:
+```angular2html
+Running Experiment: AdditionNumbers | 1 Iterations
+100%||█████████████████████████| 1/1 [00:30<00:00, 30.95s/it]
+Running Experiment: RelativeNumbers | 1 Iterations
+100%||█████████████████████████| 1/1 [00:04<00:00,  4.01s/it]
+Running Experiment: Rotation | 1 Iterations
+100%||█████████████████████████| 1/1 [00:06<00:00,  6.34s/it]
+Running Experiment: Shape | 1 Iterations
+100%||█████████████████████████| 1/1 [00:09<00:00,  9.99s/it]
+Running Experiment: SimpleSwap | 1 Iterations
+100%||█████████████████████████| 1/1 [00:12<00:00, 12.46s/it]
+
+```
+
+The created datasets will be stored in `cd experiments/dataset_generation/output`
 
 ## 🏗️ Module Structure (in progress)
 
@@ -180,7 +199,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
 - **experiments**: files necessary to run experiments, based on reference paper
   - `addition_numbers.py`: addition numbers test class
   - `experiment.py`: base experiment class
-  - [**not working**] `object_permanence.py`: object permanence test class 
+  - [**not working**] `object_permanence.py`: object permanence test class
   - [**not working**] `relative_numbers.py`: relative numbers test class
   - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
@@ -191,6 +210,6 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
   - `requirements.txt`: setup pip installation
-  
+
 ## Issues & Debugging
-- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file. 
+- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.

@@ -49,11 +49,9 @@ class Shape(Experiment):
                     # camera properties
                     "fieldOfView": self.stats["fov"],
                 },
-
                 **controller_args,
-
             },
-            fov="back"
+            fov="back",
         )
 
         self.step(
@@ -62,7 +60,6 @@ class Shape(Experiment):
             rotation=dict(x=0, y=270, z=0),
             fieldOfView=90,
         )
-
 
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
@@ -78,12 +75,19 @@ class Shape(Experiment):
         )
 
     def run(
-        self, rewardTypes=["Potato", "Tomato", "Apple"], rewardType=None, coveringTypes=["Plate"], coveringType=None, max_reward=6
+        self,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        rewardType=None,
+        coveringTypes=["Plate"],
+        coveringType=None,
+        max_reward=6,
     ):
         # TODO: add ability to specify number of items in each plate
         self.rewardType, self.coveringType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType,
-            random.sample(coveringTypes, 1)[0] if coveringType is None else coveringType,
+            random.sample(coveringTypes, 1)[0]
+            if coveringType is None
+            else coveringType,
         )
 
         # List of initial poses (receptacle_names' poses)
@@ -241,6 +245,7 @@ class Shape(Experiment):
         # count rewards to get output
         self.label = self.out
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Shape from file")
     parser.add_argument(
@@ -289,13 +294,13 @@ if __name__ == "__main__":
         "--covType",
         action="store",
         type=int,
-        help="a specific covering type in ['Plate','Bowl']"
+        help="a specific covering type in ['Plate','Bowl']",
     )
     parser.add_argument(
         "--covTypes",
         action="store",
         type=list,
-        default=["Plate","Bowl"],
+        default=["Plate", "Bowl"],
         help='list of possible covering types, such as ["Plate","Bowl"]',
     )
 
