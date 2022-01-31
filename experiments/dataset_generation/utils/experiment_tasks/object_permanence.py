@@ -291,7 +291,6 @@ class ObjectPermanence(Experiment):
         elif 0.35 < egg_final_z < 1:
             out = 0
 
-
         # for rendering cv2 image
         # for i,e in enumerate(multi_agent_event.events):
         #     cv2.imshow('agent%s' % i, e.cv2img)
