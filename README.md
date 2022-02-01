@@ -1,7 +1,7 @@
 
 # Human Cognitive Battery Benchmark
 
-There are several established collections of cognition tests used to test aspects of intelligence in animals (e.g. crows, monkeys) and humans such as [the Primate Cognition Test Battery](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032024). These experiments help determine, for example, an agent's ability to understand object permanence and causality. Although these experiments are very common in cognitive science, they have not been deployed on and applied to machine learning models and algorithms. This is mostly because, so far, these cognitive science experiments were undertaken manually, with an experimenter having to physically move objects in from of the test agent while recording the interaction as a data point. The goal of the Simulated Cognitive Test Battery is to allow these experiments to be deployed for machine learning research, and at scale. We therefore recreate these experiments in 3D in a randomized and programmatic fashion to allow for the creation of rich, large datasets. 
+There are several established collections of cognition tests used to test aspects of intelligence in animals (e.g. crows, monkeys) and humans such as the [Primate Cognition Test Battery](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032024). These experiments help determine, for example, an agent's ability to understand object permanence and causality. Although these experiments are very common in cognitive science, they have not been deployed on and applied to machine learning models and algorithms. This is mostly because, so far, these cognitive science experiments were undertaken manually, with an experimenter having to physically move objects in from of the test agent while recording the interaction as a data point. The goal of the Simulated Cognitive Test Battery is to allow these experiments to be deployed for machine learning research, and at scale. We therefore recreate these experiments in 3D in a randomized and programmatic fashion to allow for the creation of rich, large datasets. 
 
 This repository contains the implementation of these experiments built using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D.
 
@@ -27,7 +27,9 @@ cd experiments/dataset_generation
 python simple_swap_example.py
 ```
 
-https://user-images.githubusercontent.com/1942909/149583774-4e6220ea-8c3a-4e91-ac9a-2a1903a413b7.mp4
+
+https://user-images.githubusercontent.com/1942909/152035221-c4f68359-cffa-4064-b885-2dc2af0f5dc9.mp4
+
 
 
 ### Shape causality
@@ -39,7 +41,10 @@ python shape_example.py
 ```
 
 
-https://user-images.githubusercontent.com/1942909/149588490-f703bd4d-fbde-425c-8a04-13f76c706440.mp4
+
+https://user-images.githubusercontent.com/1942909/152035291-598a939a-e95c-4013-91f4-5f5f5aabbc81.mp4
+
+
 
 
 
@@ -52,7 +57,9 @@ python addition_numbers_example.py
 ```
 
 
-https://user-images.githubusercontent.com/1942909/149588507-64be0e86-23de-481e-8ac3-810b6f52d1f1.mp4
+
+https://user-images.githubusercontent.com/1942909/152035368-e0843b69-684f-4a45-bf33-cb58307b0d23.mp4
+
 
 
 
@@ -67,7 +74,8 @@ python rotation_example.py
 
 
 
-https://user-images.githubusercontent.com/1942909/149588521-9d2ec7e3-02fe-42c8-8575-ff3122d2028f.mp4
+https://user-images.githubusercontent.com/1942909/152035396-739de83b-bdb7-4744-a45c-6de23a653439.mp4
+
 
 
 ### Gravity Bias
