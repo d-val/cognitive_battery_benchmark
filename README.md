@@ -1,5 +1,5 @@
 
-# Human Cognitive Battery Benchmark
+# Simulated Cognitive Test Battery
 
 There are several established collections of cognition tests used to test aspects of intelligence in animals (e.g. crows, monkeys) and humans such as the [Primate Cognition Test Battery](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032024). These experiments help determine, for example, an agent's ability to understand object permanence and causality. Although these experiments are very common in cognitive science, they have not been deployed on and applied to machine learning models and algorithms. This is mostly because, so far, these cognitive science experiments were undertaken manually, with an experimenter having to physically move objects in from of the test agent while recording the interaction as a data point. The goal of the Simulated Cognitive Test Battery is to allow these experiments to be deployed for machine learning research, and at scale. We therefore recreate these experiments in 3D in a randomized and programmatic fashion to allow for the creation of rich, large datasets. 
 
@@ -174,7 +174,7 @@ To save images of a simulation, uncomment the last line `SimpleSwapExperiment.sa
 
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
 
-## 🤖️ Technical definitions and implementation summary:
+## 📝 Technical definitions and implementation summary:
 Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition.
 
 To run all experiments as a job,
@@ -203,8 +203,12 @@ The created datasets will be stored in `cd experiments/dataset_generation/output
 
 Here is a [link](https://www.dropbox.com/s/olexofguy109jli/2022-01-31_15_28_40_429894.zip?dl=0) to a zipped folder as an example of the expected output. 
 
-## 🏗️ Module Structure (in progress)
 
+## 🚨 Issues & Debugging
+- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
+
+## 🏗️ Repository Structure (in progress)
+<!-- 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
 
 - **experiments**: files necessary to run experiments, based on reference paper
@@ -220,7 +224,5 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - **frames**: folder to store frames of experiments
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
-  - `requirements.txt`: setup pip installation
+  - `requirements.txt`: setup pip installation -->
 
-## Issues & Debugging
-- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
