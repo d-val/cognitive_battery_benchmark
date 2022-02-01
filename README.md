@@ -27,7 +27,9 @@ cd experiments/dataset_generation
 python simple_swap_example.py
 ```
 
-https://user-images.githubusercontent.com/1942909/149583774-4e6220ea-8c3a-4e91-ac9a-2a1903a413b7.mp4
+
+https://user-images.githubusercontent.com/1942909/152035221-c4f68359-cffa-4064-b885-2dc2af0f5dc9.mp4
+
 
 
 ### Shape causality
@@ -39,7 +41,10 @@ python shape_example.py
 ```
 
 
-https://user-images.githubusercontent.com/1942909/149588490-f703bd4d-fbde-425c-8a04-13f76c706440.mp4
+
+https://user-images.githubusercontent.com/1942909/152035291-598a939a-e95c-4013-91f4-5f5f5aabbc81.mp4
+
+
 
 
 
@@ -52,7 +57,9 @@ python addition_numbers_example.py
 ```
 
 
-https://user-images.githubusercontent.com/1942909/149588507-64be0e86-23de-481e-8ac3-810b6f52d1f1.mp4
+
+https://user-images.githubusercontent.com/1942909/152035368-e0843b69-684f-4a45-bf33-cb58307b0d23.mp4
+
 
 
 
@@ -67,7 +74,8 @@ python rotation_example.py
 
 
 
-https://user-images.githubusercontent.com/1942909/149588521-9d2ec7e3-02fe-42c8-8575-ff3122d2028f.mp4
+https://user-images.githubusercontent.com/1942909/152035396-739de83b-bdb7-4744-a45c-6de23a653439.mp4
+
 
 
 ### Gravity Bias
