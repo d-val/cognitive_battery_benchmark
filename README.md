@@ -74,7 +74,7 @@ This experiment tests an agent's ability to recognize the role gravity plays in 
 
 Unlike the previous experiment, this experiment was built using Unity3D instead of AI2THOR. To set up the experiment, you need to:
 - Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/z79gz64n2yxsf22/GravityBias.zip).
-- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
+- Unzip the GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
 ```angular2html
 cd experiments/dataset_generation
@@ -93,10 +93,8 @@ Unlike the previous expirements, this expirement was built using Unity3D instead
 
 ```angular2html
 cd experiments/dataset_generation
-python gravity_bias.py -r -s
+python gravity_bias_example.py
 ```
-The `-r` flag indicates whether to save the expirement output. The `-s` flag indicates whether to show the expirement while running.
-
 
 
 https://user-images.githubusercontent.com/45083797/151129645-a284595b-16fc-4aa8-9142-66918c56dc3b.mp4
@@ -199,6 +197,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - [**not working**] `relative_numbers.py`: relative numbers test class
   - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
+  - `gravity_bias.py`: gravity bias test class
   - **utils**: helper files for experiments
     - `util.py`: helper functions
     - `video_controller.py`: basic implementation for a video controller for AI2THOR  

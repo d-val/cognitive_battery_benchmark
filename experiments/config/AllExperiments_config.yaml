@@ -45,7 +45,7 @@ SimpleSwap:
     reward_position: null
 
 GravityBias:
-  iterations: 3
+  iterations: 1
   controllerArgs:
     width: 1080
     height: 1080
