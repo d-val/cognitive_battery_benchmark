@@ -18,6 +18,10 @@ public class FrameRecorder : MonoBehaviour
     private int capturesCounter = 0;
     private int frame = 0;
 
+    void Start(){
+        recordingCamera.targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
+    }
+
     void Capture(){
         /*
         Saves the current camera screen into the output path.

@@ -20,8 +20,8 @@ class GravityBias(Experiment):
         self,
         controller_args={
             "unity_build": "utils/GravityBias.app",
-            "width": 1080,
-            "height": 1080,
+            "width": 300,
+            "height": 300,
             "show": True,
         },
         fov=[50, 65],
