@@ -29,10 +29,16 @@ public class GravityBiasRunner : MonoBehaviour
     private int curAppleIdx = 0;
     private Vector3 destVector;
 
-    private Dictionary<int, float> tubeStates = new Dictionary<int, float>(){
+    private Dictionary<int, float> VTubeStates = new Dictionary<int, float>(){
         {0, 2.1f}, // left
         {1, 0f}, // middle
         {2, -2.1f}, // right
+    };
+
+    private Dictionary<int, float> STubeStates = new Dictionary<int, float>(){
+        {0, -0.57f}, // left
+        {1, -2.77f}, // middle
+        {2, 0.52f}, // right
     };
 
     Dictionary<string, string> stats;
@@ -71,8 +77,8 @@ public class GravityBiasRunner : MonoBehaviour
     // Defines the ragnes of the apples basedo n the selected tube.
     void setApplesRanges(int state){
         float zlambda = 0.2f;
-        coordinateRanges["zmin"] = tubeStates[state] - zlambda;
-        coordinateRanges["zmax"] = tubeStates[state] + zlambda;
+        coordinateRanges["zmin"] = VTubeStates[state] - zlambda;
+        coordinateRanges["zmax"] = VTubeStates[state] + zlambda;
     }
 
     // Generates one of the tubes (either vertical or s-shaped)
@@ -86,20 +92,28 @@ public class GravityBiasRunner : MonoBehaviour
                 tubes[i].SetActive(true);
                 
                 if (i == 1){ // Vertical Tube
-                    int r = Random.Range(0, tubeStates.Count);
+                    int dropLocation = Random.Range(0, VTubeStates.Count);
                     stats.Add("tube_type", "vertical");
-                    stats.Add("drop_location", r.ToString());
-                    stats.Add("final_location", r.ToString());
-                    int state = r;
-                    setApplesRanges(state);
+                    stats.Add("drop_location", dropLocation.ToString());
+                    stats.Add("final_location", dropLocation.ToString());
+                    setApplesRanges(dropLocation);
                     var tubePos = tubes[i].transform.position;
-                    tubes[i].transform.position = new Vector3(tubePos.x, tubePos.y, tubeStates[state]);
+                    tubes[i].transform.position = new Vector3(tubePos.x, tubePos.y, VTubeStates[dropLocation]);
                 }
-                else{ // Horizontal Tube
-                    int r = 0;
+                else{ // S-Tube
+                    int dropLocation = Random.Range(0, STubeStates.Count);
                     stats.Add("tube_type", "s_shaped");
-                    stats.Add("drop_location", r.ToString());
-                    stats.Add("final_location", (r+1).ToString());
+                    stats.Add("drop_location", dropLocation.ToString());
+                    setApplesRanges(dropLocation);
+                    var tubePos = tubes[i].transform.position;
+                    tubes[i].transform.position = new Vector3(tubePos.x, tubePos.y, STubeStates[dropLocation]);
+                    if (dropLocation == 2){
+                        tubes[i].transform.Rotate(0.0f, 180.0f, 0.0f, Space.World);
+                        stats.Add("final_location", (dropLocation-1).ToString());
+                    }
+                    else{
+                        stats.Add("final_location", (dropLocation+1).ToString());
+                    }
                 }
             }
             else{
