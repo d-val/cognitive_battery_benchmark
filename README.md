@@ -82,8 +82,8 @@ https://user-images.githubusercontent.com/1942909/152035396-739de83b-bdb7-4744-a
 ### Gravity Bias
 This experiment tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
 
-Unlike the previous experiment, this experiment was built using Unity3D instead of AI2THOR. To set up the experiment, you need to:
-- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/z79gz64n2yxsf22/GravityBias.zip).
+Unlike the previous experiment, this experiment was built using Unity3D instead of AI2-THOR. To set up the experiment, you need to:
+- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/5wdirl50wcwh1dr/GravityBias.zip).
 - Unzip the GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
 ```angular2html
