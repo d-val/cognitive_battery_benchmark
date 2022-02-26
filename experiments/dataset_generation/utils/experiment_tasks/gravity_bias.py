@@ -79,7 +79,7 @@ class GravityBias(Experiment):
         height, width, _layers = init_frame.shape  
 
         # Creating the video at video_path
-        fps = 15
+        fps = 30
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video = cv2.VideoWriter(video_path, fourcc, fps, (width, height)) 
     
