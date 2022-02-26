@@ -55,9 +55,9 @@ SimpleSwap:
 GravityBias:
   iterations: 1
   controllerArgs:
-    width: 1080
-    height: 1080
-    show: False
+    width: 300
+    height: 300
+    show: True
     unity_build: "utils/GravityBias.app"
   init:
     fov: [ 50, 65 ]
