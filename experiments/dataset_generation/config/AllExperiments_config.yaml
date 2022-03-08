@@ -62,4 +62,5 @@ GravityBias:
   init:
     fov: [ 50, 65 ]
   run:
-    rewardTypes: ["Potato", "Tomato", "Apple"]
+    rewardTypes: ["Pear", "Tomato", "Apple"]
+    play_speed: 10

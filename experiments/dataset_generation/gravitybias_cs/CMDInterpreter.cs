@@ -67,6 +67,19 @@ public class CMDInterpreter : MonoBehaviour
                 GetComponent<SceneRandomizer>().fov = fov;
             }
 
+            // Set the playing speed, if provided
+            if (args[i] == "--speed"){
+                int speed = 3;
+                if (i+1 < args.Length){
+                    if (int.TryParse(args[i+1], out speed)){
+                        i++;
+                    }
+                }
+
+                // Sets the randomizer script seed.
+                GetComponent<GravityBiasRunner>().movingSpeed = speed;
+            }
+
             // Set screen width and height if provided
             if (args[i] == "--width"){
                 if (i+1 < args.Length){
