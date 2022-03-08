@@ -22,8 +22,7 @@ public class SceneRandomizer : MonoBehaviour
     public bool randomizeFOV;
 
     public Light mainLight; // Main light in the scene.
-    public GameObject STube;
-    public GameObject straigthTube;
+    public List<GameObject> tubes;
     public List<GameObject> chairs;
     public List<GameObject> walls;
     public List<GameObject> bowls;
@@ -49,8 +48,9 @@ public class SceneRandomizer : MonoBehaviour
         // Randomize the color of the tube
         if (randomizeTubeColor){
             Color32 newTubeColor = generateRandomColor(160, 255);
-            STube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
-            straigthTube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
+            foreach (GameObject tube in tubes){
+                tube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
+            }
             stats.Add("tube_color", newTubeColor.ToString("F2"));
         }
 

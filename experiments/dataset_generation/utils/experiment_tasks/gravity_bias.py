@@ -106,6 +106,7 @@ class GravityBias(Experiment):
     def run(
         self,
         rewardTypes=["Potato", "Tomato", "Apple"],
+        play_speed = 3,
     ):
         """
         Runs the Gravity Bias build.
@@ -121,6 +122,7 @@ class GravityBias(Experiment):
         args += f'--width {self.controller_args["width"]} '
         args += f'--height {self.controller_args["width"]} '
         args += f'--fov {np.random.uniform(self.fov[0], self.fov[1])} '
+        args += f'--speed {play_speed} '
 
         # Ensures the experiment app has execution permessions
         os.system(f"chmod +x ./{self.bin_path}")
