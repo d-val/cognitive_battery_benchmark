@@ -4,14 +4,15 @@ This directory contains scripts for training and evaluating baseline models cons
 ## Dependancies
 Required Python libraries are available in `requirements.txt`. You can create a virtual environment with the libraries installed.
 ```
-conda create -y -n cog-battery-baseline --file requirements.txt
+conda create -y -n cog-battery-baseline pip
 conda activate cog-battery-baseline
+pip install -r requirements.txt
 ```
 
 ## Running Code
-To reproduce the results, you need to
-1. Specify the model architecture and training parameters in `config/config.yaml`
-2. Copy the data in the `data` directory in the following format:
+To run a sample training job, you need to
+1. Specify the model architecture and training parameters in `config/config.yaml`. A description of the config can be found below.
+2. Copy the data in this directory in the following format:
     ```
       data/
            0/
@@ -22,6 +23,7 @@ To reproduce the results, you need to
                     iteration_data.pickle
             ⋮
     ```
+    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`.
 3. Run `train.py`.
 
 This will run a training job with the specified name and save the resulting log(s) and model(s) in the `output` directory.
