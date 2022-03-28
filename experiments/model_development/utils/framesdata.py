@@ -1,14 +1,12 @@
 """
 framesdata.py: contains the custom FramesDataset.
 """
-import torch
 from torch.utils.data import IterableDataset
 import numpy as np
 import pickle
 if pickle.HIGHEST_PROTOCOL < 5:
     import pickle5 as pickle
-import os
-import random
+import os, random
 
 class FramesDataset(IterableDataset):
     """
