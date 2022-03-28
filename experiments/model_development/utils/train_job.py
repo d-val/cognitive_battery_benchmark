@@ -11,7 +11,7 @@ import re, yaml, os
 
 from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
-import translators
+from translators import expts
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -74,7 +74,7 @@ class TrainingJob():
         self.using_ffcv = using_ffcv
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
-        self.label_translator = translators.expts[config.expt_name]
+        self.label_translator = expts[config.expt_name]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -110,8 +110,8 @@ class TrainingJob():
         self._log("TRAINING")
 
         best_loss = float("inf")
-        for epoch in range(1, self.config.training_params.epochs + 1):
-            for it, (data, targets) in enumerate(self._train_loader):
+        for epoch in range(1, self.config.train_params.epochs + 1):
+            for it, (data, targets) in enumerate(self.train_loader):
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
