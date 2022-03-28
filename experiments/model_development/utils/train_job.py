@@ -11,7 +11,7 @@ import re, yaml, os
 
 from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
-from translators import expts
+from utils.translators import expts
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

@@ -23,7 +23,7 @@ To run a sample training job, you need to
                     iteration_data.pickle
             ⋮
     ```
-    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`. A toy example of a data directory is available [Duck Duck Go](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip?dl=0).
+    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`. A toy example of a data directory is available [here](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip).
 3. Run `train.py`.
 
 This will run a training job with the specified name and save the resulting log(s) and model(s) in the `output` directory.
