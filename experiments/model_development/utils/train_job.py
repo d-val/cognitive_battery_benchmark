@@ -9,8 +9,8 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import re, yaml, os
 
-from framesdata import FramesDataset
-from model import CNNLSTM
+from utils.framesdata import FramesDataset
+from utils.model import CNNLSTM
 import translators
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
