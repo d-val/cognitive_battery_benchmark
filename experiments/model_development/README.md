@@ -1,7 +1,7 @@
 # Baseline Model Testing
 This directory contains scripts for training and evaluating baseline models consisting of a CNN and LSTM. 
 
-## Dependancies
+## Dependencies
 Required Python libraries are available in `requirements.txt`. You can create a virtual environment with the libraries installed.
 ```
 conda create -y -n cog-battery-baseline pip
