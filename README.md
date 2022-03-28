@@ -75,30 +75,23 @@ python rotation_example.py
 ```
 
 
-
 https://user-images.githubusercontent.com/1942909/152035396-739de83b-bdb7-4744-a45c-6de23a653439.mp4
 
 
 
 ### Gravity Bias
-This expirement tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
+This experiment tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
 
-Unlike the previous expirements, this expirement was built using Unity3D instead of AI2THOR. To set up the expirement, you need to:
-- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/l9fg5yva00z6i74/GravityBias.zip?dl=0).
-- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
+Unlike the previous experiment, this experiment was built using Unity3D instead of AI2-THOR. To set up the experiment, you need to:
+- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/5wdirl50wcwh1dr/GravityBias.zip).
+- Unzip the GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
 ```angular2html
 cd experiments/dataset_generation
-python gravity_bias.py -r -s
+python gravity_bias_example.py
 ```
-The `-r` flag indicates whether to save the expirement output. The `-s` flag indicates whether to show the expirement while running.
-
-
 
 https://user-images.githubusercontent.com/45083797/151129645-a284595b-16fc-4aa8-9142-66918c56dc3b.mp4
-
-
-
 
 ## 💻 Installation
 
@@ -220,6 +213,7 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - [**not working**] `relative_numbers.py`: relative numbers test class
   - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
+  - `gravity_bias.py`: gravity bias test class
   - **utils**: helper files for experiments
     - `util.py`: helper functions
     - `video_controller.py`: basic implementation for a video controller for AI2THOR  
