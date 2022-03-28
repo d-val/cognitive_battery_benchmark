@@ -1,0 +1,10 @@
+torch
+img2vec_pytorch
+numpy
+pickle-mixin
+Pillow
+pickle5
+matplotlib
+tqdm
+torchsummary
+torchinfo

@@ -12,3 +12,4 @@ __pycache__/*
 frames/
 resources/
 experiments/dataset_generation/output
+data/
