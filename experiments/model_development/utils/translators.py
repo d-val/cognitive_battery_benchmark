@@ -5,9 +5,8 @@ translators.py: contains definitions of functions used to translate classes from
 # Translator for the Shape experiment
 def SHAPE(label):
     return {
-        "left": 0,
-        "middle": 1,
-        "right": 2
+        -1: 0,
+        1: 1
     }[label]
 
 # Translator for the Gravity Bias experiment
