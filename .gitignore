@@ -13,3 +13,4 @@ frames/
 resources/
 experiments/dataset_generation/output
 .gravitybiasout/
+data/
