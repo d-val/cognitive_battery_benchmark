@@ -1,6 +1,7 @@
 """
 framesdata.py: contains the custom FramesDataset.
 """
+import torch
 from torch.utils.data import IterableDataset
 import numpy as np
 import pickle
@@ -155,16 +156,40 @@ def every_kth(array, k):
         return array
     return np.array([array[i] for i in range(len(array)) if i % k == 0])
 
+def collate_videos(batch):
+    """
+    A function available to override the default DataLoader collate_fn. Unifies the lengths of videos in a batch by
+    repeating the last frame in videos with less frames.
+
+    :param list batch: a batch of videos and labels as a list of tuples (np.array, int)
+    :return: a data point where videos and labels are stacked.
+    :rtype: tuple[Tensor, Tensor]
+    """
+    max_len = max([len(i[0]) for i in batch])
+    
+    for i in range(len(batch)):
+        images, label = batch[i]
+        images = np.concatenate((images, np.repeat(images[-1:], max_len - len(images), axis=0)))
+        batch[i] = (images, label)
+
+    # From here, uses default collate
+    data = torch.from_numpy(np.stack([item[0] for item in batch]))
+    target = torch.LongTensor([item[1] for item in batch])  # image labels.
+
+    return data, target
+    
+
 if __name__ == '__main__':
 
     # Initialize dataset
-    path = "../data/"
-    dataset = FramesDataset(path, fpv=350, shuffle=True)
+    from utils.translators import GRAVITY
+    path = "data/"
+    dataset = FramesDataset(path, label_translator=GRAVITY, shuffle=True)
 
     # You can start a Data Loader
     from torch.utils.data import DataLoader
-    dataloader = DataLoader(dataset=dataset)
-
+    dataloader = DataLoader(dataset=dataset, collate_fn=collate_videos, batch_size=5)
+    
     # Or you can start an FFCV Writer and write the dataset into an FFCV file.
     from ffcv.writer import DatasetWriter
     from ffcv.fields import NDArrayField, IntField
@@ -177,4 +202,3 @@ if __name__ == '__main__':
         page_size = 2<<28)
 
     writer.from_indexed_dataset(dataset)
-    

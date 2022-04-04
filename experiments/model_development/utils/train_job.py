@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import re, yaml, os
 
-from utils.framesdata import FramesDataset
+from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
 from utils.translators import expts
 
@@ -269,8 +269,8 @@ class TrainingJob():
 
             # Construct loaders from datasets
             train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
-            train_loader = DataLoader(dataset=train_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
-            test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
+            train_loader = DataLoader(dataset=train_dataset, collate_fn=collate_videos, batch_size=self.config.data_loader.batch_size, shuffle=True)
+            test_loader = DataLoader(dataset=test_dataset, collate_fn=collate_videos, batch_size=self.config.data_loader.batch_size, shuffle=True)
         
         return train_loader, test_loader
 
