@@ -92,6 +92,15 @@ public class CMDInterpreter : MonoBehaviour
                     int.TryParse(args[i+1], out screenHeight);
                 }
             }
+
+            // Sets the reward type if provided
+            if (args[i] == "--reward"){
+                if (i+1 < args.Length){
+                    int rewardType = 0;
+                    int.TryParse(args[i+1], out rewardType);
+                    GetComponent<SceneRandomizer>().rewardType = rewardType;
+                }
+            }
         }
         Screen.SetResolution(screenWidth, screenHeight, false);
     }
