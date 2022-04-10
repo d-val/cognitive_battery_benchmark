@@ -20,6 +20,7 @@ public class SceneRandomizer : MonoBehaviour
     public bool randomizeWallsColors;
     public bool randomizeBowlsColors;
     public bool randomizeFOV;
+    public bool randomizeReward;
 
     public Light mainLight; // Main light in the scene.
     public List<GameObject> tubes;
@@ -29,6 +30,9 @@ public class SceneRandomizer : MonoBehaviour
     public Camera showCam;
     public Camera recordCam;
     public float fov = 55;
+    public int rewardType;
+
+    public GravityBiasRunner sceneRunner;
     
     Dictionary<string, string> stats;
 
@@ -47,11 +51,22 @@ public class SceneRandomizer : MonoBehaviour
 
         // Randomize the color of the tube
         if (randomizeTubeColor){
-            Color32 newTubeColor = generateRandomColor(160, 255);
+            Color32 newTubeColor = generateRandomColor(150, 255);
+            stats.Add("reward_tube_color", newTubeColor.ToString("F2"));
             foreach (GameObject tube in tubes){
                 tube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
+                newTubeColor = generateRandomColor(160, 255);
             }
-            stats.Add("tube_color", newTubeColor.ToString("F2"));
+        }
+
+        // Randomize the color of the walls
+        if (randomizeWallsColors){
+            Color32 newWallColor = generateRandomColor(150, 255);
+            foreach (GameObject wall in walls){
+                foreach(Renderer r in wall.GetComponentsInChildren<Renderer>()){
+                    r.material.color = newWallColor;
+                }
+            }
         }
 
         // Randomize the color of the background chairs and furniture
@@ -64,17 +79,6 @@ public class SceneRandomizer : MonoBehaviour
                 }
             }
         }
-
-        // Randomize the color of the walls
-        if (randomizeWallsColors){
-            Color32 newWallColor = generateRandomColor(100, 255);
-            foreach (GameObject wall in walls){
-                foreach(Renderer r in wall.GetComponentsInChildren<Renderer>()){
-                    r.material.color = newWallColor;
-                }
-            }
-        }
-
 
         // Randomize the color of the bowls
         if (randomizeBowlsColors){
@@ -94,6 +98,12 @@ public class SceneRandomizer : MonoBehaviour
         showCam.fieldOfView = fov;
         recordCam.fieldOfView = fov;
         stats.Add("fov", fov.ToString("F2"));
+
+        // Randomize reward type
+        if (randomizeReward){
+            rewardType = Random.Range(0, sceneRunner.rewardPrefabs.Count);
+        }
+        sceneRunner.rewardType = rewardType;
     }
 
     // Returns a new random color between (min, min, min) and (max, max, max) RGB
