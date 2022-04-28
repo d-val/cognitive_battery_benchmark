@@ -12,5 +12,6 @@ __pycache__/*
 frames/
 resources/
 experiments/dataset_generation/output
+experiments/model_development/data
+experiments/model_development/output
 .gravitybiasout/
-data/
