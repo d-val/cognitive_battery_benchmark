@@ -98,7 +98,25 @@ public class CMDInterpreter : MonoBehaviour
                 if (i+1 < args.Length){
                     int rewardType = 0;
                     int.TryParse(args[i+1], out rewardType);
-                    GetComponent<SceneRandomizer>().rewardType = rewardType;
+                    GetComponent<GravityBiasRunner>().rewardType = rewardType;
+                }
+            }
+
+            // Sets the reward type if provided
+            if (args[i] == "--num-rewards"){
+                if (i+1 < args.Length){
+                    int numRewards = 0;
+                    int.TryParse(args[i+1], out numRewards);
+                    GetComponent<GravityBiasRunner>().numRewards = numRewards;
+                }
+            }
+
+            // Sets the reward type if provided
+            if (args[i] == "--num-receptacles"){
+                if (i+1 < args.Length){
+                    int numReceptacles = 0;
+                    int.TryParse(args[i+1], out numReceptacles);
+                    GetComponent<GravityBiasRunner>().numReceptacles = numReceptacles;
                 }
             }
         }

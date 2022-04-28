@@ -107,6 +107,7 @@ class GravityBias(Experiment):
         self,
         rewardTypes=["Potato", "Tomato", "Apple"],
         play_speed = 3,
+        num_receptacles = None,
     ):
         """
         Runs the Gravity Bias build.
@@ -123,6 +124,10 @@ class GravityBias(Experiment):
         args += f'--height {self.controller_args["width"]} '
         args += f'--fov {np.random.uniform(self.fov[0], self.fov[1])} '
         args += f'--speed {play_speed} '
+        if type(num_receptacles) == int:
+            args += f'--num-receptacles {num_receptacles} '
+        elif type(num_receptacles) in {list, tuple}:
+            args += f'--num-receptacles {np.random.choice(num_receptacles)} '
 
         # Ensures the experiment app has execution permessions
         os.system(f"chmod +x ./{self.bin_path}")

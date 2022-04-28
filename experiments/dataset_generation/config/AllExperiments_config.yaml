@@ -64,3 +64,4 @@ GravityBias:
   run:
     rewardTypes: ["Pear", "Tomato", "Apple"]
     play_speed: 10
+    num_receptacles: [3,4,5]

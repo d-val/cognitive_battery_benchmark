@@ -1,9 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using SysRandom = System.Random;
 
 public class GravityBiasRunner : MonoBehaviour
 {
+    // A tube type describing the tube offset and occupancy range.
+    private struct Tube
+    {
+        public int offset;          // Difference between the reward final location and drop locaiton.
+        public int[] occupies;      // The range of reseptacles occupied by the tube relative to the drop location.
+        public string name;         // The name identifier corresponding to the tube type.
+        public bool reverseY;       // Whether the tube is reversed (i.e. rotated 180 degrees in Y dircetion).
+
+        public Tube(int offset, int[] occupies, string name, bool reverseY){
+            this.offset = offset;
+            this.occupies = occupies;
+            this.name = name;
+            this.reverseY = reverseY;
+        }
+    }
+
+    // A tube state describing the tube location.
+    private struct TubeState
+    {
+        public Tube tube;         // Difference between the reward final location and drop locaiton.
+        public int drop;          // The range of reseptacles occupied by the tube relative to the drop location.
+        public int final;         // A name identifier for the tube type.
+
+        public TubeState(Tube tube, int drop, int final){
+            this.tube = tube;
+            this.drop = drop;
+            this.final = final;
+        }
+    }
 
     public GameObject VTube;
     public GameObject STube;
@@ -11,20 +42,22 @@ public class GravityBiasRunner : MonoBehaviour
     public GameObject DoubleSTubeShort;
     public GameObject DoubleSTubeMedium;
     public GameObject DoubleSTubeLong;
-
-    public int numReceptacles;
+    public List<GameObject> tubes;
 
     public GameObject sceneCamera;
     public FrameRecorder recorder;
 
-    public int numRewards = 4;
-    public List<GameObject> rewardPrefabs;
-    public int rewardType; 
+    public int numReceptacles = -1;
+    public int receptType = -1; 
+    public List<GameObject> receptaclePrefabs;
+    public List<GameObject> receptacles = new List<GameObject>();
 
-    private List<GameObject> rewards = new List<GameObject>();
+    public int numRewards = -1;
+    public int rewardType = -1;
+    public List<GameObject> rewardPrefabs;
+    public List<GameObject> rewards = new List<GameObject>();
 
     public int movingSpeed;
-    public float targetYPos;
     
     public int seed;
     
@@ -33,7 +66,7 @@ public class GravityBiasRunner : MonoBehaviour
         {"xmax", -1.9f},
 
         {"ymin", 15.5f},
-        {"ymax", 16.5f},
+        {"ymax", 16.25f},
 
         {"zmin", 0},
         {"zmax", 0},
@@ -42,187 +75,7 @@ public class GravityBiasRunner : MonoBehaviour
     private int curRewardIdx = 0;
     private Vector3 destVector;
 
-    // An experimental condition describing the tube type, z-coordinate, and rotation over y-axis.
-    private struct Condition
-    {
-        public string tubeType;
-        public float tubeZPos;
-        public float tubeYRot;
-
-        public Condition(string tubeType, float tubeZPos, float tubeYRot){
-            this.tubeType = tubeType;
-            this.tubeZPos = tubeZPos;
-            this.tubeYRot = tubeYRot;
-        }
-    }
-
-    // Maps each possible drop/final pair into a list of lists of game conditions. The first list hierarchy denotes all the possible conditions for the drop/final pair.
-    //  the second list hierarchy denotes the tubes and their positions/rotations within that hierarchy.
-    // Total: 33 conditions
-    private Dictionary<(int drop, int final), List<List<Condition>>> exptStates = new Dictionary<(int, int), List<List<Condition>>>(){
-        {// 8 conditions
-            (0, 0), 
-            new List<List<Condition>>(){
-                    new List<Condition>(){
-                        new Condition("vertical", 2.1f, 0f),
-                    },
-                    new List<Condition>(){
-                        new Condition("vertical", 2.1f, 0f),
-                        new Condition("s_shaped", -2.77f, 0f),
-                    },
-                    new List<Condition>(){
-                        new Condition("vertical", 2.1f, 0f),
-                        new Condition("s_shaped", 0.66f, 180f)
-                    },
-                    new List<Condition>(){
-                        new Condition("vertical", 2.1f, 0f),
-                        new Condition("double_s_shaped_short", 0f, 180f),
-                    },
-                    new List<Condition>(){
-                        new Condition("vertical", 2.1f, 0f),
-                        new Condition("double_s_shaped_short", -2.1f, 0f),
-                    },
-                    new List<Condition>(){
-                        new Condition("double_s_shaped_long", 2.1f, 180f),
-                    },
-                    new List<Condition>(){
-                        new Condition("double_s_shaped_short", 2.1f, 180f),
-                    },
-                    new List<Condition>(){
-                        new Condition("double_s_shaped_short", 2.1f, 180f),
-                        new Condition("vertical", -2.1f, 0f),
-                    },
-                }
-        },
-        {// 2 conditions 
-            (0, 1),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                     new Condition("s_shaped", -0.57f, 0f),
-                },
-                new List<Condition>(){
-                     new Condition("s_shaped", -0.57f, 0f),
-                     new Condition("vertical", -2.1f, 0f),
-                },
-            }
-        },
-        {// 1 conditions
-            (0, 2),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("s_shaped_long", -2.13f, 0f)
-                }
-            }
-        },
-        {// 3 conditions
-            (1, 0),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("s_shaped", 2.77f, 180f),
-                },
-                new List<Condition>(){
-                    new Condition("s_shaped", 2.77f, 180f),
-                    new Condition("vertical", -2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_medium", 2.13f, 180f),
-                },
-            }
-        },        
-        {// 5 conditions
-            (1, 1),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("vertical", 0f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", 0f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", 0f, 0f),
-                    new Condition("vertical", -2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", 0f, 180f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", 0f, 180f),
-                    new Condition("vertical", 2.1f, 0f),
-                },
-            }
-        },   
-        {// 3 conditions
-            (1, 2),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("s_shaped", -2.77f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("s_shaped", -2.77f, 0f),
-                    new Condition("vertical", 2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_medium", -2.13f, 0f),
-                },
-            }
-        },  
-        {// 1 conditions
-            (2, 0),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("s_shaped_long", 2.13f, 180f)
-                },
-            }
-        },
-        {// 2 conditions
-            (2, 1),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("s_shaped", 0.66f, 180f),
-                },
-                new List<Condition>(){
-                    new Condition("s_shaped", 0.66f, 180f),
-                    new Condition("vertical", 2.1f, 0f),
-                },
-            }
-        }, 
-        {// 8 conditions
-            (2, 2),
-            new List<List<Condition>>(){
-                new List<Condition>(){
-                    new Condition("vertical", -2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("vertical", -2.1f, 0f),
-                    new Condition("double_s_shaped_short", 2.1f, 180f),
-                },
-                new List<Condition>(){
-                    new Condition("vertical", -2.1f, 0f),
-                    new Condition("double_s_shaped_short", 0f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("vertical", -2.1f, 0f),
-                    new Condition("s_shaped", -0.57f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("vertical", -2.1f, 0f),
-                    new Condition("s_shaped", 2.77f, 180f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_long", -2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", -2.1f, 0f),
-                },
-                new List<Condition>(){
-                    new Condition("double_s_shaped_short", -2.1f, 0f),
-                    new Condition("vertical", 2.1f, 0f),
-                },
-            }
-        },
-    };
-
-    private Dictionary<string, GameObject> tubes;
+    private Dictionary<string, GameObject> tubesPrefabs;
 
     // Keeps track of expt stats
     private Dictionary<string, string> stats;
@@ -231,7 +84,27 @@ public class GravityBiasRunner : MonoBehaviour
     void Start()
     {   
         Random.InitState(seed);
-        tubes = new Dictionary<string, GameObject>(){
+
+        List<Tube> testTubes = new List<Tube>(){
+            new Tube(0, new int[]{0,0}, "vertical", false),
+
+            new Tube(1, new int[]{0,1}, "s_shaped", false),
+            new Tube(-1, new int[]{-1,0}, "s_shaped", true),
+
+            new Tube(2, new int[]{0,2}, "s_shaped_long", false),
+            new Tube(-2, new int[]{-2,0}, "s_shaped_long", true),
+
+            new Tube(0, new int[]{-1,0}, "double_s_shaped_short", false),
+            new Tube(0, new int[]{0,1}, "double_s_shaped_short", true),
+
+            new Tube(1, new int[]{-1,1}, "double_s_shaped_medium", false),
+            new Tube(-1, new int[]{-1,1}, "double_s_shaped_medium", true),
+
+            new Tube(0, new int[]{-2,0}, "double_s_shaped_long", false),
+            new Tube(0, new int[]{0,2}, "double_s_shaped_long", true),
+        };
+
+        tubesPrefabs = new Dictionary<string, GameObject>(){
             {"vertical", VTube}, 
             {"s_shaped", STube}, 
             {"s_shaped_long", STubeLong},
@@ -240,22 +113,58 @@ public class GravityBiasRunner : MonoBehaviour
             {"double_s_shaped_long", DoubleSTubeLong},
         };
 
+        stats = new Dictionary<string, string>();
+
+        // Generating rewards.
+        if (numRewards == -1){ // unspecified
+            numRewards = Random.Range(3, 6);
+        }
+        if (rewardType == -1){ // unspecified
+            rewardType = Random.Range(0, rewardPrefabs.Count);
+        }
         for (int i=0; i<numRewards; i++){
             Vector3 rewardPos = new Vector3(Random.Range(2.33f, 3f), 9f, Random.Range(-1.8f, -0.67f));
             GameObject reward = Instantiate(rewardPrefabs[rewardType], rewardPos, Quaternion.identity);
             rewards.Add(reward);
         }
 
-        stats = new Dictionary<string, string>();
-        stats.Add("reward_type", rewardPrefabs[rewardType].name);
+        // Generating receptacles.
+        if (numReceptacles == -1){ // unspecified
+            numReceptacles = Random.Range(2, 9);
+        }
+        if (receptType == -1){ // unspecified
+            receptType = Random.Range(2, 9);
+        }
+        float receptStartPos = (numReceptacles*1.35f)/2 - 1f;
+        for (int i=0; i<numReceptacles; i++){
+            Vector3 receptPos = new Vector3(-2f, 8.47f, receptStartPos - i*1.35f);
+            GameObject recept = Instantiate(receptaclePrefabs[receptType], receptPos, Quaternion.identity);
+            receptacles.Add(recept);
+        }
 
-        generateTube();
+        int dropLocation = Random.Range(0, numReceptacles);
+        int finalLocation = Random.Range(Mathf.Max(dropLocation-2, 0) , Mathf.Min(dropLocation+2 + 1, numReceptacles));
+        List<TubeState> condition = generateCondition(testTubes, dropLocation, finalLocation);
+        foreach (TubeState ts in condition){
+            PlaceTube(ts);
+        }
+
+        setRewardsRanges(dropLocation);
+
+        stats.Add("drop_location", dropLocation.ToString());
+        stats.Add("final_location", finalLocation.ToString());
+        stats.Add("reward_type", rewardPrefabs[rewardType].name);
+        stats.Add("num_receptacles", numReceptacles.ToString());
+        stats.Add("num_rewards", numRewards.ToString());
+        stats.Add("num_tubes", condition.Count.ToString());
+
         destVector = newDestVector();
     }
 
     // Runs every frame
     void Update()
     {
+        
         GameObject reward = rewards[0];
         if (curRewardIdx < rewards.Count){
             reward = rewards[curRewardIdx];
@@ -274,41 +183,96 @@ public class GravityBiasRunner : MonoBehaviour
             int waitTime = (int) Mathf.Round(7 / Mathf.Log(movingSpeed + 1, 2));
             StartCoroutine(endExpt(waitTime));
         }
+        
     }
     
     // Defines the ragnes of the rewards based on the selected tube.
     void setRewardsRanges(int state){
         float zlambda = 0f;
-        float zValue = exptStates[(state, state)][0][0].tubeZPos;
+        float zValue = receptacles[state].transform.position.z;
         coordinateRanges["zmin"] = zValue - zlambda;
         coordinateRanges["zmax"] = zValue + zlambda;
     }
 
     // Generates one of the tubes (either vertical or s-shaped)
-    void generateTube(){
-        if (tubes.Count == 0 || numReceptacles < 1){
-            return;
+    List<TubeState> generateCondition(List<Tube> tubes, int drop, int final){
+        if (!(tubes.Count > 0 && Mathf.Abs(drop - final) <= 2 && drop < numReceptacles && final < numReceptacles)){
+            Debug.Log("Something is wrong..");
+            Debug.Log(tubes.Count > 0);
+            Debug.Log(Mathf.Abs(drop - final) <= 2);
+            Debug.Log(drop < numReceptacles);
+            Debug.Log(final < numReceptacles);
+            return new List<TubeState>();
         }
+        SysRandom randomizer = new SysRandom();
+
+        bool validTube(Tube tube, int drop){
+            return (drop + tube.occupies[0] >= 0) && (drop + tube.occupies[1] < numReceptacles);
+        }
+
+        List<TubeState> finalPlacements = new List<TubeState>();
+        bool[] occupied = new bool[numReceptacles];
+        tubes = tubes.OrderBy(x => randomizer.Next()).ToList();
         
-        int dropLocation = Random.Range(0, numReceptacles);
-        int finalLocation = Random.Range(0, numReceptacles);
-        List<List<Condition>> exptConditions = exptStates[(dropLocation, finalLocation)];
-        List<Condition> exptCondition = exptConditions[Random.Range(0, exptConditions.Count)];
+        foreach (Tube t in tubes){
+            if ((t.offset == final - drop) && validTube(t, drop)){
+                // Main Tube
+                finalPlacements.Add(new TubeState(t, drop, final));
 
-        // Log expt parameters
-        stats.Add("reward_tube_types", exptCondition[0].tubeType);
-        stats.Add("drop_location", dropLocation.ToString());
-        stats.Add("final_location", finalLocation.ToString());
+                // Marking its range as occupied
+                for (int i=t.occupies[0]; i<=t.occupies[1]; i++){
+                    occupied[drop+i] = true;
+                }
+                break;
+            }
+        }
 
-        // Set rewards movement trajectory
-        setRewardsRanges(dropLocation);
+        while (occupied.Contains(false) && randomizer.NextDouble() > 1/(2*numReceptacles)){
+            tubes = tubes.OrderBy(x => randomizer.Next()).ToList();
+            int[] indices = Enumerable.Range(0, numReceptacles).OrderBy(x => randomizer.Next()).ToArray();
+            foreach (int i in indices){
+                if (occupied[i]){continue;}
+                foreach (Tube t in tubes){
+                    if (!validTube(t, i)){continue;}
+                    bool empty = true;
+                    for (int j=t.occupies[0]; j<=t.occupies[1]; j++){
+                        if (occupied[i+j]==true){empty = false;}
+                    }
+                    if (empty){
+                        for (int j=t.occupies[0]; j<=t.occupies[1]; j++){
+                            occupied[i+j] = true;
+                        }
+                        finalPlacements.Add(new TubeState(t, i, i+t.offset));
+                        break;
+                    }
+                }
+            }
+        }
+        return finalPlacements;
+    }
 
-        foreach (Condition tubeState in exptCondition){
-            GameObject tubeObject = tubes[tubeState.tubeType];
-            tubeObject.SetActive(true);
-            Vector3 tubePos = tubeObject.transform.position;
-            tubeObject.transform.position = new Vector3(tubePos.x, tubePos.y, tubeState.tubeZPos);
-            tubeObject.transform.Rotate(0f, tubeState.tubeYRot, 0f, Space.World);
+    private void PlaceTube(TubeState state){
+
+        // Creating tube with default transform.
+        GameObject tubeInstance = Instantiate(tubesPrefabs[state.tube.name]);
+        tubes.Add(tubeInstance);
+
+        // Getting the Z-coordinate of the tube.   
+        float zPos = 0f; 
+        if (state.tube.name == "s_shaped"){
+            // Special case, needs offsetting
+            zPos = receptacles[state.final].transform.position.z + (state.tube.reverseY ? .6f : -.6f);
+        }
+        else{
+            zPos = receptacles[state.final].transform.position.z;
+        }
+
+        Vector3 tubePos = tubeInstance.transform.position;
+        tubeInstance.transform.position = new Vector3(tubePos.x, tubePos.y, zPos);
+
+        // Fixing the Y-rotation of the tube. 
+        if (state.tube.reverseY){
+            tubeInstance.transform.Rotate(0f, 180f, 0f, Space.World);
         }
     }
 
