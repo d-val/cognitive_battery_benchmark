@@ -43,6 +43,8 @@ class Rotation(Experiment):
             if type(visibilityDistance) != list
             else random.randint(*visibilityDistance),
             "fov": fov if type(fov) != list else random.randint(*fov),
+            "width": controller_args["width"],
+            "height": controller_args["height"],
         }
         super().__init__(
             {
@@ -226,6 +228,7 @@ class Rotation(Experiment):
 
             # add frame to corresponding frame list
             self.frame_list.append(self.last_event.frame)
+            self.depth_list.append(self.last_event.depth_frame)
             self.third_party_camera_frames.append(
                 self.last_event.third_party_camera_frames[0]
             )
@@ -238,6 +241,7 @@ class Rotation(Experiment):
                             obj["objectId"],
                             [(0, 0, moveup_magnitude), (0, 0, -moveup_magnitude)],
                             self.frame_list,
+                            self.depth_list,
                             self.third_party_camera_frames,
                         )
         out = None

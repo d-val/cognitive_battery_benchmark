@@ -42,6 +42,8 @@ class AdditionNumbers(Experiment):
             if type(visibilityDistance) != list
             else random.randint(*visibilityDistance),
             "fov": fov if type(fov) != list else random.randint(*fov),
+            "width": controller_args["width"],
+            "height": controller_args["height"],
         }
         super().__init__(
             {
@@ -254,11 +256,12 @@ class AdditionNumbers(Experiment):
                 dir = -0.75 if obj["position"]["z"] < 0 else 0.35
 
                 # left and right stay on table
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.4), (-0.73, 0, 0), (0, dir*0.2, 0),(0, 0, -0.5)],
                     self.frame_list,
+                    self.depth_list,
                     self.third_party_camera_frames,
                 )
 
@@ -266,11 +269,12 @@ class AdditionNumbers(Experiment):
         # remove all bowls
         for obj in current_objects:
             if obj["name"][:7] == "BigBowl" and abs(obj["position"]["z"]):
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.4), (0.9, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
+                    self.depth_list,
                     self.third_party_camera_frames,
                 )
 
@@ -288,7 +292,7 @@ class AdditionNumbers(Experiment):
             move_side = "left"
         for obj in current_objects:
             if obj["name"].startswith(rewardType) and abs(obj["position"]["z"]) < 0.3:
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [
@@ -298,6 +302,7 @@ class AdditionNumbers(Experiment):
                         (0, 0, -0.4),
                     ],
                     self.frame_list,
+                    self.depth_list,
                     self.third_party_camera_frames,
                 )
 

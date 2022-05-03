@@ -40,6 +40,8 @@ class SimpleSwap(Experiment):
             if type(visibilityDistance) != list
             else random.randint(*visibilityDistance),
             "fov": fov if type(fov) != list else random.randint(*fov),
+            "width": controller_args["width"],
+            "height": controller_args["height"]
         }
         super().__init__(
             {
@@ -236,7 +238,7 @@ class SimpleSwap(Experiment):
         self.step("MoveRight")
 
         # move the reward to the pre-selected receptacle then drop it
-        _, self.frame_list, self.third_party_camera_frames = move_object(
+        _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
             self,
             rewardId,
             [
@@ -245,6 +247,7 @@ class SimpleSwap(Experiment):
                 (0, 0, -self.moveup_magnitude),
             ],
             self.frame_list,
+            self.depth_list,
             self.third_party_camera_frames,
         )
         # self.frame_list.append(self.last_event.frame)
@@ -312,7 +315,7 @@ class SimpleSwap(Experiment):
 
         # move first recep far away
         # move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (move_recep_ahead_mag, 0, 0)])
-        _, self.frame_list, self.third_party_camera_frames = move_object(
+        _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
             self,
             recep1_id,
             [
@@ -321,15 +324,17 @@ class SimpleSwap(Experiment):
                 (0, 0, -self.moveup_magnitude),
             ],
             self.frame_list,
+            self.depth_list,
             self.third_party_camera_frames,
         )
         # self.play(move_object(self, recep1_id, [(0, 0, MOVEUP_MAGNITUDE), (move_recep_ahead_mag, 0, 0)], self.frame_list))
         self.frame_list.append(self.last_event.frame)
+        self.depth_list.append(self.last_event.depth_frame)
         self.third_party_camera_frames.append(
             self.last_event.third_party_camera_frames[0]
         )
         # move 2nd recep to 1st recep place
-        _, self.frame_list, self.third_party_camera_frames = move_object(
+        _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
             self,
             recep2_id,
             [
@@ -338,6 +343,7 @@ class SimpleSwap(Experiment):
                 (0, 0, -self.moveup_magnitude),
             ],
             self.frame_list,
+            self.depth_list,
             self.third_party_camera_frames,
         )
         # self.frame_list.append(self.last_event.frame)
@@ -347,7 +353,7 @@ class SimpleSwap(Experiment):
         recep1_id = get_objectId(recep1_name, self)
 
         # move 1st recep to second recep place
-        _, self.frame_list, self.third_party_camera_frames = move_object(
+        _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
             self,
             recep1_id,
             [
@@ -357,6 +363,7 @@ class SimpleSwap(Experiment):
                 (0, 0, -self.moveup_magnitude),
             ],
             self.frame_list,
+            self.depth_list,
             self.third_party_camera_frames,
         )
 

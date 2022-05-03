@@ -55,7 +55,7 @@ def pickup(controller, object_ID):
     return controller.last_event
 
 
-def drop_object(controller, frame_list, third_party_camera_frames):
+def drop_object(controller, frame_list, depth_list, third_party_camera_frames):
     """
     controller: current controller
 
@@ -77,10 +77,10 @@ def drop_object(controller, frame_list, third_party_camera_frames):
 
     # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
-    return controller.last_event, frame_list, third_party_camera_frames
+    return controller.last_event, frame_list, depth_list, third_party_camera_frames
 
 
-def move_hand(controller, directions, frame_list, third_party_camera_frames):
+def move_hand(controller, directions, frame_list, depth_list, third_party_camera_frames):
     """
     controller: current controller
 
@@ -104,16 +104,18 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
             action="MoveHeldObject", ahead=ahead, right=right, up=up, forceVisible=False
         )
         last_image = controller.last_event.frame
+        last_depth = controller.last_event.depth_frame
         frame_list.append(last_image)
+        depth_list.append(last_depth)
         third_party_camera_frames.append(
             controller.last_event.third_party_camera_frames[0]
         )
         checkError(controller)
-    return controller.last_event, frame_list, third_party_camera_frames
+    return controller.last_event, frame_list, depth_list, third_party_camera_frames
 
 
 def move_object(
-    controller, objectId, directions, frame_list, third_party_camera_frames
+    controller, objectId, directions, frame_list, depth_list, third_party_camera_frames
 ):
     """u
     controller: current controller
@@ -127,16 +129,17 @@ def move_object(
     """
     last_event = pickup(controller, objectId)
     frame_list.append(last_event.frame)
+    depth_list.append(last_event.depth_frame)
     third_party_camera_frames.append(last_event.third_party_camera_frames[0])
     directions = interpolate_between_2points(directions, num_interpolations=10)
-    _, frame_list, third_party_camera_frames = move_hand(
-        controller, directions, frame_list, third_party_camera_frames
+    _, frame_list, depth_list, third_party_camera_frames = move_hand(
+        controller, directions, frame_list, depth_list, third_party_camera_frames
     )
 
-    last_event, framelist, third_party_camera_frames = drop_object(
-        controller, frame_list, third_party_camera_frames
+    last_event, frame_list, depth_list, third_party_camera_frames = drop_object(
+        controller, frame_list, depth_list, third_party_camera_frames
     )
-    return last_event, framelist, third_party_camera_frames
+    return last_event, frame_list, depth_list, third_party_camera_frames
 
 
 def checkError(controller):

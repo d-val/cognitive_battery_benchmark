@@ -37,6 +37,8 @@ class RelativeNumbers(Experiment):
             if type(visibilityDistance) != list
             else random.randint(*visibilityDistance),
             "fov": fov if type(fov) != list else random.randint(*fov),
+            "width": controller_args["width"],
+            "height": controller_args["height"],
         }
         super().__init__(
             {
@@ -205,6 +207,7 @@ class RelativeNumbers(Experiment):
             out = "right"
 
         self.frame_list = [self.last_event.frame]
+        self.depth_list = [self.last_event.depth_frame]
 
         self.stats.update(
             {
