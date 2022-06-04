@@ -2,17 +2,38 @@
 This directory contains scripts for training and evaluating baseline models consisting of a CNN and LSTM. 
 
 ## Dependencies
-Required Python libraries are available in `requirements.txt`. You can create a virtual environment with the libraries installed.
+Required Python libraries are available in `requirements.txt`. You can create a virtual environment called `cog-battery-baseline` (or any other name you choose) with the libraries installed.
+
+### Option 1: set up virtual environment with conda
 ```
 conda create -y -n cog-battery-baseline pip
 conda activate cog-battery-baseline
 pip install -r requirements.txt
 ```
 
+### Option 2: set up virtual environment with vemv
+```
+python3 -m venv cog-battery-baseline
+source cog-battery-baseline/bin/activate
+pip3 install -r requirements.txt
+```
+
+See [here](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments) for more information on venv.
+
 ## Running Code
 To run a sample training job, you need to
 1. Specify the model architecture and training parameters in `config/config.yaml`. A description of the config can be found below.
-2. Copy the data in this directory in the following format:
+2. Add the data on which you'd like to run the training job.
+    A toy example of a data directory is available [here](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip).
+
+    If you are unable to access the toy dataset, you can generate data by running the following within your activated virtual environment:
+    ```
+    cd ../dataset_generation/
+    pip3 install -r requirements.txt
+    python3 run_all_experiments.py
+    ```
+    Ensure that the number of iterations set in `dataset_generation/config/AllExperiments_config.yaml` provides sufficient data for your training job.
+3. Copy the data from the previous step into this directory in the following format:
     ```
       data/
            0/
@@ -23,7 +44,7 @@ To run a sample training job, you need to
                     iteration_data.pickle
             ⋮
     ```
-    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`. A toy example of a data directory is available [here](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip).
+    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`. For instance, you might set `data_path: "../dataset_generation/output/20*/Shape/"` rather than `data_path: "data/"` under `data_loader`.
 3. Run `train.py`.
 
 This will run a training job with the specified name and save the resulting log(s) and model(s) in the `output` directory.
