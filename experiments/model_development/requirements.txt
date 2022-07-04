@@ -1,4 +1,4 @@
-numpy==1.22.3
+numpy==1.21.6
 pickle-mixin==1.0.2
 pickle5==0.0.11
 pyyaml==6.0

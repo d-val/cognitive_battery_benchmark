@@ -22,8 +22,8 @@ def _cfg(url='', **kwargs):
     return {
         'url': url,
         'num_classes': 1000, 'input_size': (3, 224, 224), 'pool_size': None,
-        'crop_pct': .9, 'interpolation': 'bicubic',
-        'mean': IMAGENET_DEFAULT_MEAN, 'std': IMAGENET_DEFAULT_STD,
+        'crop_pct': 1.0, 'interpolation': 'bicubic',
+        'mean': 0, 'std': 0,
         'first_conv': 'patch_embed.proj', 'classifier': 'head',
         **kwargs
     }
@@ -155,7 +155,7 @@ class Block(nn.Module):
 class PatchEmbed(nn.Module):
     """ Image to Patch Embedding
     """
-    def __init__(self, img_size=224, patch_size=16, in_chans=3, embed_dim=768):
+    def __init__(self, img_size=256, patch_size=16, in_chans=3, embed_dim=768):
         super().__init__()
         img_size = to_2tuple(img_size)
         patch_size = to_2tuple(patch_size)
@@ -168,7 +168,7 @@ class PatchEmbed(nn.Module):
 
     def forward(self, x):
         B, C, T, H, W = x.shape
-        x = rearrange(x, 'b c t h w -> (b t) c h w')
+        x = rearrange(x, 'b c t h w -> (t b) c h w') # x = rearrange(x, 'b c t h w -> (b t) c h w')
         x = self.proj(x)
         W = x.size(-1)
         x = x.flatten(2).transpose(1, 2)
@@ -336,7 +336,7 @@ class vit_base_patch16_224(nn.Module):
 
 @MODEL_REGISTRY.register()
 class TimeSformer(nn.Module):
-    def __init__(self, img_size=224, patch_size=16, num_classes=400, num_frames=8, attention_type='divided_space_time',  pretrained_model='', **kwargs):
+    def __init__(self, img_size=300, patch_size=16, num_classes=2, num_frames=8, attention_type='divided_space_time',  pretrained_model='', **kwargs):
         super(TimeSformer, self).__init__()
         self.pretrained=True
         self.model = VisionTransformer(img_size=img_size, num_classes=num_classes, patch_size=patch_size, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1, num_frames=num_frames, attention_type=attention_type, **kwargs)
