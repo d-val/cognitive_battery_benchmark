@@ -60,7 +60,7 @@ Then, install the following packages:
 - simplejson: `pip install simplejson`
 - einops: `pip install einops`
 - timm: `pip install timm`
-- PyAV: `conda install av -c conda-forge`
+- PyAV: `conda install av -c conda-forge` or `pip install av`
 - psutil: `pip install psutil`
 - scikit-learn: `pip install scikit-learn`
 - OpenCV: `pip install opencv-python`
