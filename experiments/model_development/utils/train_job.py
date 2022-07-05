@@ -13,6 +13,8 @@ from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
 from utils.translators import expts
 
+import matplotlib.pyplot as plt
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
@@ -92,7 +94,9 @@ class TrainingJob():
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log")
+        self.train_losses = []
+        self.test_losses = []
 
     def train(self, evaluate=False):
         """
@@ -115,6 +119,7 @@ class TrainingJob():
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
                 data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
@@ -141,6 +146,10 @@ class TrainingJob():
                 train_acc, train_loss = evals["train"]
                 test_acc, test_loss = evals["test"]
                 self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
+
+                # Save train and test loss for later plotability
+                self.train_losses.append(train_loss)
+                self.test_losses.append(test_loss)
                 
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
@@ -162,6 +171,25 @@ class TrainingJob():
         test_acc, test_loss = self._check_accuracy(self.test_loader)
 
         return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
+
+    def plot(self, show=True, save=True):
+        """
+        Generates a plot of training and test loss over epochs.
+        :param boolean show: whether to show the generated plot
+        :param boolean save: whether to save the generated plot
+        """
+        plt.plot(self.train_losses, label="Training Loss")
+        plt.plot(self.test_losses, label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
+        plt.legend()
+
+        if save:
+            plt.savefig(os.path.join(self._out_path, "loss.png"))
+
+        if show:
+            plt.show()
 
     def _check_accuracy(self, loader):
         """
