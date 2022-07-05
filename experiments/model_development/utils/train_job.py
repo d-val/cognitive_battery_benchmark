@@ -10,7 +10,6 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.model import CNNLSTM
 from utils.translators import expts
 
 import matplotlib.pyplot as plt
@@ -89,7 +88,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss funciton
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
+        self.model = torch.load('./utils/models/Motionformer/pretrained/k400_motionformer_224_32x3.pyth', map_location=torch.device('cpu'))
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
