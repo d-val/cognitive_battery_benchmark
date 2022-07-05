@@ -94,7 +94,7 @@ class TrainingJob():
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log")
         self.train_losses = []
         self.test_losses = []
 
@@ -119,6 +119,7 @@ class TrainingJob():
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
                 data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
@@ -182,7 +183,7 @@ class TrainingJob():
         plt.plot(self.test_losses, label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch")
+        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
         plt.legend()
 
         if save:
