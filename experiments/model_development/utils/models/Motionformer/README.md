@@ -68,6 +68,7 @@ Then, install the following packages:
 - matplotlib: `pip install matplotlib`
 - pandas: `pip install pandas`
 - ffmeg: `pip install ffmpeg-python`
+- detectron2: `python3 -m pip install 'git+https://github.com/facebookresearch/detectron2.git'`
 
 OR:
 
