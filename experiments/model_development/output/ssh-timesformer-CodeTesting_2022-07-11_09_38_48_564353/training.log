@@ -1,0 +1,902 @@
+Starting Log
+TRAINING
+	Current time: 2022-07-11_09_38_52_044767
+	Current time: 2022-07-11_09_38_57_635839
+	Current time: 2022-07-11_09_39_03_060101
+	Current time: 2022-07-11_09_39_08_348706
+	Current time: 2022-07-11_09_39_13_637051
+	Current time: 2022-07-11_09_39_18_886751
+	Current time: 2022-07-11_09_39_24_136933
+	Current time: 2022-07-11_09_39_29_432479
+epoch=1,train_acc=62.50,test_acc=0.00,train_loss=0.53,test_loss=1.32
+	Current time: 2022-07-11_09_39_52_471386
+	Current time: 2022-07-11_09_39_57_784297
+	Current time: 2022-07-11_09_40_03_118305
+	Current time: 2022-07-11_09_40_08_428161
+	Current time: 2022-07-11_09_40_13_739326
+	Current time: 2022-07-11_09_40_19_026422
+	Current time: 2022-07-11_09_40_24_342634
+	Current time: 2022-07-11_09_40_29_647774
+epoch=2,train_acc=62.50,test_acc=0.00,train_loss=0.57,test_loss=1.71
+	Current time: 2022-07-11_09_40_52_400148
+	Current time: 2022-07-11_09_40_57_710840
+	Current time: 2022-07-11_09_41_03_015955
+	Current time: 2022-07-11_09_41_08_342044
+	Current time: 2022-07-11_09_41_13_685862
+	Current time: 2022-07-11_09_41_18_977546
+	Current time: 2022-07-11_09_41_24_267264
+	Current time: 2022-07-11_09_41_29_560430
+epoch=3,train_acc=87.50,test_acc=100.00,train_loss=0.39,test_loss=0.45
+	Current time: 2022-07-11_09_41_55_634538
+	Current time: 2022-07-11_09_42_00_932474
+	Current time: 2022-07-11_09_42_06_291344
+	Current time: 2022-07-11_09_42_11_548520
+	Current time: 2022-07-11_09_42_16_833272
+	Current time: 2022-07-11_09_42_22_103287
+	Current time: 2022-07-11_09_42_27_355163
+	Current time: 2022-07-11_09_42_32_581911
+epoch=4,train_acc=37.50,test_acc=100.00,train_loss=0.79,test_loss=0.07
+	Current time: 2022-07-11_09_42_58_655986
+	Current time: 2022-07-11_09_43_03_951288
+	Current time: 2022-07-11_09_43_09_250304
+	Current time: 2022-07-11_09_43_14_569022
+	Current time: 2022-07-11_09_43_19_868880
+	Current time: 2022-07-11_09_43_25_168419
+	Current time: 2022-07-11_09_43_30_469445
+	Current time: 2022-07-11_09_43_35_764721
+epoch=5,train_acc=87.50,test_acc=0.00,train_loss=0.36,test_loss=1.25
+	Current time: 2022-07-11_09_43_58_176322
+	Current time: 2022-07-11_09_44_03_438648
+	Current time: 2022-07-11_09_44_08_773442
+	Current time: 2022-07-11_09_44_14_102697
+	Current time: 2022-07-11_09_44_19_410211
+	Current time: 2022-07-11_09_44_24_732269
+	Current time: 2022-07-11_09_44_30_019088
+	Current time: 2022-07-11_09_44_35_348613
+epoch=6,train_acc=87.50,test_acc=50.00,train_loss=0.28,test_loss=0.59
+	Current time: 2022-07-11_09_44_57_817014
+	Current time: 2022-07-11_09_45_03_089714
+	Current time: 2022-07-11_09_45_08_412218
+	Current time: 2022-07-11_09_45_13_726303
+	Current time: 2022-07-11_09_45_19_055159
+	Current time: 2022-07-11_09_45_24_350942
+	Current time: 2022-07-11_09_45_29_677811
+	Current time: 2022-07-11_09_45_35_001258
+epoch=7,train_acc=87.50,test_acc=0.00,train_loss=0.33,test_loss=1.34
+	Current time: 2022-07-11_09_45_57_445657
+	Current time: 2022-07-11_09_46_03_077696
+	Current time: 2022-07-11_09_46_08_371894
+	Current time: 2022-07-11_09_46_13_708862
+	Current time: 2022-07-11_09_46_19_038405
+	Current time: 2022-07-11_09_46_24_330740
+	Current time: 2022-07-11_09_46_29_646541
+	Current time: 2022-07-11_09_46_34_949397
+epoch=8,train_acc=87.50,test_acc=50.00,train_loss=0.25,test_loss=0.91
+	Current time: 2022-07-11_09_46_57_377032
+	Current time: 2022-07-11_09_47_02_686674
+	Current time: 2022-07-11_09_47_08_002218
+	Current time: 2022-07-11_09_47_13_336035
+	Current time: 2022-07-11_09_47_18_664691
+	Current time: 2022-07-11_09_47_23_991133
+	Current time: 2022-07-11_09_47_29_319874
+	Current time: 2022-07-11_09_47_34_637068
+epoch=9,train_acc=100.00,test_acc=100.00,train_loss=0.15,test_loss=0.38
+	Current time: 2022-07-11_09_47_57_151676
+	Current time: 2022-07-11_09_48_02_463825
+	Current time: 2022-07-11_09_48_07_766758
+	Current time: 2022-07-11_09_48_13_079626
+	Current time: 2022-07-11_09_48_18_396888
+	Current time: 2022-07-11_09_48_23_707786
+	Current time: 2022-07-11_09_48_29_034976
+	Current time: 2022-07-11_09_48_34_357394
+epoch=10,train_acc=87.50,test_acc=50.00,train_loss=0.25,test_loss=0.95
+	Current time: 2022-07-11_09_48_56_833616
+	Current time: 2022-07-11_09_49_02_152236
+	Current time: 2022-07-11_09_49_07_455557
+	Current time: 2022-07-11_09_49_12_793089
+	Current time: 2022-07-11_09_49_18_098940
+	Current time: 2022-07-11_09_49_23_395544
+	Current time: 2022-07-11_09_49_28_708048
+	Current time: 2022-07-11_09_49_34_011552
+epoch=11,train_acc=87.50,test_acc=100.00,train_loss=0.24,test_loss=0.49
+	Current time: 2022-07-11_09_49_56_522956
+	Current time: 2022-07-11_09_50_01_824800
+	Current time: 2022-07-11_09_50_07_127589
+	Current time: 2022-07-11_09_50_12_443730
+	Current time: 2022-07-11_09_50_17_750140
+	Current time: 2022-07-11_09_50_23_028413
+	Current time: 2022-07-11_09_50_28_337445
+	Current time: 2022-07-11_09_50_33_626121
+epoch=12,train_acc=100.00,test_acc=50.00,train_loss=0.18,test_loss=0.47
+	Current time: 2022-07-11_09_50_56_085883
+	Current time: 2022-07-11_09_51_01_385960
+	Current time: 2022-07-11_09_51_06_704823
+	Current time: 2022-07-11_09_51_12_035243
+	Current time: 2022-07-11_09_51_17_339216
+	Current time: 2022-07-11_09_51_22_646277
+	Current time: 2022-07-11_09_51_27_931590
+	Current time: 2022-07-11_09_51_33_234812
+epoch=13,train_acc=87.50,test_acc=50.00,train_loss=0.15,test_loss=0.61
+	Current time: 2022-07-11_09_51_55_725002
+	Current time: 2022-07-11_09_52_01_029821
+	Current time: 2022-07-11_09_52_06_348601
+	Current time: 2022-07-11_09_52_11_650901
+	Current time: 2022-07-11_09_52_16_964857
+	Current time: 2022-07-11_09_52_22_287902
+	Current time: 2022-07-11_09_52_27_623853
+	Current time: 2022-07-11_09_52_32_951019
+epoch=14,train_acc=87.50,test_acc=50.00,train_loss=0.13,test_loss=1.43
+	Current time: 2022-07-11_09_52_55_499587
+	Current time: 2022-07-11_09_53_00_799026
+	Current time: 2022-07-11_09_53_06_106643
+	Current time: 2022-07-11_09_53_11_416118
+	Current time: 2022-07-11_09_53_16_734685
+	Current time: 2022-07-11_09_53_22_056495
+	Current time: 2022-07-11_09_53_27_356097
+	Current time: 2022-07-11_09_53_32_665801
+epoch=15,train_acc=100.00,test_acc=100.00,train_loss=0.23,test_loss=0.28
+	Current time: 2022-07-11_09_53_55_410527
+	Current time: 2022-07-11_09_54_00_713317
+	Current time: 2022-07-11_09_54_06_030125
+	Current time: 2022-07-11_09_54_11_604858
+	Current time: 2022-07-11_09_54_16_820480
+	Current time: 2022-07-11_09_54_22_038828
+	Current time: 2022-07-11_09_54_27_240509
+	Current time: 2022-07-11_09_54_32_490736
+epoch=16,train_acc=87.50,test_acc=50.00,train_loss=0.18,test_loss=0.76
+	Current time: 2022-07-11_09_54_54_919568
+	Current time: 2022-07-11_09_55_00_228853
+	Current time: 2022-07-11_09_55_05_527407
+	Current time: 2022-07-11_09_55_10_843688
+	Current time: 2022-07-11_09_55_16_142417
+	Current time: 2022-07-11_09_55_21_420008
+	Current time: 2022-07-11_09_55_26_727215
+	Current time: 2022-07-11_09_55_32_025762
+epoch=17,train_acc=62.50,test_acc=100.00,train_loss=0.57,test_loss=0.03
+	Current time: 2022-07-11_09_55_58_108110
+	Current time: 2022-07-11_09_56_03_423151
+	Current time: 2022-07-11_09_56_08_744657
+	Current time: 2022-07-11_09_56_14_074590
+	Current time: 2022-07-11_09_56_19_401191
+	Current time: 2022-07-11_09_56_24_715333
+	Current time: 2022-07-11_09_56_30_019829
+	Current time: 2022-07-11_09_56_35_329125
+epoch=18,train_acc=87.50,test_acc=100.00,train_loss=0.30,test_loss=0.07
+	Current time: 2022-07-11_09_56_57_790954
+	Current time: 2022-07-11_09_57_03_077630
+	Current time: 2022-07-11_09_57_08_398897
+	Current time: 2022-07-11_09_57_13_695211
+	Current time: 2022-07-11_09_57_18_996802
+	Current time: 2022-07-11_09_57_24_278778
+	Current time: 2022-07-11_09_57_29_553135
+	Current time: 2022-07-11_09_57_34_880594
+epoch=19,train_acc=100.00,test_acc=50.00,train_loss=0.10,test_loss=0.53
+	Current time: 2022-07-11_09_57_57_295952
+	Current time: 2022-07-11_09_58_02_509938
+	Current time: 2022-07-11_09_58_07_719791
+	Current time: 2022-07-11_09_58_12_958839
+	Current time: 2022-07-11_09_58_18_234395
+	Current time: 2022-07-11_09_58_23_508486
+	Current time: 2022-07-11_09_58_28_782899
+	Current time: 2022-07-11_09_58_34_014815
+epoch=20,train_acc=100.00,test_acc=50.00,train_loss=0.09,test_loss=1.27
+	Current time: 2022-07-11_09_58_56_183330
+	Current time: 2022-07-11_09_59_01_475823
+	Current time: 2022-07-11_09_59_06_787464
+	Current time: 2022-07-11_09_59_12_086883
+	Current time: 2022-07-11_09_59_17_363916
+	Current time: 2022-07-11_09_59_22_653400
+	Current time: 2022-07-11_09_59_27_960251
+	Current time: 2022-07-11_09_59_33_263309
+epoch=21,train_acc=100.00,test_acc=50.00,train_loss=0.01,test_loss=0.50
+	Current time: 2022-07-11_09_59_55_749854
+	Current time: 2022-07-11_10_00_01_060267
+	Current time: 2022-07-11_10_00_06_383497
+	Current time: 2022-07-11_10_00_11_682295
+	Current time: 2022-07-11_10_00_16_998748
+	Current time: 2022-07-11_10_00_22_318524
+	Current time: 2022-07-11_10_00_27_644954
+	Current time: 2022-07-11_10_00_32_942235
+epoch=22,train_acc=100.00,test_acc=50.00,train_loss=0.01,test_loss=0.68
+	Current time: 2022-07-11_10_00_55_824579
+	Current time: 2022-07-11_10_01_01_155546
+	Current time: 2022-07-11_10_01_06_490251
+	Current time: 2022-07-11_10_01_11_846214
+	Current time: 2022-07-11_10_01_17_154011
+	Current time: 2022-07-11_10_01_22_484371
+	Current time: 2022-07-11_10_01_27_821519
+	Current time: 2022-07-11_10_01_33_107375
+epoch=23,train_acc=100.00,test_acc=50.00,train_loss=0.01,test_loss=0.56
+	Current time: 2022-07-11_10_01_55_594218
+	Current time: 2022-07-11_10_02_00_903499
+	Current time: 2022-07-11_10_02_06_204765
+	Current time: 2022-07-11_10_02_11_537473
+	Current time: 2022-07-11_10_02_16_877871
+	Current time: 2022-07-11_10_02_22_200375
+	Current time: 2022-07-11_10_02_27_527278
+	Current time: 2022-07-11_10_02_32_815476
+epoch=24,train_acc=100.00,test_acc=50.00,train_loss=0.01,test_loss=0.62
+	Current time: 2022-07-11_10_02_55_319965
+	Current time: 2022-07-11_10_03_00_653140
+	Current time: 2022-07-11_10_03_05_958881
+	Current time: 2022-07-11_10_03_11_297919
+	Current time: 2022-07-11_10_03_16_603291
+	Current time: 2022-07-11_10_03_21_918626
+	Current time: 2022-07-11_10_03_27_243104
+	Current time: 2022-07-11_10_03_32_530750
+epoch=25,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_03_54_959143
+	Current time: 2022-07-11_10_04_00_268888
+	Current time: 2022-07-11_10_04_05_583414
+	Current time: 2022-07-11_10_04_10_891664
+	Current time: 2022-07-11_10_04_16_204039
+	Current time: 2022-07-11_10_04_21_508458
+	Current time: 2022-07-11_10_04_26_794738
+	Current time: 2022-07-11_10_04_32_097363
+epoch=26,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.77
+	Current time: 2022-07-11_10_04_54_589688
+	Current time: 2022-07-11_10_04_59_917803
+	Current time: 2022-07-11_10_05_05_241261
+	Current time: 2022-07-11_10_05_10_560241
+	Current time: 2022-07-11_10_05_15_881097
+	Current time: 2022-07-11_10_05_21_212814
+	Current time: 2022-07-11_10_05_26_519577
+	Current time: 2022-07-11_10_05_31_808388
+epoch=27,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.74
+	Current time: 2022-07-11_10_05_54_290672
+	Current time: 2022-07-11_10_05_59_598388
+	Current time: 2022-07-11_10_06_04_911552
+	Current time: 2022-07-11_10_06_10_214209
+	Current time: 2022-07-11_10_06_15_530588
+	Current time: 2022-07-11_10_06_20_849960
+	Current time: 2022-07-11_10_06_26_168737
+	Current time: 2022-07-11_10_06_31_455521
+epoch=28,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_06_53_963427
+	Current time: 2022-07-11_10_06_59_285631
+	Current time: 2022-07-11_10_07_04_609742
+	Current time: 2022-07-11_10_07_10_225216
+	Current time: 2022-07-11_10_07_15_529062
+	Current time: 2022-07-11_10_07_20_872035
+	Current time: 2022-07-11_10_07_26_169344
+	Current time: 2022-07-11_10_07_31_458422
+epoch=29,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.62
+	Current time: 2022-07-11_10_07_53_934688
+	Current time: 2022-07-11_10_07_59_231465
+	Current time: 2022-07-11_10_08_04_552596
+	Current time: 2022-07-11_10_08_09_892430
+	Current time: 2022-07-11_10_08_15_193313
+	Current time: 2022-07-11_10_08_20_506540
+	Current time: 2022-07-11_10_08_25_779915
+	Current time: 2022-07-11_10_08_31_113426
+epoch=30,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.60
+	Current time: 2022-07-11_10_08_53_520298
+	Current time: 2022-07-11_10_08_58_793513
+	Current time: 2022-07-11_10_09_04_122149
+	Current time: 2022-07-11_10_09_09_434261
+	Current time: 2022-07-11_10_09_14_738312
+	Current time: 2022-07-11_10_09_20_073161
+	Current time: 2022-07-11_10_09_25_363970
+	Current time: 2022-07-11_10_09_30_659390
+epoch=31,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.63
+	Current time: 2022-07-11_10_09_53_084016
+	Current time: 2022-07-11_10_09_58_402363
+	Current time: 2022-07-11_10_10_03_694191
+	Current time: 2022-07-11_10_10_08_999791
+	Current time: 2022-07-11_10_10_14_293455
+	Current time: 2022-07-11_10_10_19_627113
+	Current time: 2022-07-11_10_10_24_932990
+	Current time: 2022-07-11_10_10_30_252057
+epoch=32,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_10_52_729195
+	Current time: 2022-07-11_10_10_58_049928
+	Current time: 2022-07-11_10_11_03_358488
+	Current time: 2022-07-11_10_11_08_682993
+	Current time: 2022-07-11_10_11_14_306677
+	Current time: 2022-07-11_10_11_19_649294
+	Current time: 2022-07-11_10_11_24_910061
+	Current time: 2022-07-11_10_11_30_190351
+epoch=33,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_11_52_620955
+	Current time: 2022-07-11_10_11_57_926021
+	Current time: 2022-07-11_10_12_03_205542
+	Current time: 2022-07-11_10_12_08_538522
+	Current time: 2022-07-11_10_12_13_826480
+	Current time: 2022-07-11_10_12_19_160196
+	Current time: 2022-07-11_10_12_24_428199
+	Current time: 2022-07-11_10_12_29_730919
+epoch=34,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_12_52_060348
+	Current time: 2022-07-11_10_12_57_357891
+	Current time: 2022-07-11_10_13_02_634199
+	Current time: 2022-07-11_10_13_07_940957
+	Current time: 2022-07-11_10_13_13_253246
+	Current time: 2022-07-11_10_13_18_569521
+	Current time: 2022-07-11_10_13_23_885220
+	Current time: 2022-07-11_10_13_29_187481
+epoch=35,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_13_51_578552
+	Current time: 2022-07-11_10_13_56_887995
+	Current time: 2022-07-11_10_14_02_163473
+	Current time: 2022-07-11_10_14_07_439784
+	Current time: 2022-07-11_10_14_12_742095
+	Current time: 2022-07-11_10_14_17_997301
+	Current time: 2022-07-11_10_14_23_286246
+	Current time: 2022-07-11_10_14_28_579268
+epoch=36,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_14_51_057677
+	Current time: 2022-07-11_10_14_56_356415
+	Current time: 2022-07-11_10_15_01_660483
+	Current time: 2022-07-11_10_15_07_001675
+	Current time: 2022-07-11_10_15_12_335138
+	Current time: 2022-07-11_10_15_17_644511
+	Current time: 2022-07-11_10_15_22_910559
+	Current time: 2022-07-11_10_15_28_205827
+epoch=37,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.70
+	Current time: 2022-07-11_10_15_50_603073
+	Current time: 2022-07-11_10_15_55_887106
+	Current time: 2022-07-11_10_16_01_163122
+	Current time: 2022-07-11_10_16_06_433088
+	Current time: 2022-07-11_10_16_11_751121
+	Current time: 2022-07-11_10_16_17_048481
+	Current time: 2022-07-11_10_16_22_341723
+	Current time: 2022-07-11_10_16_27_641627
+epoch=38,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_16_50_083091
+	Current time: 2022-07-11_10_16_55_391273
+	Current time: 2022-07-11_10_17_00_661534
+	Current time: 2022-07-11_10_17_05_947781
+	Current time: 2022-07-11_10_17_11_249694
+	Current time: 2022-07-11_10_17_16_849782
+	Current time: 2022-07-11_10_17_22_132436
+	Current time: 2022-07-11_10_17_27_423177
+epoch=39,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_17_49_827841
+	Current time: 2022-07-11_10_17_55_120821
+	Current time: 2022-07-11_10_18_00_408939
+	Current time: 2022-07-11_10_18_05_723451
+	Current time: 2022-07-11_10_18_11_003753
+	Current time: 2022-07-11_10_18_16_309972
+	Current time: 2022-07-11_10_18_21_606873
+	Current time: 2022-07-11_10_18_26_942252
+epoch=40,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.65
+	Current time: 2022-07-11_10_18_49_393307
+	Current time: 2022-07-11_10_18_54_680821
+	Current time: 2022-07-11_10_18_59_965408
+	Current time: 2022-07-11_10_19_05_233739
+	Current time: 2022-07-11_10_19_10_555115
+	Current time: 2022-07-11_10_19_15_890767
+	Current time: 2022-07-11_10_19_21_208715
+	Current time: 2022-07-11_10_19_26_482691
+epoch=41,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_19_48_841318
+	Current time: 2022-07-11_10_19_54_111092
+	Current time: 2022-07-11_10_19_59_371879
+	Current time: 2022-07-11_10_20_04_659612
+	Current time: 2022-07-11_10_20_09_972019
+	Current time: 2022-07-11_10_20_15_269523
+	Current time: 2022-07-11_10_20_20_575739
+	Current time: 2022-07-11_10_20_25_977535
+epoch=42,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_20_48_683129
+	Current time: 2022-07-11_10_20_53_981189
+	Current time: 2022-07-11_10_20_59_289860
+	Current time: 2022-07-11_10_21_04_576550
+	Current time: 2022-07-11_10_21_09_896324
+	Current time: 2022-07-11_10_21_15_232676
+	Current time: 2022-07-11_10_21_20_512802
+	Current time: 2022-07-11_10_21_25_809673
+epoch=43,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_21_48_161427
+	Current time: 2022-07-11_10_21_53_464532
+	Current time: 2022-07-11_10_21_58_771484
+	Current time: 2022-07-11_10_22_04_065766
+	Current time: 2022-07-11_10_22_09_393406
+	Current time: 2022-07-11_10_22_14_701738
+	Current time: 2022-07-11_10_22_19_999297
+	Current time: 2022-07-11_10_22_25_288261
+epoch=44,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_22_47_751326
+	Current time: 2022-07-11_10_22_53_052357
+	Current time: 2022-07-11_10_22_58_365107
+	Current time: 2022-07-11_10_23_03_639287
+	Current time: 2022-07-11_10_23_08_946333
+	Current time: 2022-07-11_10_23_14_229996
+	Current time: 2022-07-11_10_23_19_542797
+	Current time: 2022-07-11_10_23_24_828339
+epoch=45,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_23_47_217623
+	Current time: 2022-07-11_10_23_52_521838
+	Current time: 2022-07-11_10_23_57_836465
+	Current time: 2022-07-11_10_24_03_130649
+	Current time: 2022-07-11_10_24_08_456702
+	Current time: 2022-07-11_10_24_13_726394
+	Current time: 2022-07-11_10_24_19_015845
+	Current time: 2022-07-11_10_24_24_314850
+epoch=46,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_24_46_814623
+	Current time: 2022-07-11_10_24_52_116542
+	Current time: 2022-07-11_10_24_57_417952
+	Current time: 2022-07-11_10_25_02_715830
+	Current time: 2022-07-11_10_25_08_045112
+	Current time: 2022-07-11_10_25_13_331630
+	Current time: 2022-07-11_10_25_18_639388
+	Current time: 2022-07-11_10_25_23_926018
+epoch=47,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_10_25_46_295037
+	Current time: 2022-07-11_10_25_51_574894
+	Current time: 2022-07-11_10_25_56_842407
+	Current time: 2022-07-11_10_26_02_128168
+	Current time: 2022-07-11_10_26_07_417921
+	Current time: 2022-07-11_10_26_12_739454
+	Current time: 2022-07-11_10_26_18_060217
+	Current time: 2022-07-11_10_26_23_358645
+epoch=48,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_26_45_692589
+	Current time: 2022-07-11_10_26_51_008836
+	Current time: 2022-07-11_10_26_56_290626
+	Current time: 2022-07-11_10_27_01_618318
+	Current time: 2022-07-11_10_27_06_903549
+	Current time: 2022-07-11_10_27_12_171355
+	Current time: 2022-07-11_10_27_17_415234
+	Current time: 2022-07-11_10_27_22_698753
+epoch=49,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_27_44_955801
+	Current time: 2022-07-11_10_27_50_224187
+	Current time: 2022-07-11_10_27_55_476805
+	Current time: 2022-07-11_10_28_00_771112
+	Current time: 2022-07-11_10_28_06_054483
+	Current time: 2022-07-11_10_28_11_330038
+	Current time: 2022-07-11_10_28_16_622119
+	Current time: 2022-07-11_10_28_21_922895
+epoch=50,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_28_44_304572
+	Current time: 2022-07-11_10_28_49_610796
+	Current time: 2022-07-11_10_28_54_867630
+	Current time: 2022-07-11_10_29_00_148455
+	Current time: 2022-07-11_10_29_05_412040
+	Current time: 2022-07-11_10_29_10_713502
+	Current time: 2022-07-11_10_29_16_007488
+	Current time: 2022-07-11_10_29_21_661004
+epoch=51,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_29_44_083188
+	Current time: 2022-07-11_10_29_49_371215
+	Current time: 2022-07-11_10_29_54_642471
+	Current time: 2022-07-11_10_29_59_920658
+	Current time: 2022-07-11_10_30_05_178594
+	Current time: 2022-07-11_10_30_10_451383
+	Current time: 2022-07-11_10_30_15_742189
+	Current time: 2022-07-11_10_30_21_036055
+epoch=52,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_30_43_415123
+	Current time: 2022-07-11_10_30_48_678603
+	Current time: 2022-07-11_10_30_53_951017
+	Current time: 2022-07-11_10_30_59_245493
+	Current time: 2022-07-11_10_31_04_534609
+	Current time: 2022-07-11_10_31_09_852211
+	Current time: 2022-07-11_10_31_15_171363
+	Current time: 2022-07-11_10_31_20_453971
+epoch=53,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_31_42_814393
+	Current time: 2022-07-11_10_31_48_079091
+	Current time: 2022-07-11_10_31_53_361090
+	Current time: 2022-07-11_10_31_58_641874
+	Current time: 2022-07-11_10_32_03_896313
+	Current time: 2022-07-11_10_32_09_165400
+	Current time: 2022-07-11_10_32_14_446368
+	Current time: 2022-07-11_10_32_19_734699
+epoch=54,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_32_41_937433
+	Current time: 2022-07-11_10_32_47_202798
+	Current time: 2022-07-11_10_32_52_441439
+	Current time: 2022-07-11_10_32_57_708528
+	Current time: 2022-07-11_10_33_02_943148
+	Current time: 2022-07-11_10_33_08_203220
+	Current time: 2022-07-11_10_33_13_430495
+	Current time: 2022-07-11_10_33_19_004352
+epoch=55,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_33_41_270751
+	Current time: 2022-07-11_10_33_46_536917
+	Current time: 2022-07-11_10_33_51_820918
+	Current time: 2022-07-11_10_33_57_134962
+	Current time: 2022-07-11_10_34_02_400286
+	Current time: 2022-07-11_10_34_07_681596
+	Current time: 2022-07-11_10_34_12_929560
+	Current time: 2022-07-11_10_34_18_205524
+epoch=56,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_34_40_470663
+	Current time: 2022-07-11_10_34_45_770154
+	Current time: 2022-07-11_10_34_51_023119
+	Current time: 2022-07-11_10_34_56_245383
+	Current time: 2022-07-11_10_35_01_490759
+	Current time: 2022-07-11_10_35_06_756395
+	Current time: 2022-07-11_10_35_12_030641
+	Current time: 2022-07-11_10_35_17_286581
+epoch=57,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_35_39_645875
+	Current time: 2022-07-11_10_35_44_909099
+	Current time: 2022-07-11_10_35_50_194256
+	Current time: 2022-07-11_10_35_55_470182
+	Current time: 2022-07-11_10_36_00_745287
+	Current time: 2022-07-11_10_36_06_031394
+	Current time: 2022-07-11_10_36_11_335247
+	Current time: 2022-07-11_10_36_16_619700
+epoch=58,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_36_38_855503
+	Current time: 2022-07-11_10_36_44_120893
+	Current time: 2022-07-11_10_36_49_376371
+	Current time: 2022-07-11_10_36_54_622838
+	Current time: 2022-07-11_10_36_59_875572
+	Current time: 2022-07-11_10_37_05_145872
+	Current time: 2022-07-11_10_37_10_425558
+	Current time: 2022-07-11_10_37_15_681113
+epoch=59,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_37_38_012853
+	Current time: 2022-07-11_10_37_43_285325
+	Current time: 2022-07-11_10_37_48_551093
+	Current time: 2022-07-11_10_37_53_813285
+	Current time: 2022-07-11_10_37_59_102734
+	Current time: 2022-07-11_10_38_04_376878
+	Current time: 2022-07-11_10_38_09_674234
+	Current time: 2022-07-11_10_38_14_978438
+epoch=60,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_38_37_674071
+	Current time: 2022-07-11_10_38_42_962596
+	Current time: 2022-07-11_10_38_48_239343
+	Current time: 2022-07-11_10_38_53_522384
+	Current time: 2022-07-11_10_38_58_805405
+	Current time: 2022-07-11_10_39_04_093100
+	Current time: 2022-07-11_10_39_09_406831
+	Current time: 2022-07-11_10_39_14_711963
+epoch=61,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_39_37_059939
+	Current time: 2022-07-11_10_39_42_331778
+	Current time: 2022-07-11_10_39_47_641021
+	Current time: 2022-07-11_10_39_52_927160
+	Current time: 2022-07-11_10_39_58_195408
+	Current time: 2022-07-11_10_40_03_493733
+	Current time: 2022-07-11_10_40_08_781058
+	Current time: 2022-07-11_10_40_14_063079
+epoch=62,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_40_36_275113
+	Current time: 2022-07-11_10_40_41_518596
+	Current time: 2022-07-11_10_40_46_770321
+	Current time: 2022-07-11_10_40_52_043277
+	Current time: 2022-07-11_10_40_57_349140
+	Current time: 2022-07-11_10_41_02_631800
+	Current time: 2022-07-11_10_41_07_930139
+	Current time: 2022-07-11_10_41_13_229530
+epoch=63,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_41_35_581811
+	Current time: 2022-07-11_10_41_40_836543
+	Current time: 2022-07-11_10_41_46_090828
+	Current time: 2022-07-11_10_41_51_384537
+	Current time: 2022-07-11_10_41_56_670950
+	Current time: 2022-07-11_10_42_01_938509
+	Current time: 2022-07-11_10_42_07_257422
+	Current time: 2022-07-11_10_42_12_549353
+epoch=64,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_42_34_874976
+	Current time: 2022-07-11_10_42_40_134434
+	Current time: 2022-07-11_10_42_45_386383
+	Current time: 2022-07-11_10_42_50_640989
+	Current time: 2022-07-11_10_42_55_929184
+	Current time: 2022-07-11_10_43_01_220313
+	Current time: 2022-07-11_10_43_06_520853
+	Current time: 2022-07-11_10_43_12_125651
+epoch=65,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_43_34_374594
+	Current time: 2022-07-11_10_43_39_671776
+	Current time: 2022-07-11_10_43_44_939929
+	Current time: 2022-07-11_10_43_50_179096
+	Current time: 2022-07-11_10_43_55_458168
+	Current time: 2022-07-11_10_44_00_728249
+	Current time: 2022-07-11_10_44_06_009352
+	Current time: 2022-07-11_10_44_11_333219
+epoch=66,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_44_33_697228
+	Current time: 2022-07-11_10_44_38_949188
+	Current time: 2022-07-11_10_44_44_200976
+	Current time: 2022-07-11_10_44_49_484633
+	Current time: 2022-07-11_10_44_54_780662
+	Current time: 2022-07-11_10_45_00_040586
+	Current time: 2022-07-11_10_45_05_297183
+	Current time: 2022-07-11_10_45_10_565232
+epoch=67,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_45_32_815712
+	Current time: 2022-07-11_10_45_38_105732
+	Current time: 2022-07-11_10_45_43_371293
+	Current time: 2022-07-11_10_45_48_621741
+	Current time: 2022-07-11_10_45_53_895140
+	Current time: 2022-07-11_10_45_59_153449
+	Current time: 2022-07-11_10_46_04_417822
+	Current time: 2022-07-11_10_46_09_681122
+epoch=68,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_46_31_996637
+	Current time: 2022-07-11_10_46_37_249315
+	Current time: 2022-07-11_10_46_42_493740
+	Current time: 2022-07-11_10_46_47_747476
+	Current time: 2022-07-11_10_46_53_012982
+	Current time: 2022-07-11_10_46_58_279499
+	Current time: 2022-07-11_10_47_03_531427
+	Current time: 2022-07-11_10_47_08_818309
+epoch=69,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_47_31_179763
+	Current time: 2022-07-11_10_47_36_457127
+	Current time: 2022-07-11_10_47_41_716387
+	Current time: 2022-07-11_10_47_46_996145
+	Current time: 2022-07-11_10_47_52_678184
+	Current time: 2022-07-11_10_47_57_883368
+	Current time: 2022-07-11_10_48_03_131004
+	Current time: 2022-07-11_10_48_08_396044
+epoch=70,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_48_30_491399
+	Current time: 2022-07-11_10_48_35_722955
+	Current time: 2022-07-11_10_48_41_323889
+	Current time: 2022-07-11_10_48_46_606138
+	Current time: 2022-07-11_10_48_51_892578
+	Current time: 2022-07-11_10_48_57_175728
+	Current time: 2022-07-11_10_49_02_471314
+	Current time: 2022-07-11_10_49_07_766623
+epoch=71,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_49_30_227422
+	Current time: 2022-07-11_10_49_35_474781
+	Current time: 2022-07-11_10_49_40_729181
+	Current time: 2022-07-11_10_49_45_954927
+	Current time: 2022-07-11_10_49_51_203421
+	Current time: 2022-07-11_10_49_56_475769
+	Current time: 2022-07-11_10_50_01_732915
+	Current time: 2022-07-11_10_50_06_992388
+epoch=72,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_50_29_273894
+	Current time: 2022-07-11_10_50_34_498368
+	Current time: 2022-07-11_10_50_39_726665
+	Current time: 2022-07-11_10_50_44_984661
+	Current time: 2022-07-11_10_50_50_227880
+	Current time: 2022-07-11_10_50_55_467799
+	Current time: 2022-07-11_10_51_00_721364
+	Current time: 2022-07-11_10_51_05_948603
+epoch=73,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_51_28_490265
+	Current time: 2022-07-11_10_51_33_705757
+	Current time: 2022-07-11_10_51_38_947215
+	Current time: 2022-07-11_10_51_44_264332
+	Current time: 2022-07-11_10_51_49_568205
+	Current time: 2022-07-11_10_51_54_808116
+	Current time: 2022-07-11_10_52_00_059688
+	Current time: 2022-07-11_10_52_05_274621
+epoch=74,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_52_27_371994
+	Current time: 2022-07-11_10_52_32_540609
+	Current time: 2022-07-11_10_52_37_732857
+	Current time: 2022-07-11_10_52_42_889917
+	Current time: 2022-07-11_10_52_48_088423
+	Current time: 2022-07-11_10_52_53_264767
+	Current time: 2022-07-11_10_52_58_471185
+	Current time: 2022-07-11_10_53_03_646392
+epoch=75,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_53_25_539924
+	Current time: 2022-07-11_10_53_30_725152
+	Current time: 2022-07-11_10_53_35_897180
+	Current time: 2022-07-11_10_53_41_074443
+	Current time: 2022-07-11_10_53_46_263738
+	Current time: 2022-07-11_10_53_51_473693
+	Current time: 2022-07-11_10_53_56_704397
+	Current time: 2022-07-11_10_54_01_937750
+epoch=76,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_54_24_209724
+	Current time: 2022-07-11_10_54_29_448934
+	Current time: 2022-07-11_10_54_34_743513
+	Current time: 2022-07-11_10_54_40_006053
+	Current time: 2022-07-11_10_54_45_298083
+	Current time: 2022-07-11_10_54_50_539471
+	Current time: 2022-07-11_10_54_55_806011
+	Current time: 2022-07-11_10_55_01_061703
+epoch=77,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_10_55_23_698273
+	Current time: 2022-07-11_10_55_29_044545
+	Current time: 2022-07-11_10_55_34_323875
+	Current time: 2022-07-11_10_55_39_578183
+	Current time: 2022-07-11_10_55_44_855364
+	Current time: 2022-07-11_10_55_50_134699
+	Current time: 2022-07-11_10_55_55_382310
+	Current time: 2022-07-11_10_56_00_613263
+epoch=78,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_10_56_22_899592
+	Current time: 2022-07-11_10_56_28_151193
+	Current time: 2022-07-11_10_56_33_365830
+	Current time: 2022-07-11_10_56_38_609404
+	Current time: 2022-07-11_10_56_43_889454
+	Current time: 2022-07-11_10_56_49_140846
+	Current time: 2022-07-11_10_56_54_382064
+	Current time: 2022-07-11_10_56_59_630446
+epoch=79,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_57_21_891426
+	Current time: 2022-07-11_10_57_27_138884
+	Current time: 2022-07-11_10_57_32_390021
+	Current time: 2022-07-11_10_57_37_643904
+	Current time: 2022-07-11_10_57_42_924613
+	Current time: 2022-07-11_10_57_48_174938
+	Current time: 2022-07-11_10_57_53_430475
+	Current time: 2022-07-11_10_57_58_683135
+epoch=80,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_58_21_004014
+	Current time: 2022-07-11_10_58_26_247126
+	Current time: 2022-07-11_10_58_31_506909
+	Current time: 2022-07-11_10_58_36_772990
+	Current time: 2022-07-11_10_58_42_000726
+	Current time: 2022-07-11_10_58_47_262664
+	Current time: 2022-07-11_10_58_52_562383
+	Current time: 2022-07-11_10_58_57_815003
+epoch=81,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_10_59_20_097016
+	Current time: 2022-07-11_10_59_25_333268
+	Current time: 2022-07-11_10_59_30_589667
+	Current time: 2022-07-11_10_59_35_862326
+	Current time: 2022-07-11_10_59_41_108306
+	Current time: 2022-07-11_10_59_46_414749
+	Current time: 2022-07-11_10_59_51_666949
+	Current time: 2022-07-11_10_59_56_908422
+epoch=82,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_00_19_049821
+	Current time: 2022-07-11_11_00_24_261120
+	Current time: 2022-07-11_11_00_29_513150
+	Current time: 2022-07-11_11_00_34_751724
+	Current time: 2022-07-11_11_00_39_956119
+	Current time: 2022-07-11_11_00_45_175311
+	Current time: 2022-07-11_11_00_50_427751
+	Current time: 2022-07-11_11_00_55_688548
+epoch=83,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_11_01_17_858019
+	Current time: 2022-07-11_11_01_23_123729
+	Current time: 2022-07-11_11_01_28_387319
+	Current time: 2022-07-11_11_01_33_610533
+	Current time: 2022-07-11_11_01_38_862757
+	Current time: 2022-07-11_11_01_44_110731
+	Current time: 2022-07-11_11_01_49_362045
+	Current time: 2022-07-11_11_01_54_615251
+epoch=84,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_02_16_788799
+	Current time: 2022-07-11_11_02_22_040205
+	Current time: 2022-07-11_11_02_27_268042
+	Current time: 2022-07-11_11_02_32_540718
+	Current time: 2022-07-11_11_02_37_778005
+	Current time: 2022-07-11_11_02_43_044966
+	Current time: 2022-07-11_11_02_48_277478
+	Current time: 2022-07-11_11_02_53_544626
+epoch=85,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_11_03_16_065095
+	Current time: 2022-07-11_11_03_21_332990
+	Current time: 2022-07-11_11_03_26_562246
+	Current time: 2022-07-11_11_03_31_796372
+	Current time: 2022-07-11_11_03_37_017691
+	Current time: 2022-07-11_11_03_42_230473
+	Current time: 2022-07-11_11_03_47_460573
+	Current time: 2022-07-11_11_03_52_700198
+epoch=86,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_11_04_14_918257
+	Current time: 2022-07-11_11_04_20_192969
+	Current time: 2022-07-11_11_04_25_454187
+	Current time: 2022-07-11_11_04_30_732636
+	Current time: 2022-07-11_11_04_35_991135
+	Current time: 2022-07-11_11_04_41_234049
+	Current time: 2022-07-11_11_04_46_489501
+	Current time: 2022-07-11_11_04_51_727355
+epoch=87,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.69
+	Current time: 2022-07-11_11_05_13_947052
+	Current time: 2022-07-11_11_05_19_581576
+	Current time: 2022-07-11_11_05_24_813786
+	Current time: 2022-07-11_11_05_30_080524
+	Current time: 2022-07-11_11_05_35_352122
+	Current time: 2022-07-11_11_05_40_598354
+	Current time: 2022-07-11_11_05_45_877636
+	Current time: 2022-07-11_11_05_51_153334
+epoch=88,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_06_13_503431
+	Current time: 2022-07-11_11_06_18_782867
+	Current time: 2022-07-11_11_06_24_044843
+	Current time: 2022-07-11_11_06_29_302404
+	Current time: 2022-07-11_11_06_34_594124
+	Current time: 2022-07-11_11_06_39_878568
+	Current time: 2022-07-11_11_06_45_143710
+	Current time: 2022-07-11_11_06_50_422697
+epoch=89,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_07_12_775021
+	Current time: 2022-07-11_11_07_18_051897
+	Current time: 2022-07-11_11_07_23_327959
+	Current time: 2022-07-11_11_07_28_602300
+	Current time: 2022-07-11_11_07_33_852107
+	Current time: 2022-07-11_11_07_39_099041
+	Current time: 2022-07-11_11_07_44_354250
+	Current time: 2022-07-11_11_07_49_635748
+epoch=90,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_08_11_954125
+	Current time: 2022-07-11_11_08_17_212826
+	Current time: 2022-07-11_11_08_22_492889
+	Current time: 2022-07-11_11_08_27_781838
+	Current time: 2022-07-11_11_08_33_091087
+	Current time: 2022-07-11_11_08_38_350442
+	Current time: 2022-07-11_11_08_43_617260
+	Current time: 2022-07-11_11_08_48_869715
+epoch=91,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.68
+	Current time: 2022-07-11_11_09_11_165861
+	Current time: 2022-07-11_11_09_16_408059
+	Current time: 2022-07-11_11_09_21_651060
+	Current time: 2022-07-11_11_09_26_932828
+	Current time: 2022-07-11_11_09_32_201042
+	Current time: 2022-07-11_11_09_37_455738
+	Current time: 2022-07-11_11_09_42_738358
+	Current time: 2022-07-11_11_09_47_984789
+epoch=92,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_11_10_10_323063
+	Current time: 2022-07-11_11_10_15_557308
+	Current time: 2022-07-11_11_10_20_827887
+	Current time: 2022-07-11_11_10_26_098477
+	Current time: 2022-07-11_11_10_31_349817
+	Current time: 2022-07-11_11_10_36_622966
+	Current time: 2022-07-11_11_10_41_892852
+	Current time: 2022-07-11_11_10_47_148705
+epoch=93,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_11_11_09_312714
+	Current time: 2022-07-11_11_11_14_885045
+	Current time: 2022-07-11_11_11_20_180839
+	Current time: 2022-07-11_11_11_25_446220
+	Current time: 2022-07-11_11_11_30_692819
+	Current time: 2022-07-11_11_11_35_954350
+	Current time: 2022-07-11_11_11_41_212536
+	Current time: 2022-07-11_11_11_46_463707
+epoch=94,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_11_12_08_719734
+	Current time: 2022-07-11_11_12_13_990245
+	Current time: 2022-07-11_11_12_19_252373
+	Current time: 2022-07-11_11_12_24_526135
+	Current time: 2022-07-11_11_12_29_785027
+	Current time: 2022-07-11_11_12_35_067821
+	Current time: 2022-07-11_11_12_40_362180
+	Current time: 2022-07-11_11_12_45_625191
+epoch=95,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_11_13_07_990369
+	Current time: 2022-07-11_11_13_13_245390
+	Current time: 2022-07-11_11_13_18_517489
+	Current time: 2022-07-11_11_13_23_808879
+	Current time: 2022-07-11_11_13_29_077835
+	Current time: 2022-07-11_11_13_34_341320
+	Current time: 2022-07-11_11_13_39_602596
+	Current time: 2022-07-11_11_13_44_861859
+epoch=96,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.67
+	Current time: 2022-07-11_11_14_07_168919
+	Current time: 2022-07-11_11_14_12_460860
+	Current time: 2022-07-11_11_14_17_726446
+	Current time: 2022-07-11_11_14_23_010785
+	Current time: 2022-07-11_11_14_28_287828
+	Current time: 2022-07-11_11_14_33_546219
+	Current time: 2022-07-11_11_14_38_826831
+	Current time: 2022-07-11_11_14_44_099255
+epoch=97,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_11_15_06_426207
+	Current time: 2022-07-11_11_15_11_712586
+	Current time: 2022-07-11_11_15_17_002045
+	Current time: 2022-07-11_11_15_22_292296
+	Current time: 2022-07-11_11_15_27_569851
+	Current time: 2022-07-11_11_15_32_831993
+	Current time: 2022-07-11_11_15_38_103201
+	Current time: 2022-07-11_11_15_43_366949
+epoch=98,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_11_16_05_717213
+	Current time: 2022-07-11_11_16_11_043606
+	Current time: 2022-07-11_11_16_16_326573
+	Current time: 2022-07-11_11_16_21_625736
+	Current time: 2022-07-11_11_16_26_876420
+	Current time: 2022-07-11_11_16_32_142224
+	Current time: 2022-07-11_11_16_37_726980
+	Current time: 2022-07-11_11_16_43_006510
+epoch=99,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
+	Current time: 2022-07-11_11_17_05_321696
+	Current time: 2022-07-11_11_17_10_614867
+	Current time: 2022-07-11_11_17_15_894222
+	Current time: 2022-07-11_11_17_21_161863
+	Current time: 2022-07-11_11_17_26_403316
+	Current time: 2022-07-11_11_17_31_642843
+	Current time: 2022-07-11_11_17_36_905126
+	Current time: 2022-07-11_11_17_42_152667
+epoch=100,train_acc=100.00,test_acc=50.00,train_loss=0.00,test_loss=0.66
