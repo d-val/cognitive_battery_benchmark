@@ -14,6 +14,12 @@ from utils.translators import expts
 
 import matplotlib.pyplot as plt
 
+from utils.models.Motionformer.slowfast.config.defaults import get_cfg
+from utils.models.Motionformer.slowfast.models import build_model
+from utils.models.Motionformer.slowfast.models import vit_helper
+from utils.models.Motionformer.slowfast.models.video_model_builder import VisionTransformer
+import math
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
@@ -76,6 +82,7 @@ class TrainingJob():
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
+        self.defaults = get_cfg()
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -86,9 +93,30 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
+        self._defaults_path = "./utils/models/Motionformer/build/lib/slowfast/config/defaults.py"
+        self.write_defaults(os.path.join(self._out_path, "defaults.py"))
+
         # Setting up data loaders, the model, and the optimizer & loss funciton
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = torch.load('./utils/models/Motionformer/pretrained/k400_motionformer_224_32x3.pyth', map_location=torch.device('cpu'))
+        self.defaults_cfg = get_cfg()
+
+        self.model = VisionTransformer(self.defaults_cfg)
+        vit_helper.load_pretrained(
+            self.model, cfg=self.defaults_cfg,
+            in_chans=self.defaults_cfg.VIT.CHANNELS, filter_fn=vit_helper._conv_filter,
+            strict=False
+        )
+        if hasattr(self.model, 'st_embed'):
+            self.model.st_embed.data[:, 1:, :] = model.pos_embed.data[:, 1:, :].repeat(
+                1, self.defaults_cfg.VIT.TEMPORAL_RESOLUTION, 1)
+            self.model.st_embed.data[:, 0, :] = model.pos_embed.data[:, 0, :]
+        if hasattr(self.model, 'patch_embed_3d'):
+            self.model.patch_embed_3d.proj.weight.data = torch.zeros_like(
+                self.model.patch_embed_3d.proj.weight.data)
+            n = math.floor(self.model.patch_embed_3d.proj.weight.shape[2] / 2)
+            self.model.patch_embed_3d.proj.weight.data[:, :, n, :, :] = self.model.patch_embed.proj.weight.data
+            self.model.patch_embed_3d.proj.bias.data = self.model.patch_embed.proj.bias.data
+
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
@@ -300,6 +328,17 @@ class TrainingJob():
             test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
         
         return train_loader, test_loader
+
+    def write_defaults(self, path):
+        """
+        Writes contents of Python defaults into Python file.
+
+        :param str path: path of .py file to which the data is dumped.
+        """
+        with open(self._defaults_path, "r") as og_file:
+            with open(path, "w") as new_file:
+                for line in og_file:
+                    new_file.write(line)
 
 if __name__ == '__main__':
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")
