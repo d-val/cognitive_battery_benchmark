@@ -1,0 +1,12 @@
+data_loader:
+  batch_size: 1
+  data_path: data/
+  train_split: 0.8
+expt_name: shape
+job_name: CodeTesting
+model:
+  name: TimeSFormer-L
+  num_classes: 2
+train_params:
+  epochs: 10
+  lr: 0.005
