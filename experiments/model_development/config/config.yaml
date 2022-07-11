@@ -6,10 +6,12 @@ model:
   num_classes: 2
 
 data_loader:
+  image_size: 144
   batch_size: 1
   data_path: "data/"
   train_split: 0.8
+  skip_every: 5
 
 train_params:
-  epochs: 1
+  epochs: 100
   lr: 0.005

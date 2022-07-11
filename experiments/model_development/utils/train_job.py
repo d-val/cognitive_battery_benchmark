@@ -89,7 +89,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss funciton
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = TimeSformer(img_size=256, num_classes=config.model.num_classes, pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth')
+        self.model = TimeSformer(img_size=144, patch_size=3, num_classes=config.model.num_classes, pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', num_frames=104)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
@@ -293,7 +293,7 @@ class TrainingJob():
             
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=1, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
