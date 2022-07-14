@@ -13,6 +13,6 @@ renderDepthImage: Off
 renderInstanceSegmentation: Off
 
 # camera properties
-width: 300
-height: 300
+width: 256
+height: 256
 makeAgentsVisible: Off

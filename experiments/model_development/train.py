@@ -10,3 +10,6 @@ config = TrainingConfig.from_yaml("config/config.yaml")
 # Construct a training job and run it with per-epoch evaluation.
 job = TrainingJob(config=config)
 job.train(evaluate=True)
+
+# Generate and save a plot of training and test losses
+job.plot(show=True, save=True)
