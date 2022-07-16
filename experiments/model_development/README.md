@@ -24,7 +24,7 @@ See [here](https://packaging.python.org/en/latest/guides/installing-using-pip-an
 To run a sample training job, you need to
 1. Specify the model architecture and training parameters in `config/config.yaml`. A description of the config can be found below.
 2. Add the data on which you'd like to run the training job.
-    A toy example of a data directory is available [here](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip).
+    A toy example of a data directory is available [here](https://www.dropbox.com/s/rh8i0gblyljbz0j/GravityBias.zip?dl=0).
 
     If you are unable to access the toy dataset, you can generate data by running the following within your activated virtual environment:
     ```
