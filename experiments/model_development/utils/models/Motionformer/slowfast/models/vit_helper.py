@@ -428,7 +428,8 @@ class PatchEmbed3D(nn.Module):
         B, C, T, H, W = x.shape
         x = self.proj(x)
         if self.flatten:
-            x = x.flatten(2).transpose(1, 2)
+            x = x.flatten(2)
+            x = x.transpose(1, 2)
         return x
 
 
@@ -505,11 +506,10 @@ def adapt_input_conv(in_chans, conv_weight, agg='sum'):
 
 
 def load_pretrained(
-    model, cfg=None, num_classes=1000, in_chans=3, filter_fn=None, strict=True, progress=False
+    model, cfg=None, num_classes=1000, in_chans=3, filter_fn=None, strict=True, progress=False, cfg_url_name='vit_1k'
 ):
     # Load state dict
-    assert(f"{cfg.VIT.PRETRAINED_WEIGHTS} not in [vit_1k, vit_1k_large]")
-    state_dict = torch.hub.load_state_dict_from_url(url=default_cfgs[cfg.VIT.PRETRAINED_WEIGHTS])
+    state_dict = torch.hub.load_state_dict_from_url(url=default_cfgs[cfg_url_name])
     
     if filter_fn is not None:
         state_dict = filter_fn(state_dict)

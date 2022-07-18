@@ -59,18 +59,6 @@ class VisionTransformer(nn.Module):
             in_chans=self.in_chans, 
             embed_dim=self.embed_dim
         )
-
-        # 3D Patch Embedding
-        self.patch_embed_3d = vit_helper.PatchEmbed3D(
-            img_size=self.img_size, 
-            temporal_resolution=self.temporal_resolution, 
-            patch_size=self.patch_size,
-            in_chans=self.in_chans, 
-            embed_dim=self.embed_dim, 
-            z_block_size=self.cfg.VIT.PATCH_SIZE_TEMP
-        )
-        self.patch_embed_3d.proj.weight.data = torch.zeros_like(
-            self.patch_embed_3d.proj.weight.data)
         
         # Number of patches
         if self.video_input:
@@ -193,21 +181,12 @@ class VisionTransformer(nn.Module):
             x = x[0]
         B = x.shape[0]
 
-        # Tokenize input
-        if self.cfg.VIT.PATCH_SIZE_TEMP > 1:
-            x = self.patch_embed_3d(x)
-        else:
-            # 2D tokenization
-            if self.video_input:
-                x = x.permute(0, 2, 1, 3, 4)
-                (B, T, C, H, W) = x.shape
-                x = x.reshape(B*T, C, H, W)
 
-            x = self.patch_embed(x)
+        x = self.patch_embed(x)
 
-            if self.video_input:
-                (B2, T2, D2) = x.shape
-                x = x.reshape(B, T*T2, D2)
+        # if self.video_input:
+        #     (B2, T2, D2) = x.shape
+        #     x = x.reshape(B, T*T2, D2)
 
         # Append CLS token
         cls_tokens = self.cls_token.expand(B, -1, -1)
@@ -244,6 +223,8 @@ class VisionTransformer(nn.Module):
                     npatch, 1)
                 total_pos_embed = tile_pos_embed + tile_temporal_embed
                 total_pos_embed = torch.cat([cls_embed, total_pos_embed], dim=1)
+                x = torch.zeros(total_pos_embed.size()[0])
+                x[:x.size()[0]] = x.size()[0]
                 x = x + total_pos_embed
             elif self.cfg.VIT.POS_EMBED == "joint":
                 x = x + self.st_embed
