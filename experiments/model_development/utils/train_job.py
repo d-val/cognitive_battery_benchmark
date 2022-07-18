@@ -82,7 +82,6 @@ class TrainingJob():
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
-        self.defaults = get_cfg()
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -96,23 +95,18 @@ class TrainingJob():
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
         self.defaults_cfg = get_cfg()
+        self.cfg_url_name = 'vit_1k'
 
         self.model = VisionTransformer(self.defaults_cfg)
         vit_helper.load_pretrained(
             self.model, cfg=self.defaults_cfg,
             in_chans=self.defaults_cfg.VIT.CHANNELS, filter_fn=vit_helper._conv_filter,
-            strict=False
+            strict=False, cfg_url_name=self.cfg_url_name
         )
         if hasattr(self.model, 'st_embed'):
-            self.model.st_embed.data[:, 1:, :] = model.pos_embed.data[:, 1:, :].repeat(
+            self.model.st_embed.data[:, 1:, :] = self.model.pos_embed.data[:, 1:, :].repeat(
                 1, self.defaults_cfg.VIT.TEMPORAL_RESOLUTION, 1)
-            self.model.st_embed.data[:, 0, :] = model.pos_embed.data[:, 0, :]
-        if hasattr(self.model, 'patch_embed_3d'):
-            self.model.patch_embed_3d.proj.weight.data = torch.zeros_like(
-                self.model.patch_embed_3d.proj.weight.data)
-            n = math.floor(self.model.patch_embed_3d.proj.weight.shape[2] / 2)
-            self.model.patch_embed_3d.proj.weight.data[:, :, n, :, :] = self.model.patch_embed.proj.weight.data
-            self.model.patch_embed_3d.proj.bias.data = self.model.patch_embed.proj.bias.data
+            self.model.st_embed.data[:, 0, :] = self.model.pos_embed.data[:, 0, :]
 
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
