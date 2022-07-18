@@ -93,10 +93,7 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        self._defaults_path = "./utils/models/Motionformer/build/lib/slowfast/config/defaults.py"
-        self.write_defaults(os.path.join(self._out_path, "defaults.py"))
-
-        # Setting up data loaders, the model, and the optimizer & loss funciton
+        # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
         self.defaults_cfg = get_cfg()
 
@@ -202,6 +199,7 @@ class TrainingJob():
     def plot(self, show=True, save=True):
         """
         Generates a plot of training and test loss over epochs.
+
         :param boolean show: whether to show the generated plot
         :param boolean save: whether to save the generated plot
         """
@@ -209,7 +207,7 @@ class TrainingJob():
         plt.plot(self.test_losses, label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
+        plt.title("Training and Testing Loss vs. Epoch")
         plt.legend()
 
         if save:
@@ -266,7 +264,7 @@ class TrainingJob():
         """
         Logs a statement in a training log file.
 
-        :param: str satatement: a statement to add to the training log file.
+        :param: str statement: a statement to add to the training log file.
         """
         if self.stdout:
             print(statement)
@@ -318,7 +316,7 @@ class TrainingJob():
             
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=1, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
