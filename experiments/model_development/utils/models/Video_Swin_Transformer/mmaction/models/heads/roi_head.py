@@ -1,7 +1,7 @@
 import numpy as np
 
 from mmaction.core.bbox import bbox2result
-from mmaction.utils import import_module_error_class
+# from mmaction.utils import import_module_error_class
 
 try:
     from mmdet.core.bbox import bbox2roi
@@ -117,6 +117,6 @@ if mmdet_imported:
             return det_bboxes, det_labels
 else:
     # Just define an empty class, so that __init__ can import it.
-    @import_module_error_class('mmdet')
+    # @import_module_error_class('mmdet')
     class AVARoIHead:
         pass
