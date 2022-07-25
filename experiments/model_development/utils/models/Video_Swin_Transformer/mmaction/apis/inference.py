@@ -154,3 +154,97 @@ def inference_recognizer(model,
     if outputs:
         return top5_label, returned_features
     return top5_label
+
+
+def inference_recognizer_cbb(model,
+                         video_path,
+                         label,
+                         use_frames=False,
+                         outputs=None,
+                         as_tensor=True):
+    """Inference a video with the detector.
+
+    Args:
+        model (nn.Module): The loaded recognizer.
+        video_path (str): The video file path/url or the rawframes directory
+            path. If ``use_frames`` is set to True, it should be rawframes
+            directory path. Otherwise, it should be video file path.
+        labels:
+        use_frames (bool): Whether to use rawframes as input. Default:False.
+        outputs (list(str) | tuple(str) | str | None) : Names of layers whose
+            outputs need to be returned, default: None.
+        as_tensor (bool): Same as that in ``OutputHook``. Default: True.
+
+    Returns:
+        top_label:
+    """
+    if not (osp.exists(video_path) or video_path.startswith('http')):
+        raise RuntimeError(f"'{video_path}' is missing")
+
+    if osp.isfile(video_path) and use_frames:
+        raise RuntimeError(
+            f"'{video_path}' is a video file, not a rawframe directory")
+    if osp.isdir(video_path) and not use_frames:
+        raise RuntimeError(
+            f"'{video_path}' is a rawframe directory, not a video file")
+
+    if isinstance(outputs, str):
+        outputs = (outputs, )
+    assert outputs is None or isinstance(outputs, (tuple, list))
+
+    cfg = model.cfg
+    device = next(model.parameters()).device  # model device
+
+    # build the data pipeline
+    test_pipeline = cfg.data.test.pipeline
+    test_pipeline = Compose(test_pipeline)
+    # prepare data
+    if use_frames:
+        filename_tmpl = cfg.data.test.get('filename_tmpl', 'img_{:05}.jpg')
+        modality = cfg.data.test.get('modality', 'RGB')
+        start_index = cfg.data.test.get('start_index', 1)
+
+        # count the number of frames that match the format of `filename_tmpl`
+        # RGB pattern example: img_{:05}.jpg -> ^img_\d+.jpg$
+        # Flow patteren example: {}_{:05d}.jpg -> ^x_\d+.jpg$
+        pattern = f'^{filename_tmpl}$'
+        if modality == 'Flow':
+            pattern = pattern.replace('{}', 'x')
+        pattern = pattern.replace(
+            pattern[pattern.find('{'):pattern.find('}') + 1], '\\d+')
+        total_frames = len(
+            list(
+                filter(lambda x: re.match(pattern, x) is not None,
+                       os.listdir(video_path))))
+
+        data = dict(
+            frame_dir=video_path,
+            total_frames=total_frames,
+            label=-1,
+            start_index=start_index,
+            filename_tmpl=filename_tmpl,
+            modality=modality)
+    else:
+        start_index = cfg.data.test.get('start_index', 0)
+        data = dict(
+            filename=video_path,
+            label=-1,
+            start_index=start_index,
+            modality='RGB')
+    data = test_pipeline(data)
+    data = collate([data], samples_per_gpu=1)
+    if next(model.parameters()).is_cuda:
+        # scatter to specified GPU
+        data = scatter(data, [device])[0]
+
+    # forward the model
+    with OutputHook(model, outputs=outputs, as_tensor=as_tensor) as h:
+        with torch.no_grad():
+            scores = model(return_loss=False, **data)[0]
+        returned_features = h.layer_outputs if outputs else None
+
+    score_tuples = tuple(zip(label, scores))
+    score_sorted = sorted(score_tuples, key=itemgetter(1), reverse=True)
+
+    top_label = score_sorted[0][0]
+    return top_label

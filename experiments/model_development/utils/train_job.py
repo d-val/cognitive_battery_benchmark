@@ -14,7 +14,9 @@ from utils.translators import expts
 
 import matplotlib.pyplot as plt
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer_cbb
+
+import pickle5 as pickle
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -89,7 +91,7 @@ class TrainingJob():
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
-        self.train_loader, self.test_loader = self._get_loaders()
+        # self.train_loader, self.test_loader = self._get_loaders()
         self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device=device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
@@ -116,30 +118,37 @@ class TrainingJob():
 
         best_loss = float("inf")
         for epoch in range(1, self.config.train_params.epochs + 1):
-            for it, (data, targets) in enumerate(self.train_loader):
+            it = -1
+            for subdirectory in [subdir.name for subdir in os.scandir(self.config.data_loader.data_path) if subdir.is_dir()]:
+                it += 1
+                for video_path in [video_path for video_path in os.listdir(os.path.join(self.config.data_loader.data_path, subdirectory)) if video_path.endswith('.mp4')]:
 
-                # Images are in NHWC, torch works in NCHW
-                self._debug(f"Epoch:{epoch}, it:{it}")
-                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
-                data = torch.permute(data, (0,1,4,2,3))
+                    video_path = os.path.join(self.config.data_loader.data_path, subdirectory, video_path)
 
-                # get data to cuda if possible
-                data = data.to(device=device).squeeze(1)
-                if self.using_ffcv:
-                    targets = targets.to(device=device).squeeze(1)
-                else:
-                    targets = targets.to(device=device)
+                    self._debug(f"Epoch:{epoch}, it:{it}")
+                    self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
 
-                # forward
-                prediction = self.model(data)
-                loss = self.loss_fn(prediction, targets)
+                    pickle_path = os.path.join(self.config.data_loader.data_path, subdirectory, 'machine_readable', 'iteration_data.pickle')
+                    with open(pickle_path, "rb") as f:
+                        pickle_data = pickle.load(f)
+                        target = label = self.label_translator(pickle_data["label"])
 
-                # backward
-                self.optimizer.zero_grad()
-                loss.backward()
+                    # forward
+                    prediction = inference_recognizer_cbb(
+                        self.model,
+                        video_path,
+                        ["0", "1"],
+                        use_frames=False,
+                        outputs=None,
+                        as_tensor=True)
+                    loss = self.loss_fn(torch.FloatTensor([int(prediction)]), torch.FloatTensor([int(target)]))
 
-                # gradient descent/optimizer step
-                self.optimizer.step()
+                    # backward
+                    self.optimizer.zero_grad()
+                    loss.backward()
+
+                    # gradient descent/optimizer step
+                    self.optimizer.step()
 
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
