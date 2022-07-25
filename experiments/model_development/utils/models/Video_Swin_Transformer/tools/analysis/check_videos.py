@@ -8,7 +8,7 @@ import numpy as np
 from mmcv import Config, DictAction
 from tqdm import tqdm
 
-from mmaction.datasets import PIPELINES, build_dataset
+from utils.models.Video_Swin_Transformer.mmaction.datasets import PIPELINES, build_dataset
 
 
 def parse_args():

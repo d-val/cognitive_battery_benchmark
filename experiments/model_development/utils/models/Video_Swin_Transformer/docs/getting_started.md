@@ -132,7 +132,7 @@ Here is an example of building the model and testing a given video.
 ```python
 import torch
 
-from mmaction.apis import init_recognizer, inference_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_video_inference_1x1x3_100e_kinetics400_rgb.py'
 # download the checkpoint from model zoo and put it in `checkpoints/`
@@ -161,7 +161,7 @@ Here is an example of building the model and testing with a given rawframes dire
 ```python
 import torch
 
-from mmaction.apis import init_recognizer, inference_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_inference_1x1x3_100e_kinetics400_rgb.py'
 # download the checkpoint from model zoo and put it in `checkpoints/`
@@ -190,7 +190,7 @@ Here is an example of building the model and testing with a given video url.
 ```python
 import torch
 
-from mmaction.apis import init_recognizer, inference_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_inference_1x1x3_100e_kinetics400_rgb.py'
 # download the checkpoint from model zoo and put it in `checkpoints/`

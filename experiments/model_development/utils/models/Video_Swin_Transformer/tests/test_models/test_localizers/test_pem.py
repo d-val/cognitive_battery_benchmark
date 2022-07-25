@@ -1,6 +1,6 @@
 import torch
 
-from mmaction.models import build_localizer
+from utils.models.Video_Swin_Transformer.mmaction.models import build_localizer
 from ..base import get_localizer_cfg
 
 

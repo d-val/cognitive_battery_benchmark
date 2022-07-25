@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from mmcv.utils import assert_dict_has_keys
 
-from mmaction.models import BaseHead
+from utils.models.Video_Swin_Transformer.mmaction.models import BaseHead
 
 
 class ExampleHead(BaseHead):

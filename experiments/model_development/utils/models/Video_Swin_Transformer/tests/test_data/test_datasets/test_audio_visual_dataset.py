@@ -1,6 +1,6 @@
 import os.path as osp
 
-from mmaction.datasets import AudioVisualDataset
+from utils.models.Video_Swin_Transformer.mmaction.datasets import AudioVisualDataset
 from .base import BaseTestDataset
 
 

@@ -4,7 +4,7 @@ import mmcv
 import pytest
 import torch
 
-from mmaction.models import build_localizer
+from utils.models.Video_Swin_Transformer.mmaction.models import build_localizer
 
 
 def test_ssn_train():

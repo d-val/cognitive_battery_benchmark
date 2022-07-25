@@ -1,6 +1,6 @@
 import torch
 
-from mmaction.models import SingleRoIExtractor3D
+from utils.models.Video_Swin_Transformer.mmaction.models import SingleRoIExtractor3D
 
 
 def test_single_roi_extractor3d():

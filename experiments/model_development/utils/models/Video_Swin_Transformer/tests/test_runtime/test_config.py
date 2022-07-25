@@ -5,7 +5,7 @@ import os.path as osp
 import mmcv
 import torch.nn as nn
 
-from mmaction.models import build_localizer, build_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.models import build_localizer, build_recognizer
 
 
 def _get_config_path():

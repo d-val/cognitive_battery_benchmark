@@ -15,10 +15,10 @@ from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from mmcv.runner.fp16_utils import wrap_fp16_model
 
-from mmaction.apis import multi_gpu_test, single_gpu_test
-from mmaction.datasets import build_dataloader, build_dataset
-from mmaction.models import build_model
-from mmaction.utils import register_module_hooks
+from utils.models.Video_Swin_Transformer.mmaction.apis import multi_gpu_test, single_gpu_test
+from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataloader, build_dataset
+from utils.models.Video_Swin_Transformer.mmaction.models import build_model
+from utils.models.Video_Swin_Transformer.mmaction.utils import register_module_hooks
 
 
 def parse_args():

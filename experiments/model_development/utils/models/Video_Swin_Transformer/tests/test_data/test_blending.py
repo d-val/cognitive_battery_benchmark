@@ -1,6 +1,6 @@
 import torch
 
-from mmaction.datasets import CutmixBlending, MixupBlending
+from utils.models.Video_Swin_Transformer.mmaction.datasets import CutmixBlending, MixupBlending
 
 
 def test_mixup():

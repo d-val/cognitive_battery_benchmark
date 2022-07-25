@@ -4,9 +4,9 @@ from abc import abstractproperty
 import numpy as np
 import torch
 
-from mmaction.core.bbox import bbox2result, bbox_target
-from mmaction.datasets import AVADataset
-# from mmaction.utils import import_module_error_func
+from utils.models.Video_Swin_Transformer.mmaction.core.bbox import bbox2result, bbox_target
+from utils.models.Video_Swin_Transformer.mmaction.datasets import AVADataset
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
 
 try:
     from mmdet.core.bbox import build_assigner, build_sampler

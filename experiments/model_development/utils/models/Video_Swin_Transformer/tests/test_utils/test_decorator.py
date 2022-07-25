@@ -1,6 +1,6 @@
 import pytest
 
-# from mmaction.utils import import_module_error_class, import_module_error_func
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class, import_module_error_func
 
 
 def test_import_module_error_class():

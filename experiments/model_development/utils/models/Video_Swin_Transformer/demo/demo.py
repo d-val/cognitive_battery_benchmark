@@ -9,7 +9,7 @@ import torch
 import webcolors
 from mmcv import Config, DictAction
 
-from mmaction.apis import inference_recognizer, init_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import inference_recognizer, init_recognizer
 
 
 def parse_args():

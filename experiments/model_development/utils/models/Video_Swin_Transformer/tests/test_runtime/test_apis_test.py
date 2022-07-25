@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-# TODO import test functions from mmcv and delete them from mmaction2
+# TODO import test functions from mmcv and delete them from utils.models.Video_Swin_Transformer.mmaction2
 try:
     from mmcv.engine import (collect_results_cpu, multi_gpu_test,
                              single_gpu_test)
@@ -16,9 +16,9 @@ try:
 except (ImportError, ModuleNotFoundError):
     warnings.warn(
         'DeprecationWarning: single_gpu_test, multi_gpu_test, '
-        'collect_results_cpu, collect_results_gpu from mmaction2 will be '
+        'collect_results_cpu, collect_results_gpu from utils.models.Video_Swin_Transformer.mmaction2 will be '
         'deprecated. Please install mmcv through master branch.')
-    from mmaction.apis.test import (collect_results_cpu, multi_gpu_test,
+    from utils.models.Video_Swin_Transformer.mmaction.apis.test import (collect_results_cpu, multi_gpu_test,
                                     single_gpu_test)
 
 

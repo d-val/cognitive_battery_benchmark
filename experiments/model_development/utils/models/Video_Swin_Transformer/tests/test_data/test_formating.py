@@ -4,7 +4,7 @@ import torch
 from mmcv.parallel import DataContainer as DC
 from mmcv.utils import assert_dict_has_keys
 
-from mmaction.datasets.pipelines import (Collect, FormatAudioShape,
+from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import (Collect, FormatAudioShape,
                                          FormatShape, ImageToTensor, Rename,
                                          ToDataContainer, ToTensor, Transpose)
 

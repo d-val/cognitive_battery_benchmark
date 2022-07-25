@@ -1,6 +1,6 @@
 import torch
 
-# from mmaction.utils import import_module_error_class
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class
 
 try:
     from mmdet.core.bbox import AssignResult, MaxIoUAssigner

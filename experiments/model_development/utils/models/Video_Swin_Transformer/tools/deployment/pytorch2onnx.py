@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from mmcv.runner import load_checkpoint
 
-from mmaction.models import build_model
+from utils.models.Video_Swin_Transformer.mmaction.models import build_model
 
 try:
     import onnx

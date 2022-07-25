@@ -12,8 +12,8 @@ from mmcv import DictAction
 from mmcv.runner import load_checkpoint
 from tqdm import tqdm
 
-from mmaction.models import build_detector
-from mmaction.utils import import_module_error_func
+from utils.models.Video_Swin_Transformer.mmaction.models import build_detector
+from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
 
 try:
     from mmdet.apis import inference_detector, init_detector

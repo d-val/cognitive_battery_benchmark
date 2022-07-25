@@ -1,8 +1,8 @@
 import pytest
 import torch
 
-from mmaction.models import build_recognizer
-from mmaction.utils.gradcam_utils import GradCAM
+from utils.models.Video_Swin_Transformer.mmaction.models import build_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.utils.gradcam_utils import GradCAM
 from .base import generate_gradcam_inputs, get_recognizer_cfg
 
 

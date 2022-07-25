@@ -3,7 +3,7 @@ import os.path as osp
 import pytest
 import torch
 
-from mmaction.models.common import LFB, TAM, Conv2plus1d, ConvAudio
+from utils.models.Video_Swin_Transformer.mmaction.models.common import LFB, TAM, Conv2plus1d, ConvAudio
 
 
 def test_conv2plus1d():
