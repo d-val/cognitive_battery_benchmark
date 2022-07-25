@@ -1,5 +1,8 @@
 # Copyright (c) Open-MMLab. All rights reserved.
-import apex
+try:
+    import apex
+except:
+    print('apex is not installed')
 import os.path as osp
 import time
 from tempfile import TemporaryDirectory
