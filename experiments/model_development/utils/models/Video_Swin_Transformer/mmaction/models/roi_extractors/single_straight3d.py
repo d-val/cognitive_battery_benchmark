@@ -2,17 +2,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmaction.utils import import_module_error_class
+# from mmaction.utils import import_module_error_class
 
 try:
     from mmcv.ops import RoIAlign, RoIPool
 except (ImportError, ModuleNotFoundError):
 
-    @import_module_error_class('mmcv-full')
+    # @import_module_error_class('mmcv-full')
     class RoIAlign(nn.Module):
         pass
 
-    @import_module_error_class('mmcv-full')
+    # @import_module_error_class('mmcv-full')
     class RoIPool(nn.Module):
         pass
 

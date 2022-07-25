@@ -3,7 +3,7 @@ import warnings
 from mmcv.cnn import MODELS as MMCV_MODELS
 from mmcv.utils import Registry
 
-from mmaction.utils import import_module_error_func
+# from mmaction.utils import import_module_error_func
 
 MODELS = Registry('models', parent=MMCV_MODELS)
 BACKBONES = MODELS
@@ -19,7 +19,7 @@ except (ImportError, ModuleNotFoundError):
     # Define an empty registry and building func, so that can import
     DETECTORS = MODELS
 
-    @import_module_error_func('mmdet')
+    # @import_module_error_func('mmdet')
     def build_detector(cfg, train_cfg, test_cfg):
         pass
 
