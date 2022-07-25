@@ -2,8 +2,10 @@ job_name: "CodeTesting"
 expt_name: "shape"
 
 model:
-  cnn_architecture: "Video Swin Transformer Swin-B ImageNet-22K"
+  cnn_architecture: "Video Swin Transformer Kinetics 400 Swin-B ImageNet-22K"
   num_classes: 2
+  config_file_path: './utils/models/Video_Swin_Transformer/configs/recognition/swin/swin_base_patch244_window877_kinetics400_22k.py'
+  checkpoint_file_path: './utils/models/Video_Swin_Transformer/pretrained/swin_base_patch244_window877_kinetics400_22k.pth'
 
 data_loader:
   batch_size: 1
