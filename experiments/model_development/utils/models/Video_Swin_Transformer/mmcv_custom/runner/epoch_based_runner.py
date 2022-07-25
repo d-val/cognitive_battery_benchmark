@@ -9,7 +9,10 @@ import torch
 
 import mmcv
 from .checkpoint import save_checkpoint
-import apex
+try:
+    import apex
+except:
+    print('apex is not installed')
 from torch.optim import Optimizer
 import os
 

@@ -13,7 +13,10 @@ from ..datasets import build_dataloader, build_dataset
 from ..utils import PreciseBNHook, get_root_logger
 from .test import multi_gpu_test
 from utils.models.Video_Swin_Transformer.mmcv_custom.runner import EpochBasedRunnerAmp
-import apex
+try:
+    import apex
+except:
+    print('apex is not installed')
 import os.path as osp
 
 

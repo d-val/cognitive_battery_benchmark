@@ -90,7 +90,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device='cpu')
+        self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device=device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
