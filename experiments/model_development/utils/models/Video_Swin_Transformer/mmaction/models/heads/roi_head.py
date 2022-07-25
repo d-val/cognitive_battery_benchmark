@@ -1,7 +1,7 @@
 import numpy as np
 
-from mmaction.core.bbox import bbox2result
-# from mmaction.utils import import_module_error_class
+from utils.models.Video_Swin_Transformer.mmaction.core.bbox import bbox2result
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class
 
 try:
     from mmdet.core.bbox import bbox2roi

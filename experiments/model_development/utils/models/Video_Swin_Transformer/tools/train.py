@@ -11,11 +11,11 @@ from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist, set_random_seed
 from mmcv.utils import get_git_hash
 
-from mmaction import __version__
-from mmaction.apis import train_model
-from mmaction.datasets import build_dataset
-from mmaction.models import build_model
-from mmaction.utils import collect_env, get_root_logger, register_module_hooks
+from utils.models.Video_Swin_Transformer.mmaction import __version__
+from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
+from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataset
+from utils.models.Video_Swin_Transformer.mmaction.models import build_model
+from utils.models.Video_Swin_Transformer.mmaction.utils import collect_env, get_root_logger, register_module_hooks
 
 
 def parse_args():

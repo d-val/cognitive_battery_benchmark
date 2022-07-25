@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from mmcv.utils import _BatchNorm
 
-from mmaction.models import ResNet3d, ResNet3dLayer
+from utils.models.Video_Swin_Transformer.mmaction.models import ResNet3d, ResNet3dLayer
 from ..base import check_norm_state, generate_backbone_demo_inputs
 
 

@@ -3,7 +3,7 @@ import warnings
 from mmcv.cnn import MODELS as MMCV_MODELS
 from mmcv.utils import Registry
 
-# from mmaction.utils import import_module_error_func
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
 
 MODELS = Registry('models', parent=MMCV_MODELS)
 BACKBONES = MODELS

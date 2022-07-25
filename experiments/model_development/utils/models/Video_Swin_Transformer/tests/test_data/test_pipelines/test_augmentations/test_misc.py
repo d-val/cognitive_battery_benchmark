@@ -1,4 +1,4 @@
-from mmaction.datasets.pipelines.augmentations import (_combine_quadruple,
+from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines.augmentations import (_combine_quadruple,
                                                        _flip_quadruple)
 
 

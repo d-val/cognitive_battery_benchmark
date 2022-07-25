@@ -10,10 +10,11 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.model import CNNLSTM
 from utils.translators import expts
 
 import matplotlib.pyplot as plt
+
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -87,9 +88,9 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        # Setting up data loaders, the model, and the optimizer & loss funciton
+        # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
+        self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device='cpu')
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 

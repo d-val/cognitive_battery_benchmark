@@ -8,7 +8,7 @@ import pytest
 from mmcv.utils import assert_dict_has_keys
 from numpy.testing import assert_array_equal
 
-from mmaction.datasets import ActivityNetDataset
+from utils.models.Video_Swin_Transformer.mmaction.datasets import ActivityNetDataset
 from .base import BaseTestDataset
 
 

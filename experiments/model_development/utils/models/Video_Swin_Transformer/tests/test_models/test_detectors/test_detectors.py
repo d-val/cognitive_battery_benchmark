@@ -4,7 +4,7 @@ import torch
 from ..base import generate_detector_demo_inputs, get_detector_cfg
 
 try:
-    from mmaction.models import build_detector
+    from utils.models.Video_Swin_Transformer.mmaction.models import build_detector
     mmdet_imported = True
 except (ImportError, ModuleNotFoundError):
     mmdet_imported = False

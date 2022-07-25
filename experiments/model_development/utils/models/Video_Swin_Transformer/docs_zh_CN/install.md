@@ -232,7 +232,7 @@ PYTHONPATH="$(dirname $0)/..":$PYTHONPATH
 
 ```python
 import torch
-from mmaction.apis import init_recognizer, inference_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_video_inference_1x1x3_100e_kinetics400_rgb.py'
 device = 'cuda:0' # 或 'cpu'

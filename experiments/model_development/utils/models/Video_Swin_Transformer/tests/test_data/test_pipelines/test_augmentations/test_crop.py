@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
 
-from mmaction.datasets.pipelines import (CenterCrop, MultiGroupCrop,
+from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import (CenterCrop, MultiGroupCrop,
                                          MultiScaleCrop, RandomCrop,
                                          RandomResizedCrop, TenCrop, ThreeCrop)
 from .base import check_crop

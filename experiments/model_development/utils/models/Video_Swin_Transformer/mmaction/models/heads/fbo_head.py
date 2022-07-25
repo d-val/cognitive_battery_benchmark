@@ -6,8 +6,8 @@ from mmcv.cnn import ConvModule, constant_init, kaiming_init
 from mmcv.runner import load_checkpoint
 from mmcv.utils import _BatchNorm
 
-from mmaction.models.common import LFB
-from mmaction.utils import get_root_logger
+from utils.models.Video_Swin_Transformer.mmaction.models.common import LFB
+from utils.models.Video_Swin_Transformer.mmaction.utils import get_root_logger
 
 try:
     from mmdet.models.builder import SHARED_HEADS as MMDET_SHARED_HEADS

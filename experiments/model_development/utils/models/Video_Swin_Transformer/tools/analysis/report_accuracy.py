@@ -3,7 +3,7 @@ import argparse
 from mmcv import load
 from scipy.special import softmax
 
-from mmaction.core.evaluation import (get_weighted_score, mean_class_accuracy,
+from utils.models.Video_Swin_Transformer.mmaction.core.evaluation import (get_weighted_score, mean_class_accuracy,
                                       top_k_accuracy)
 
 

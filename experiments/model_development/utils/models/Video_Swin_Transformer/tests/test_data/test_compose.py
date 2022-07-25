@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from mmcv.utils import assert_keys_equal
 
-from mmaction.datasets.pipelines import Compose, ImageToTensor
+from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Compose, ImageToTensor
 
 
 def test_compose():

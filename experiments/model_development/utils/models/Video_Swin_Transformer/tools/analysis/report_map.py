@@ -5,7 +5,7 @@ import os.path as osp
 import mmcv
 import numpy as np
 
-from mmaction.core import ActivityNetLocalization
+from utils.models.Video_Swin_Transformer.mmaction.core import ActivityNetLocalization
 
 args = None
 

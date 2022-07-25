@@ -230,7 +230,7 @@ train_pipeline = [
 1. 在任何文件写入一个新的处理流水线，如 `my_pipeline.py`。它以一个字典作为输入并返回一个字典
 
     ```python
-    from mmaction.datasets import PIPELINES
+    from utils.models.Video_Swin_Transformer.mmaction.datasets import PIPELINES
 
     @PIPELINES.register_module()
     class MyTransform:

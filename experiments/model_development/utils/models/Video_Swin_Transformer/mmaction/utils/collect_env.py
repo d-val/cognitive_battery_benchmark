@@ -1,7 +1,7 @@
 from mmcv.utils import collect_env as collect_basic_env
 from mmcv.utils import get_git_hash
 
-import mmaction
+import utils.models.Video_Swin_Transformer.mmaction
 
 
 def collect_env():

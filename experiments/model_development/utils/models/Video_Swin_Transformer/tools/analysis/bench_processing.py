@@ -14,9 +14,9 @@ import os
 import mmcv
 from mmcv import Config
 
-from mmaction import __version__
-from mmaction.datasets import build_dataloader, build_dataset
-from mmaction.utils import get_root_logger
+from utils.models.Video_Swin_Transformer.mmaction import __version__
+from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataloader, build_dataset
+from utils.models.Video_Swin_Transformer.mmaction.utils import get_root_logger
 
 
 def main():

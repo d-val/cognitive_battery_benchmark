@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from mmaction.datasets import PoseDataset
+from utils.models.Video_Swin_Transformer.mmaction.datasets import PoseDataset
 from .base import BaseTestDataset
 
 

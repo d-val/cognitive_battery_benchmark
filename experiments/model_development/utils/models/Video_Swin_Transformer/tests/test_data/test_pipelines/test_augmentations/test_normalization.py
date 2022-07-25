@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
 
-from mmaction.datasets.pipelines import Normalize
+from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Normalize
 from .base import check_normalize
 
 

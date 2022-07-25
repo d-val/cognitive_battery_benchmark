@@ -1,6 +1,6 @@
 import numpy as np
 
-from mmaction.models.localizers.utils import post_processing
+from utils.models.Video_Swin_Transformer.mmaction.models.localizers.utils import post_processing
 
 
 def test_post_processing():

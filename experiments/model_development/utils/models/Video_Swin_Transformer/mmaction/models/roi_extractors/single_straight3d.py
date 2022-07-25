@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# from mmaction.utils import import_module_error_class
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class
 
 try:
     from mmcv.ops import RoIAlign, RoIPool
