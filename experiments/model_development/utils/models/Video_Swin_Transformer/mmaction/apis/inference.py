@@ -176,7 +176,7 @@ def inference_recognizer_cbb(model,
         as_tensor (bool): Same as that in ``OutputHook``. Default: True.
 
     Returns:
-        top_label:
+        ordered_scores: probabilities per label, where ordered_scores[i] is the probability of label with index i
     """
     if not (osp.exists(video_path) or video_path.startswith('http')):
         raise RuntimeError(f"'{video_path}' is missing")
@@ -244,7 +244,7 @@ def inference_recognizer_cbb(model,
         returned_features = h.layer_outputs if outputs else None
 
     score_tuples = tuple(zip(label, scores))
-    score_sorted = sorted(score_tuples, key=itemgetter(1), reverse=True)
+    score_sorted = sorted(score_tuples, key=itemgetter(0), reverse=False) # sorted in ascending order by label
 
-    top_label = score_sorted[0][0]
-    return top_label
+    ordered_scores = [label_score[1] for label_score in score_sorted]
+    return ordered_scores

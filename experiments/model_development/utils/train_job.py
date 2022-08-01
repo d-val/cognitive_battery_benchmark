@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 
 from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer_cbb
 
+from torch.autograd import Variable
+
 import pickle5 as pickle
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -131,17 +133,28 @@ class TrainingJob():
                     pickle_path = os.path.join(self.config.data_loader.data_path, subdirectory, 'machine_readable', 'iteration_data.pickle')
                     with open(pickle_path, "rb") as f:
                         pickle_data = pickle.load(f)
-                        target = label = self.label_translator(pickle_data["label"])
+                        target = self.label_translator(pickle_data["label"])
 
                     # forward
-                    prediction = inference_recognizer_cbb(
+                    prediction = [inference_recognizer_cbb(
                         self.model,
                         video_path,
                         ["0", "1"],
                         use_frames=False,
                         outputs=None,
-                        as_tensor=True)
-                    loss = self.loss_fn(torch.FloatTensor([int(prediction)]), torch.FloatTensor([int(target)]))
+                        as_tensor=True)]
+                    prediction = torch.FloatTensor(prediction)
+                    prediction = Variable(prediction, requires_grad=True)
+                    # TODO: adjust to reflect probabilities, not binary right/wrong
+                    if str(target) == '1':
+                        target = [[0, 1]]
+                    elif str(target) == '0':
+                        target = [[1, 0]]
+                    else:
+                        raise NotImplementedError
+                    target = target.FloatTensor(target)
+                    target = Variable(prediction, requires_grad=True)
+                    loss = self.loss_fn(prediction, target)
 
                     # backward
                     self.optimizer.zero_grad()
@@ -150,6 +163,7 @@ class TrainingJob():
                     # gradient descent/optimizer step
                     self.optimizer.step()
 
+            # TODO: update!
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
