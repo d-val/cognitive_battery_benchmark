@@ -13,6 +13,8 @@ from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
 from utils.translators import expts
 
+import matplotlib.pyplot as plt
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
@@ -85,7 +87,7 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        # Setting up data loaders, the model, and the optimizer & loss funciton
+        # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
         self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
         self.loss_fn = nn.CrossEntropyLoss()
@@ -93,6 +95,8 @@ class TrainingJob():
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self.train_losses = []
+        self.test_losses = []
 
     def train(self, evaluate=False):
         """
@@ -141,6 +145,10 @@ class TrainingJob():
                 train_acc, train_loss = evals["train"]
                 test_acc, test_loss = evals["test"]
                 self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
+
+                # Save train and test loss for later plotability
+                self.train_losses.append(train_loss)
+                self.test_losses.append(test_loss)
                 
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
@@ -162,6 +170,26 @@ class TrainingJob():
         test_acc, test_loss = self._check_accuracy(self.test_loader)
 
         return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
+
+    def plot(self, show=True, save=True):
+        """
+        Generates a plot of training and test loss over epochs.
+
+        :param boolean show: whether to show the generated plot
+        :param boolean save: whether to save the generated plot
+        """
+        plt.plot(self.train_losses, label="Training Loss")
+        plt.plot(self.test_losses, label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training and Testing Loss vs. Epoch")
+        plt.legend()
+
+        if save:
+            plt.savefig(os.path.join(self._out_path, "loss.png"))
+
+        if show:
+            plt.show()
 
     def _check_accuracy(self, loader):
         """
@@ -211,7 +239,7 @@ class TrainingJob():
         """
         Logs a statement in a training log file.
 
-        :param: str satatement: a statement to add to the training log file.
+        :param: str statement: a statement to add to the training log file.
         """
         if self.stdout:
             print(statement)
@@ -263,7 +291,7 @@ class TrainingJob():
             
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=1, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
