@@ -396,7 +396,11 @@ class BasicLayer(nn.Module):
             x: Input feature, tensor size (B, C, D, H, W).
         """
         # calculate attention mask for SW-MSA
-        B, C, D, H, W = x.shape
+        try:
+            B, C, D, H, W = x.shape
+        except ValueError:
+            x = torch.unsqueeze(x, dim=1)
+            B, C, D, H, W = x.shape
         window_size, shift_size = get_window_size((D,H,W), self.window_size, self.shift_size)
         x = rearrange(x, 'b c d h w -> b d h w c')
         Dp = int(np.ceil(D / window_size[0])) * window_size[0]
@@ -438,7 +442,7 @@ class PatchEmbed3D(nn.Module):
     def forward(self, x):
         """Forward function."""
         # padding
-        _, _, D, H, W = x.size()
+        _, D, H, W = x.size()
         if W % self.patch_size[2] != 0:
             x = F.pad(x, (0, self.patch_size[2] - W % self.patch_size[2]))
         if H % self.patch_size[1] != 0:
@@ -446,12 +450,12 @@ class PatchEmbed3D(nn.Module):
         if D % self.patch_size[0] != 0:
             x = F.pad(x, (0, 0, 0, 0, 0, self.patch_size[0] - D % self.patch_size[0]))
 
-        x = self.proj(x)  # B C D Wh Ww
-        if self.norm is not None:
-            D, Wh, Ww = x.size(2), x.size(3), x.size(4)
-            x = x.flatten(2).transpose(1, 2)
-            x = self.norm(x)
-            x = x.transpose(1, 2).view(-1, self.embed_dim, D, Wh, Ww)
+        x = nn.functional.pad(x, (0, 0, 0, 0, 0, 0, 0, 1), 'constant', 0) # x = self.proj(x)  # B C D Wh Ww
+        # if self.norm is not None:
+        #     D, Wh, Ww = x.size(2), x.size(3), x.size(4)
+        #     x = x.flatten(2).transpose(1, 2)
+        #     x = self.norm(x)
+        #     x = x.transpose(1, 2).view(-1, self.embed_dim, D, Wh, Ww)
 
         return x
 

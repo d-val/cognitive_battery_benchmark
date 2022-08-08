@@ -15,7 +15,10 @@ from utils.translators import expts
 import matplotlib.pyplot as plt
 
 from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
-from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
+
+from torch.autograd import Variable
+
+import pickle5 as pickle
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -121,6 +124,7 @@ class TrainingJob():
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
+                self._debug("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
                 data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
@@ -156,9 +160,6 @@ class TrainingJob():
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
-
-        self._log('TRAIN LOSSES: ' + self.train_losses)
-        self._log('TEST LOSSES: ' + self.test_losses)
 
     def evaluate(self):
         """
