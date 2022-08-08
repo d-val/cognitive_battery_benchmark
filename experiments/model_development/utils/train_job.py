@@ -14,17 +14,14 @@ from utils.translators import expts
 
 import matplotlib.pyplot as plt
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer_cbb
-
-from torch.autograd import Variable
-
-import pickle5 as pickle
+from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
+from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
     """
-    An intuitive way of translating config data from memory/disk into an object. 
+    An intuitive way of translating config data from memory/disk into an object.
     """
     def __init__(self, data={}):
         """
@@ -93,7 +90,7 @@ class TrainingJob():
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
-        # self.train_loader, self.test_loader = self._get_loaders()
+        self.train_loader, self.test_loader = self._get_loaders()
         self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device=device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
@@ -106,7 +103,7 @@ class TrainingJob():
     def train(self, evaluate=False):
         """
         Runs the training job by training the model on the training data.
-        
+
         :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -120,60 +117,41 @@ class TrainingJob():
 
         best_loss = float("inf")
         for epoch in range(1, self.config.train_params.epochs + 1):
-            it = -1
-            for subdirectory in [subdir.name for subdir in os.scandir(self.config.data_loader.data_path) if subdir.is_dir()]:
-                it += 1
-                for video_path in [video_path for video_path in os.listdir(os.path.join(self.config.data_loader.data_path, subdirectory)) if video_path.endswith('.mp4')]:
+            for it, (data, targets) in enumerate(self.train_loader):
 
-                    video_path = os.path.join(self.config.data_loader.data_path, subdirectory, video_path)
+                # Images are in NHWC, torch works in NCHW
+                self._debug(f"Epoch:{epoch}, it:{it}")
+                data = torch.permute(data, (0,1,4,2,3))
 
-                    self._debug(f"Epoch:{epoch}, it:{it}")
-                    self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
+                # get data to cuda if possible
+                data = data.to(device=device).squeeze(1)
+                if self.using_ffcv:
+                    targets = targets.to(device=device).squeeze(1)
+                else:
+                    targets = targets.to(device=device)
 
-                    pickle_path = os.path.join(self.config.data_loader.data_path, subdirectory, 'machine_readable', 'iteration_data.pickle')
-                    with open(pickle_path, "rb") as f:
-                        pickle_data = pickle.load(f)
-                        target = self.label_translator(pickle_data["label"])
+                # forward
+                prediction = self.model(data)
+                loss = self.loss_fn(prediction, targets)
 
-                    # forward
-                    prediction = [inference_recognizer_cbb(
-                        self.model,
-                        video_path,
-                        ["0", "1"],
-                        use_frames=False,
-                        outputs=None,
-                        as_tensor=True)]
-                    prediction = torch.FloatTensor(prediction)
-                    prediction = Variable(prediction, requires_grad=True)
-                    # TODO: adjust to reflect probabilities, not binary right/wrong
-                    if str(target) == '1':
-                        target = [[0, 1]]
-                    elif str(target) == '0':
-                        target = [[1, 0]]
-                    else:
-                        raise NotImplementedError
-                    target = target.FloatTensor(target)
-                    target = Variable(prediction, requires_grad=True)
-                    loss = self.loss_fn(prediction, target)
+                # backward
+                self.optimizer.zero_grad()
+                loss.backward()
 
-                    # backward
-                    self.optimizer.zero_grad()
-                    loss.backward()
+                # gradient descent/optimizer step
+                self.optimizer.step()
 
-                    # gradient descent/optimizer step
-                    self.optimizer.step()
-
-            # TODO: update!
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
                 train_acc, train_loss = evals["train"]
                 test_acc, test_loss = evals["test"]
                 self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
+
                 # Save train and test loss for later plotability
                 self.train_losses.append(train_loss)
                 self.test_losses.append(test_loss)
-                
+
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
@@ -201,6 +179,7 @@ class TrainingJob():
     def plot(self, show=True, save=True):
         """
         Generates a plot of training and test loss over epochs.
+
         :param boolean show: whether to show the generated plot
         :param boolean save: whether to save the generated plot
         """
@@ -255,7 +234,7 @@ class TrainingJob():
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct)/float(num_samples)*100
-        
+
         # Reset the model to train state
         self.model.train()
 
@@ -265,11 +244,11 @@ class TrainingJob():
         """
         Logs a statement in a training log file.
 
-        :param: str satatement: a statement to add to the training log file.
+        :param: str statement: a statement to add to the training log file.
         """
         if self.stdout:
             print(statement)
-            
+
         # Write statement to log file
         with open(self._log_path, "a+") as logf:
             logf.write(statement)
@@ -279,7 +258,7 @@ class TrainingJob():
         """
         Logs a statement in the training debugging file.
 
-        :param: str satatement: a statement to add to the debugging log file.
+        :param: str statement: a statement to add to the debugging log file.
         """
 
         if self.stdout:
@@ -314,10 +293,10 @@ class TrainingJob():
             train_loader = Loader(data_path, batch_size=self.config.data_loader.batch_size, num_workers=1,
                             order=OrderOption.RANDOM, pipelines=pipelines)
             test_loader = train_loader # TODO: add train/test split for FFCV
-            
+
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=1, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
@@ -325,7 +304,7 @@ class TrainingJob():
             train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
             train_loader = DataLoader(dataset=train_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
             test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
-        
+
         return train_loader, test_loader
 
 if __name__ == '__main__':
