@@ -8,7 +8,7 @@ from mmcv.utils import print_log
 
 from ..core import mean_average_precision
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()

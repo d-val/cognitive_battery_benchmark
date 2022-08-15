@@ -1,7 +1,7 @@
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from ..builder import HEADS
+from ..registry import HEADS
 from .base import AvgConsensus, BaseHead
 
 

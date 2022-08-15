@@ -4,7 +4,7 @@ from mmcv.runner import load_checkpoint
 from mmcv.utils import _BatchNorm
 
 from ...utils import get_root_logger
-from ..builder import BACKBONES
+from ..registry import BACKBONES
 
 
 @BACKBONES.register_module()

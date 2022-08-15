@@ -9,8 +9,7 @@ from .base import check_flip
 
 class TestAugumentations:
 
-    @staticmethod
-    def test_imgaug():
+    def test_imgaug(self):
 
         with pytest.raises(ValueError):
             # transforms only support one string, 'default'

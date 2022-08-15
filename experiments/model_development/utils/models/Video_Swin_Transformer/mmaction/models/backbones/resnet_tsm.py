@@ -3,7 +3,7 @@ import torch.nn as nn
 from mmcv.cnn import NonLocal3d
 from torch.nn.modules.utils import _ntuple
 
-from ..builder import BACKBONES
+from ..registry import BACKBONES
 from .resnet import ResNet
 
 

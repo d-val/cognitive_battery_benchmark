@@ -10,8 +10,7 @@ from .base import check_crop
 
 class TestCrops:
 
-    @staticmethod
-    def test_random_crop():
+    def test_random_crop(self):
         with pytest.raises(TypeError):
             # size must be an int
             RandomCrop(size=(112, 112))
@@ -29,9 +28,7 @@ class TestCrops:
         results = dict(imgs=imgs)
         random_crop = RandomCrop(size=224)
         results['gt_bboxes'] = np.array([[0, 0, 340, 224]])
-        results['proposals'] = np.array([[0, 0, 340, 224]])
-        kp = np.array([[160, 120], [160, 120]]).reshape([1, 1, 2, 2])
-        results['keypoint'] = kp
+        results['proposals'] = None
         random_crop_result = random_crop(results)
         assert assert_dict_has_keys(random_crop_result, target_keys)
         assert check_crop(imgs, random_crop_result['imgs'],
@@ -64,8 +61,7 @@ class TestCrops:
         assert repr(random_crop) == (f'{random_crop.__class__.__name__}'
                                      f'(size={224}, lazy={False})')
 
-    @staticmethod
-    def test_random_resized_crop():
+    def test_random_resized_crop(self):
         with pytest.raises(TypeError):
             # area_range must be a tuple of float
             RandomResizedCrop(area_range=0.5)
@@ -79,9 +75,7 @@ class TestCrops:
         imgs = list(np.random.rand(2, 256, 341, 3))
         results = dict(imgs=imgs)
         results['gt_bboxes'] = np.array([[0, 0, 340, 256]])
-        results['proposals'] = np.array([[0, 0, 340, 256]])
-        kp = np.array([[160, 120], [160, 120]]).reshape([1, 1, 2, 2])
-        results['keypoint'] = kp
+        results['proposals'] = None
 
         with pytest.raises(AssertionError):
             # area_range[0] > area_range[1], which is wrong
@@ -118,8 +112,7 @@ class TestCrops:
         h, w = random_crop_result['img_shape']
         assert h == w == 256
 
-    @staticmethod
-    def test_multi_scale_crop():
+    def test_multi_scale_crop(self):
         with pytest.raises(TypeError):
             # input_size must be int or tuple of int
             MultiScaleCrop(0.5)
@@ -149,9 +142,7 @@ class TestCrops:
         imgs = list(np.random.rand(2, 256, 341, 3))
         results = dict(imgs=imgs)
         results['gt_bboxes'] = np.array([[0, 0, 340, 256]])
-        results['proposals'] = np.array([[0, 0, 340, 256]])
-        kp = np.array([[160, 120], [160, 120]]).reshape([1, 1, 2, 2])
-        results['keypoint'] = kp
+        results['proposals'] = None
         config = dict(
             input_size=224,
             scales=(1, 0.8),
@@ -204,8 +195,7 @@ class TestCrops:
             f'max_wh_scale_gap={0}, random_crop={True}, '
             f'num_fixed_crops=5, lazy={False})')
 
-    @staticmethod
-    def test_center_crop():
+    def test_center_crop(self):
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             CenterCrop(0.5)
@@ -219,30 +209,24 @@ class TestCrops:
             CenterCrop([224, 224])
 
         # center crop with crop_size 224
-        # add kps in test_center_crop
         imgs = list(np.random.rand(2, 240, 320, 3))
         results = dict(imgs=imgs)
-        kp = np.array([[160, 120], [160, 120]]).reshape([1, 1, 2, 2])
-        results['keypoint'] = kp
-
         results['gt_bboxes'] = np.array([[0, 0, 320, 240]])
-        results['proposals'] = np.array([[0, 0, 320, 240]])
+        results['proposals'] = None
         center_crop = CenterCrop(crop_size=224)
         center_crop_results = center_crop(results)
-        target_keys = ['imgs', 'crop_bbox', 'img_shape', 'keypoint']
+        target_keys = ['imgs', 'crop_bbox', 'img_shape']
         assert assert_dict_has_keys(center_crop_results, target_keys)
         assert check_crop(imgs, center_crop_results['imgs'],
                           center_crop_results['crop_bbox'])
         assert np.all(
             center_crop_results['crop_bbox'] == np.array([48, 8, 272, 232]))
         assert center_crop_results['img_shape'] == (224, 224)
-        assert np.all(center_crop_results['keypoint'] == 112)
 
         assert repr(center_crop) == (f'{center_crop.__class__.__name__}'
                                      f'(crop_size={(224, 224)}, lazy={False})')
 
-    @staticmethod
-    def test_three_crop():
+    def test_three_crop(self):
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             ThreeCrop(0.5)
@@ -280,8 +264,7 @@ class TestCrops:
         assert repr(three_crop) == (f'{three_crop.__class__.__name__}'
                                     f'(crop_size={(224, 224)})')
 
-    @staticmethod
-    def test_ten_crop():
+    def test_ten_crop(self):
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             TenCrop(0.5)
@@ -308,8 +291,7 @@ class TestCrops:
         assert repr(ten_crop) == (f'{ten_crop.__class__.__name__}'
                                   f'(crop_size={(224, 224)})')
 
-    @staticmethod
-    def test_multi_group_crop():
+    def test_multi_group_crop(self):
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             MultiGroupCrop(0.5, 1)

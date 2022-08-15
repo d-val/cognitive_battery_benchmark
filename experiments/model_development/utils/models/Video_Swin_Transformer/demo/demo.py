@@ -2,12 +2,7 @@ import argparse
 import os
 import os.path as osp
 
-import cv2
-import decord
-import numpy as np
 import torch
-import webcolors
-from mmcv import Config, DictAction
 
 from utils.models.Video_Swin_Transformer.mmaction.apis import inference_recognizer, init_recognizer
 
@@ -18,14 +13,6 @@ def parse_args():
     parser.add_argument('checkpoint', help='checkpoint file/url')
     parser.add_argument('video', help='video file/url or rawframes directory')
     parser.add_argument('label', help='label file')
-    parser.add_argument(
-        '--cfg-options',
-        nargs='+',
-        action=DictAction,
-        default={},
-        help='override some settings in the used config, the key-value pair '
-        'in xxx=yyy format will be merged into config file. For example, '
-        "'--cfg-options model.backbone.depth=18 model.backbone.with_cp=True'")
     parser.add_argument(
         '--use-frames',
         default=False,
@@ -40,14 +27,14 @@ def parse_args():
         help='specify fps value of the output video when using rawframes to '
         'generate file')
     parser.add_argument(
-        '--font-scale',
-        default=0.5,
-        type=float,
-        help='font scale of the label in output video')
+        '--font-size',
+        default=20,
+        type=int,
+        help='font size of the label test in output video')
     parser.add_argument(
         '--font-color',
         default='white',
-        help='font color of the label in output video')
+        help='font color of the label test in output video')
     parser.add_argument(
         '--target-resolution',
         nargs=2,
@@ -69,7 +56,7 @@ def get_output(video_path,
                out_filename,
                label,
                fps=30,
-               font_scale=0.5,
+               font_size=20,
                font_color='white',
                target_resolution=None,
                resize_algorithm='bicubic',
@@ -87,7 +74,7 @@ def get_output(video_path,
         out_filename (str): Output filename for the generated file.
         label (str): Predicted label of the generated file.
         fps (int): Number of picture frames to read per second. Default: 30.
-        font_scale (float): Font scale of the label. Default: 0.5.
+        font_size (int): Font size of the label. Default: 20.
         font_color (str): Font color of the label. Default: 'white'.
         target_resolution (None | tuple[int | None]): Set to
             (desired_width desired_height) to have resized frames. If either
@@ -103,45 +90,32 @@ def get_output(video_path,
         raise NotImplementedError
 
     try:
-        from moviepy.editor import ImageSequenceClip
+        from moviepy.editor import (CompositeVideoClip, ImageSequenceClip,
+                                    TextClip, VideoFileClip)
     except ImportError:
         raise ImportError('Please install moviepy to enable output file.')
 
-    # Channel Order is BGR
     if use_frames:
         frame_list = sorted(
             [osp.join(video_path, x) for x in os.listdir(video_path)])
-        frames = [cv2.imread(x) for x in frame_list]
+        video_clips = ImageSequenceClip(frame_list, fps=fps)
     else:
-        video = decord.VideoReader(video_path)
-        frames = [x.asnumpy()[..., ::-1] for x in video]
+        # revert the order to suit ``VideoFileClip``.
+        # (weight, height) -> (height, weight)
+        target_resolution = (target_resolution[1], target_resolution[0])
+        video_clips = VideoFileClip(
+            video_path,
+            target_resolution=target_resolution,
+            resize_algorithm=resize_algorithm)
 
-    if target_resolution:
-        w, h = target_resolution
-        frame_h, frame_w, _ = frames[0].shape
-        if w == -1:
-            w = int(h / frame_h * frame_w)
-        if h == -1:
-            h = int(w / frame_w * frame_h)
-        frames = [cv2.resize(f, (w, h)) for f in frames]
+    duration_video_clip = video_clips.duration
+    text_clips = TextClip(label, fontsize=font_size, color=font_color)
+    text_clips = (
+        text_clips.set_position(
+            ('right', 'bottom'),
+            relative=True).set_duration(duration_video_clip))
 
-    textsize = cv2.getTextSize(label, cv2.FONT_HERSHEY_DUPLEX, font_scale,
-                               1)[0]
-    textheight = textsize[1]
-    padding = 10
-    location = (padding, padding + textheight)
-
-    if isinstance(font_color, str):
-        font_color = webcolors.name_to_rgb(font_color)[::-1]
-
-    frames = [np.array(frame) for frame in frames]
-    for frame in frames:
-        cv2.putText(frame, label, location, cv2.FONT_HERSHEY_DUPLEX,
-                    font_scale, font_color, 1)
-
-    # RGB order
-    frames = [x[..., ::-1] for x in frames]
-    video_clips = ImageSequenceClip(frames, fps=fps)
+    video_clips = CompositeVideoClip([video_clips, text_clips])
 
     out_type = osp.splitext(out_filename)[1][1:]
     if out_type == 'gif':
@@ -154,13 +128,12 @@ def main():
     args = parse_args()
     # assign the desired device.
     device = torch.device(args.device)
-
-    cfg = Config.fromfile(args.config)
-    cfg.merge_from_dict(args.cfg_options)
-
     # build the recognizer from a config file and checkpoint file/url
     model = init_recognizer(
-        cfg, args.checkpoint, device=device, use_frames=args.use_frames)
+        args.config,
+        args.checkpoint,
+        device=device,
+        use_frames=args.use_frames)
 
     # e.g. use ('backbone', ) to return backbone feature
     output_layer_names = None
@@ -185,19 +158,19 @@ def main():
 
         if args.target_resolution is not None:
             if args.target_resolution[0] == -1:
-                assert isinstance(args.target_resolution[1], int)
-                assert args.target_resolution[1] > 0
+                args.target_resolution[0] = None
             if args.target_resolution[1] == -1:
-                assert isinstance(args.target_resolution[0], int)
-                assert args.target_resolution[0] > 0
+                args.target_resolution[1] = None
             args.target_resolution = tuple(args.target_resolution)
+        else:
+            args.target_resolution = (None, None)
 
         get_output(
             args.video,
             args.out_filename,
             results[0][0],
             fps=args.fps,
-            font_scale=args.font_scale,
+            font_size=args.font_size,
             font_color=args.font_color,
             target_resolution=args.target_resolution,
             resize_algorithm=args.resize_algorithm,

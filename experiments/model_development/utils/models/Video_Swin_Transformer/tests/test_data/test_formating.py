@@ -140,7 +140,7 @@ def test_collect():
     results = collect(inputs)
     assert sorted(list(results.keys())) == sorted(
         ['imgs', 'label', 'img_metas'])
-    for k in results:
+    for k in results.keys():
         assert isinstance(results[k], list)
 
 

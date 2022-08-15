@@ -9,7 +9,7 @@ import numpy as np
 
 from ..core import average_recall_at_avg_proposals
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()

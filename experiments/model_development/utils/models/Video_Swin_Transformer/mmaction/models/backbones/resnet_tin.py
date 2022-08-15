@@ -1,15 +1,15 @@
 import torch
 import torch.nn as nn
 
-# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
-from ..builder import BACKBONES
+from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
+from ..registry import BACKBONES
 from .resnet_tsm import ResNetTSM
 
 try:
     from mmcv.ops import tin_shift
 except (ImportError, ModuleNotFoundError):
 
-    # @import_module_error_func('mmcv-full')
+    @import_module_error_func('mmcv-full')
     def tin_shift(*args, **kwargs):
         pass
 

@@ -55,7 +55,6 @@ There are three kinds of annotation files.
   ```
 
 - ActivityNet annotation
-
   The annotation of ActivityNet dataset is a json file. Each key is a video name
   and the corresponding value is the meta data and annotation for the video.
 
@@ -104,7 +103,7 @@ There are two ways to work with custom datasets.
 
   You can write a new Dataset class inherited from [BaseDataset](/mmaction/datasets/base.py), and overwrite three methods
   `load_annotations(self)`, `evaluate(self, results, metrics, logger)` and `dump_results(self, results, out)`,
-  like [RawframeDataset](/mmaction/datasets/rawframe_dataset.py), [VideoDataset](/mmaction/datasets/video_dataset.py) or [ActivityNetDataset](/mmaction/datasets/activitynet_dataset.py).
+  like [RawframeDataset](/mmaction/datasets/rawframe_dataset.py),  [VideoDataset](/mmaction/datasets/video_dataset.py) or [ActivityNetDataset](/mmaction/datasets/activitynet_dataset.py).
 
 - offline conversion
 
@@ -170,7 +169,7 @@ import os.path as osp
 import mmcv
 
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()
@@ -225,7 +224,7 @@ Then in the config, to use `MyDataset` you can modify the config as the followin
 ```python
 dataset_A_train = dict(
     type='MyDataset',
-    ann_file=ann_file_train,
+    ann_file = ann_file_train,
     pipeline=train_pipeline
 )
 ```

@@ -1,4 +1,4 @@
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()

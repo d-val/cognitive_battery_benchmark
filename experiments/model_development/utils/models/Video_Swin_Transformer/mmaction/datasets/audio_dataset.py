@@ -3,7 +3,7 @@ import os.path as osp
 import torch
 
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()

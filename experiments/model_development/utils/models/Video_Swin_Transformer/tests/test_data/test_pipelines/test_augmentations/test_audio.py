@@ -7,8 +7,7 @@ from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Audi
 
 class TestAudio:
 
-    @staticmethod
-    def test_audio_amplify():
+    def test_audio_amplify(self):
         target_keys = ['audios', 'amplify_ratio']
         with pytest.raises(TypeError):
             # ratio should be float
@@ -22,8 +21,7 @@ class TestAudio:
         assert repr(amplifier) == (f'{amplifier.__class__.__name__}'
                                    f'(ratio={amplifier.ratio})')
 
-    @staticmethod
-    def test_melspectrogram():
+    def test_melspectrogram(self):
         target_keys = ['audios']
         with pytest.raises(TypeError):
             # ratio should be float
