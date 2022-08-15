@@ -9,7 +9,6 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import re, yaml, os
 import pickle5 as pickle
-import splitfolders
 import shutil
 import random
 from torch.utils.data import DataLoader
@@ -107,7 +106,7 @@ class TrainingJob():
         # Config setup
         self.cfg_file_path = self.config.model.config_file_path
         self.cfg = Config.fromfile(self.cfg_file_path)
-        self.cfg.load_from = self.cfg_file_path
+        self.cfg.load_from = self.config.model.checkpoint_file_path
         self.cfg.seed = self.config.seed
         set_random_seed(self.cfg.seed, deterministic=False)
         self.cfg.model.cls_head.num_classes = self.config.model.num_classes
@@ -145,7 +144,7 @@ class TrainingJob():
 
                 # write video name and label as new line in label .txt file
                 with open(label_file_path, 'a+') as label_file:
-                    label_file.write(new_video_name + ' ' + str(label))
+                    label_file.write(os.path.basename(new_video_name) + ' ' + str(label))
                     label_file.write('\n')
 
         # Dataset root directories and annotations setup
