@@ -1,6 +1,8 @@
 job_name: "CodeTesting"
 expt_name: "shape"
 
+seed: 123
+
 model:
   cnn_architecture: "Video Swin Transformer Kinetics 400 Swin-B ImageNet-22K"
   num_classes: 2
@@ -9,7 +11,8 @@ model:
 
 data_loader:
   batch_size: 1
-  data_path: "data/"
+  original_data_path: "data/"
+  split_data_path: "data_split/"
   train_split: 0.8
   skip_every: 1
 

@@ -2,23 +2,34 @@
 train_job.py: contains the implementation of a model training job and its interface with the config file.
 """
 
+# general imports
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
+import re, yaml, os
+import pickle5 as pickle
+import splitfolders
+import shutil
 from torch.utils.data import DataLoader
 from datetime import datetime
-import re, yaml, os
-
 from utils.framesdata import FramesDataset
 from utils.translators import expts
-
-import matplotlib.pyplot as plt
-
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
-
 from torch.autograd import Variable
 
-import pickle5 as pickle
+# for training and validation
+import os.path as osp
+import mmcv
+from mmcv import Config
+from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataset
+from utils.models.Video_Swin_Transformer.mmaction.models import build_model
+from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
+
+# for testing
+from utils.models.Video_Swin_Transformer.mmaction.apis import single_gpu_test
+from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataloader
+from mmcv.parallel import MMDataParallel
+from mmcv.runner import set_random_seed
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -83,7 +94,7 @@ class TrainingJob():
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
 
-        # Output set up
+        # Output setup
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
         self._out_path = f"output/{self.config.job_name}_{self._start_time}"
         os.makedirs(self._out_path)
@@ -92,18 +103,76 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        # Setting up data loaders, the model, and the optimizer & loss function
-        self.train_loader, self.test_loader = self._get_loaders()
-        self.model = init_recognizer(self.config.model.config_file_path, self.config.model.checkpoint_file_path, device=device)
-        self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
+        # Config setup
+        self.cfg_file_path = self.config.model.config_file_path
+        self.cfg = Config.fromfile(self.cfg_file_path)
+        self.cfg.load_from = self.cfg_file_path
+        self.cfg.seed = self.config.seed
+        set_random_seed(self.cfg.seed, deterministic=False)
+        self.cfg.model.cls_head.num_classes = self.config.model.num_classes
+        self.cfg.setdefault('omnisource', False)
 
-        # Initializing log and log metadata
-        self._log(f"Starting Log")
-        self.train_losses = []
-        self.test_losses = []
+        # Dataset setup
+        self.original_data_path = self.config.data_loader.original_data_path
+        # TODO: fix the below commented code to only run once without manual intervention (i.e., we want `data/temp/...` and no further nesting)
+        # shutil.move(self.config.data_loader.original_data_path, 'temp')
+        # shutil.move('temp', self.original_data_path)
+        self.split_data_path = self.config.data_loader.split_data_path
+        splitfolders.ratio(self.original_data_path, output=self.split_data_path, seed=self.cfg.seed, ratio=(0.8, 0.1, 0.1), move=False)
+        for subdirectory in os.listdir(self.split_data_path):
+            with open(os.path.join(self.split_data_path, subdirectory, '_labels.txt'), 'a') as label_file:
+                for iteration_dir in os.listdir(os.path.join(self.split_data_path, subdirectory, 'temp')):
+                    iteration_data_path = os.path.join(self.split_data_path, 'temp', iteration_dir, 'machine_readable', 'iteration_data.pickle')
 
-    def train(self, evaluate=False):
+                    # get classification label
+                    with open(iteration_data_path, 'rb') as iteration_data_pickled:
+                        iteration_data_unpickled = pickle.load(iteration_data_pickled)
+                        label = self.label_translator(iteration_data_unpickled['label'])
+
+                    # rename video with iteration number and move .mp4 file to root of subdirectory
+                    old_video_name = os.path.join(subdirectory, 'temp', iteration_dir, 'experiment_video.mp4')
+                    new_video_name = os.path.join(subdirectory, iteration_dir + '_experiment_video.mp4')
+                    os.rename(old_video_name, new_video_name)
+
+                    # write video name and label as new line in label .txt file
+                    label_file.write(new_video_name + ' ' + str(label))
+                    label_file.write('\n')
+
+        # Dataset root directories and annotations setup
+        self.cfg.dataset_type = 'VideoDataset'
+        self.cfg.data_root = self.split_data_path + 'train/'
+        self.cfg.data_root_val = self.split_data_path + 'val/'
+        self.cfg.ann_file_train = self.split_data_path + 'train_labels.txt'
+        self.cfg.ann_file_val = self.split_data_path + 'val_labels.txt'
+        self.cfg.ann_file_test = self.split_data_path + 'test_labels.txt'
+
+        # Training dataset setup
+        self.cfg.data.train.type = 'VideoDataset'
+        self.cfg.data.train.ann_file = self.split_data_path + 'train_labels.txt'
+        self.cfg.data.train.data_prefix = self.split_data_path + 'train/'
+
+        # Validation dataset setup
+        self.cfg.data.val.type = 'VideoDataset'
+        self.cfg.data.val.ann_file = self.split_data_path + 'val_labels.txt'
+        self.cfg.data.val.data_prefix = self.split_data_path + 'val/'
+
+        # Testing data setup
+        self.cfg.data.test.type = 'VideoDataset'
+        self.cfg.data.test.ann_file = self.split_data_path + 'test_labels.txt'
+        self.cfg.data.test.data_prefix = self.split_data_path + 'test/'
+
+        # File and log save location setup
+        self.cfg.work_dir = self._out_path
+
+        # The original learning rate (LR) is set for 8-GPU training.
+        # We divide it by 8 since we only use one GPU.
+        self.cfg.data.videos_per_gpu = self.cfg.data.videos_per_gpu // 16
+        self.cfg.optimizer.lr = self.cfg.optimizer.lr / 8 / 16
+        self.cfg.total_epochs = 30
+        self.cfg.gpu_ids = range(1)
+
+
+    def train(self):
         """
         Runs the training job by training the model on the training data.
 
@@ -112,201 +181,32 @@ class TrainingJob():
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        # Set the model in training state
-        self.model.train()
+        # Build the dataset
+        datasets = [build_dataset(self.cfg.data.train)]
 
-        self._debug("Started training")
-        self._log("TRAINING")
+        # Build the recognizer
+        model = build_model(self.cfg.model, train_cfg=self.cfg.get('train_cfg'), test_cfg=self.cfg.get('test_cfg'))
 
-        best_loss = float("inf")
-        for epoch in range(1, self.config.train_params.epochs + 1):
-            for it, (data, targets) in enumerate(self.train_loader):
+        # Create work_dir
+        mmcv.mkdir_or_exist(osp.abspath(self.cfg.work_dir))
+        train_model(model, datasets, self.cfg, distributed=False, validate=True)
 
-                # Images are in NHWC, torch works in NCHW
-                self._debug(f"Epoch:{epoch}, it:{it}")
-                self._debug("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
-                data = torch.permute(data, (0,1,4,2,3))
+    def test(self):
+        dataset = build_dataset(self.cfg.data.test, dict(test_mode=True))
+        data_loader = build_dataloader(
+                dataset,
+                videos_per_gpu=1,
+                workers_per_gpu=self.cfg.data.workers_per_gpu,
+                dist=False,
+                shuffle=False)
+        model = MMDataParallel(model, device_ids=[0])
+        outputs = single_gpu_test(model, data_loader)
 
-                # get data to cuda if possible
-                data = data.to(device=device).squeeze(1)
-                if self.using_ffcv:
-                    targets = targets.to(device=device).squeeze(1)
-                else:
-                    targets = targets.to(device=device)
-
-                # forward
-                prediction = self.model(data)
-                loss = self.loss_fn(prediction, targets)
-
-                # backward
-                self.optimizer.zero_grad()
-                loss.backward()
-
-                # gradient descent/optimizer step
-                self.optimizer.step()
-
-            if evaluate:
-                # Calculate training and testing accuracies and losses for this epoch
-                evals = self.evaluate()
-                train_acc, train_loss = evals["train"]
-                test_acc, test_loss = evals["test"]
-                self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
-
-                # Save train and test loss for later plotability
-                self.train_losses.append(train_loss)
-                self.test_losses.append(test_loss)
-
-                # Update best model file if a better model is found.
-                if test_loss < best_loss:
-                    best_loss = test_loss
-                    torch.save(self.model, self._best_model_path)
-
-    def evaluate(self):
-        """
-        Evaluates the model on the training and testing datasets.
-
-        :return: training and testing accuracies and losses.
-        :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
-        """
-
-        self._debug("\t Checking accuracy on training data")
-        train_acc, train_loss = self._check_accuracy(self.train_loader)
-
-        self._debug("\t Checking accuracy on test data")
-        test_acc, test_loss = self._check_accuracy(self.test_loader)
-
-        return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
-
-    def plot(self, show=True, save=True):
-        """
-        Generates a plot of training and test loss over epochs.
-
-        :param boolean show: whether to show the generated plot
-        :param boolean save: whether to save the generated plot
-        """
-        plt.plot(self.train_losses, label="Training Loss")
-        plt.plot(self.test_losses, label="Testing Loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
-        plt.legend()
-
-        if save:
-            plt.savefig(os.path.join(self._out_path, "loss.png"))
-
-        if show:
-            plt.show()
-
-    def _check_accuracy(self, loader):
-        """
-        Checks the accuracy and loss of a model on a data loader.
-
-        :param DataLoader loader: a loader of data samples to check the accuracy against.
-        :return: the training accuracy and the per-batch loss.
-        :rtype: tuple(float, float)
-        """
-        num_correct, num_samples, running_loss = 0, 0, 0
-
-        # Set the model to evaluation state
-        self.model.eval()
-
-        with torch.no_grad():
-            for x, y in loader:
-
-                # Pre-process data and correct labels
-                x = torch.permute(x, (0,1,4,2,3))
-                x = x.to(device=device).squeeze(1)
-                y = y.to(device=device)
-                if self.using_ffcv:
-                    y = y.squeeze(1)
-
-                # Get model predictions and calculate loss
-                scores = self.model(x)
-                _, prediction = scores.max(1)
-                loss = self.loss_fn(scores, y)
-
-                # Compute accuracy and loss so far
-                num_correct += (prediction == y).sum()
-                num_samples += prediction.size(0)
-                running_loss += loss.item()
-
-            self._debug(
-                f"\t Got {num_correct} / {num_samples} with accuracy  \
-                {float(num_correct)/float(num_samples)*100:.2f}"
-            )
-            acc = float(num_correct)/float(num_samples)*100
-
-        # Reset the model to train state
-        self.model.train()
-
-        return acc, running_loss / num_samples
-
-    def _log(self, statement):
-        """
-        Logs a statement in a training log file.
-
-        :param: str statement: a statement to add to the training log file.
-        """
-        if self.stdout:
-            print(statement)
-
-        # Write statement to log file
-        with open(self._log_path, "a+") as logf:
-            logf.write(statement)
-            logf.write("\n")
-
-    def _debug(self, statement):
-        """
-        Logs a statement in the training debugging file.
-
-        :param: str statement: a statement to add to the debugging log file.
-        """
-
-        if self.stdout:
-            print(statement)
-
-        # Write statement to debug file
-        with open(self._debug_path, "a+") as logf:
-            logf.write(statement)
-            logf.write("\n")
-
-    def _get_loaders(self):
-        """
-        Creates datasets and data loaders from the current data directory.
-
-        :return: two data loader containing the training data and testing data, respectively.
-        :rtype: tuple(DataLoader, DataLoader)
-        """
-        data_path = self.config.data_loader.data_path
-        if self.using_ffcv:
-            # Import necessary FFCV defs
-            from ffcv.loader import Loader, OrderOption
-            from ffcv.transforms import ToTensor
-            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
-
-            # Preprocessing pipeline
-            pipelines = {
-                "video": [NDArrayDecoder(), ToTensor()],
-                "label": [IntDecoder(), ToTensor()],
-            }
-
-            # Initialize training and testing data loaders.
-            train_loader = Loader(data_path, batch_size=self.config.data_loader.batch_size, num_workers=1,
-                            order=OrderOption.RANDOM, pipelines=pipelines)
-            test_loader = train_loader # TODO: add train/test split for FFCV
-
-        else:
-            # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
-            train_size = int(self.config.data_loader.train_split * len(full_dataset))
-            test_size = len(full_dataset) - train_size
-
-            # Construct loaders from datasets
-            train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
-            train_loader = DataLoader(dataset=train_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
-            test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
-
-        return train_loader, test_loader
+        eval_config = self.cfg.evaluation
+        eval_config.pop('interval')
+        eval_res = dataset.evaluate(outputs, **eval_config)
+        for name, val in eval_res.items():
+            print(f'{name}: {val:.04f}')
 
 if __name__ == '__main__':
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")
