@@ -53,7 +53,7 @@ def train_model(model,
     if 'optimizer_config' not in cfg:
         cfg.optimizer_config={}
     dataloader_setting = dict(
-        videos_per_gpu=cfg.data.get('videos_per_gpu', 1) // cfg.optimizer_config.get('update_interval', 1),
+        videos_per_gpu=max(cfg.data.get('videos_per_gpu', 1) // cfg.optimizer_config.get('update_interval', 1), 1),
         workers_per_gpu=cfg.data.get('workers_per_gpu', 1),
         num_gpus=len(cfg.gpu_ids),
         dist=distributed,
@@ -86,7 +86,7 @@ def train_model(model,
     # build runner
     optimizer = build_optimizer(model, cfg.optimizer)
     # use apex fp16 optimizer
-    # Noticed that this is just a temporary patch. We shoud not encourage this kind of code style
+    # Noticed that this is just a temporary patch. We should not encourage this kind of code style
     use_amp = False
     if (
         cfg.optimizer_config.get("type", None)
