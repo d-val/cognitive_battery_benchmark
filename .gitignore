@@ -13,5 +13,7 @@ frames/
 resources/
 experiments/dataset_generation/output
 .gravitybiasout/
-data/
+**/data*
 **/*.pth
+**/env
+**/output
