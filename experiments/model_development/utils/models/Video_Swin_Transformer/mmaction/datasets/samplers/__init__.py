@@ -1,4 +1,3 @@
-from .distributed_sampler import (ClassSpecificDistributedSampler,
-                                  DistributedSampler)
+from .distributed_sampler import DistributedPowerSampler, DistributedSampler
 
-__all__ = ['DistributedSampler', 'ClassSpecificDistributedSampler']
+__all__ = ['DistributedSampler', 'DistributedPowerSampler']

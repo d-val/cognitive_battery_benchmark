@@ -5,7 +5,8 @@ import torch
 import torch.nn as nn
 
 from ...localization import temporal_iop, temporal_iou
-from ..builder import LOCALIZERS, build_loss
+from ..builder import build_loss
+from ..registry import LOCALIZERS
 from .base import BaseLocalizer
 from .utils import post_processing
 

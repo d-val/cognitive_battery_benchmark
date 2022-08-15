@@ -1,10 +1,11 @@
 import copy
 import os.path as osp
 
+import numpy as np
 import torch
 
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 @DATASETS.register_module()
@@ -76,13 +77,11 @@ class RawframeDataset(BaseDataset):
         sample_by_class (bool): Sampling by class, should be set `True` when
             performing inter-class data balancing. Only compatible with
             `multi_class == False`. Only applies for training. Default: False.
-        power (float): We support sampling data with the probability
+        power (float | None): We support sampling data with the probability
             proportional to the power of its label frequency (freq ^ power)
             when sampling data. `power == 1` indicates uniformly sampling all
             data; `power == 0` indicates uniformly sampling all classes.
-            Default: 0.
-        dynamic_length (bool): If the dataset length is dynamic (used by
-            ClassSpecificDistributedSampler). Default: False.
+            Default: None.
     """
 
     def __init__(self,
@@ -97,8 +96,7 @@ class RawframeDataset(BaseDataset):
                  start_index=1,
                  modality='RGB',
                  sample_by_class=False,
-                 power=0.,
-                 dynamic_length=False):
+                 power=None):
         self.filename_tmpl = filename_tmpl
         self.with_offset = with_offset
         super().__init__(
@@ -111,8 +109,7 @@ class RawframeDataset(BaseDataset):
             start_index,
             modality,
             sample_by_class=sample_by_class,
-            power=power,
-            dynamic_length=dynamic_length)
+            power=power)
 
     def load_annotations(self):
         """Load annotation file to get video information."""
@@ -154,7 +151,12 @@ class RawframeDataset(BaseDataset):
 
     def prepare_train_frames(self, idx):
         """Prepare the frames for training given the index."""
-        results = copy.deepcopy(self.video_infos[idx])
+        if self.sample_by_class:
+            # Then, the idx is the class index
+            samples = self.video_infos_by_class[idx]
+            results = copy.deepcopy(np.random.choice(samples))
+        else:
+            results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
         results['modality'] = self.modality
         results['start_index'] = self.start_index
@@ -169,7 +171,12 @@ class RawframeDataset(BaseDataset):
 
     def prepare_test_frames(self, idx):
         """Prepare the frames for testing given the index."""
-        results = copy.deepcopy(self.video_infos[idx])
+        if self.sample_by_class:
+            # Then, the idx is the class index
+            samples = self.video_infos_by_class[idx]
+            results = copy.deepcopy(np.random.choice(samples))
+        else:
+            results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
         results['modality'] = self.modality
         results['start_index'] = self.start_index

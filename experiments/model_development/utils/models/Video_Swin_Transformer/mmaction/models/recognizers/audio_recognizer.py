@@ -1,4 +1,4 @@
-from ..builder import RECOGNIZERS
+from ..registry import RECOGNIZERS
 from .base import BaseRecognizer
 
 

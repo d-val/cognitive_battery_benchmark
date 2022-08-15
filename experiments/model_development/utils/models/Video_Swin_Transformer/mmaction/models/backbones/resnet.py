@@ -5,7 +5,7 @@ from mmcv.utils import _BatchNorm
 from torch.utils import checkpoint as cp
 
 from ...utils import get_root_logger
-from ..builder import BACKBONES
+from ..registry import BACKBONES
 
 
 class BasicBlock(nn.Module):

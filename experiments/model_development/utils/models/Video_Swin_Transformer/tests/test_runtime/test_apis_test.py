@@ -1,5 +1,4 @@
 import sys
-import warnings
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -7,19 +6,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-# TODO import test functions from mmcv and delete them from utils.models.Video_Swin_Transformer.mmaction2
-try:
-    from mmcv.engine import (collect_results_cpu, multi_gpu_test,
-                             single_gpu_test)
-    pytest.skip(
-        'Test functions are supported in MMCV', allow_module_level=True)
-except (ImportError, ModuleNotFoundError):
-    warnings.warn(
-        'DeprecationWarning: single_gpu_test, multi_gpu_test, '
-        'collect_results_cpu, collect_results_gpu from utils.models.Video_Swin_Transformer.mmaction2 will be '
-        'deprecated. Please install mmcv through master branch.')
-    from utils.models.Video_Swin_Transformer.mmaction.apis.test import (collect_results_cpu, multi_gpu_test,
-                                    single_gpu_test)
+from utils.models.Video_Swin_Transformer.mmaction.apis.test import (collect_results_cpu, multi_gpu_test,
+                                single_gpu_test)
 
 
 class OldStyleModel(nn.Module):
@@ -29,7 +17,7 @@ class OldStyleModel(nn.Module):
         self.conv = nn.Conv2d(3, 3, 1)
         self.cnt = 0
 
-    def forward(self, *args, **kwargs):
+    def forward(self, return_loss, **kwargs):
         result = [self.cnt]
         self.cnt += 1
         return result

@@ -21,12 +21,6 @@ class BBoxHeadAVA(nn.Module):
         spatial_pool_type (str): The spatial pool type. Choices are 'avg' or
             'max'. Default: 'max'.
         in_channels (int): The number of input channels. Default: 2048.
-        focal_alpha (float): The hyper-parameter alpha for Focal Loss.
-            When alpha == 1 and gamma == 0, Focal Loss degenerates to
-            BCELossWithLogits. Default: 1.
-        focal_gamma (float): The hyper-parameter gamma for Focal Loss.
-            When alpha == 1 and gamma == 0, Focal Loss degenerates to
-            BCELossWithLogits. Default: 0.
         num_classes (int): The number of classes. Default: 81.
         dropout_ratio (float): A float in [0, 1], indicates the dropout_ratio.
             Default: 0.
@@ -44,8 +38,6 @@ class BBoxHeadAVA(nn.Module):
             spatial_pool_type='max',
             in_channels=2048,
             # The first class is reserved, to classify bbox as pos / neg
-            focal_gamma=0.,
-            focal_alpha=1.,
             num_classes=81,
             dropout_ratio=0,
             dropout_before_pool=True,
@@ -65,9 +57,6 @@ class BBoxHeadAVA(nn.Module):
         self.dropout_before_pool = dropout_before_pool
 
         self.multilabel = multilabel
-
-        self.focal_gamma = focal_gamma
-        self.focal_alpha = focal_alpha
 
         if topk is None:
             self.topk = ()
@@ -122,8 +111,8 @@ class BBoxHeadAVA(nn.Module):
         # We do not predict bbox, so return None
         return cls_score, None
 
-    @staticmethod
-    def get_targets(sampling_results, gt_bboxes, gt_labels, rcnn_train_cfg):
+    def get_targets(self, sampling_results, gt_bboxes, gt_labels,
+                    rcnn_train_cfg):
         pos_proposals = [res.pos_bboxes for res in sampling_results]
         neg_proposals = [res.neg_bboxes for res in sampling_results]
         pos_gt_labels = [res.pos_gt_labels for res in sampling_results]
@@ -131,8 +120,7 @@ class BBoxHeadAVA(nn.Module):
                                       pos_gt_labels, rcnn_train_cfg)
         return cls_reg_targets
 
-    @staticmethod
-    def recall_prec(pred_vec, target_vec):
+    def recall_prec(self, pred_vec, target_vec):
         """
         Args:
             pred_vec (tensor[N x C]): each element is either 0 or 1
@@ -145,7 +133,7 @@ class BBoxHeadAVA(nn.Module):
         prec = correct.sum(1) / (pred_vec.sum(1) + 1e-6)
         return recall.mean(), prec.mean()
 
-    def multi_label_accuracy(self, pred, target, thr=0.5):
+    def multilabel_accuracy(self, pred, target, thr=0.5):
         pred = pred.sigmoid()
         pred_vec = pred > thr
         # Target is 0 or 1, so using 0.5 as the borderline is OK
@@ -184,13 +172,8 @@ class BBoxHeadAVA(nn.Module):
             labels = labels[pos_inds]
 
             bce_loss = F.binary_cross_entropy_with_logits
-
-            loss = bce_loss(cls_score, labels, reduction='none')
-            pt = torch.exp(-loss)
-            F_loss = self.focal_alpha * (1 - pt)**self.focal_gamma * loss
-            losses['loss_action_cls'] = torch.mean(F_loss)
-
-            recall_thr, prec_thr, recall_k, prec_k = self.multi_label_accuracy(
+            losses['loss_action_cls'] = bce_loss(cls_score, labels)
+            recall_thr, prec_thr, recall_k, prec_k = self.multilabel_accuracy(
                 cls_score, labels, thr=0.5)
             losses['recall@thr=0.5'] = recall_thr
             losses['prec@thr=0.5'] = prec_thr

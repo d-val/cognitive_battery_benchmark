@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ..builder import LOSSES
+from ..registry import LOSSES
 from .ohem_hinge_loss import OHEMHingeLoss
 
 

@@ -21,7 +21,7 @@ evaluation
 
 lr
 ^^
-.. automodule:: mmaction.core.scheduler
+.. automodule:: mmaction.core.lr
     :members:
 
 mmaction.localization

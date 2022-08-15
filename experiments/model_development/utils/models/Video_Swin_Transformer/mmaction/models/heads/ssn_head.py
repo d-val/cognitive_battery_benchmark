@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from ..builder import HEADS
+from ..registry import HEADS
 
 
 def parse_stage_config(stage_cfg):

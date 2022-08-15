@@ -7,8 +7,7 @@ from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Colo
 
 class TestColor:
 
-    @staticmethod
-    def test_color_jitter():
+    def test_color_jitter(self):
         imgs = list(
             np.random.randint(0, 255, size=(3, 112, 112, 3), dtype=np.uint8))
         results = dict(imgs=imgs)

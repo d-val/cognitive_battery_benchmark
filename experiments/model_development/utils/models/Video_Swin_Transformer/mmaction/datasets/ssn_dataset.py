@@ -12,7 +12,7 @@ from ..localization import (eval_ap, load_localize_proposal_file,
                             perform_regression, temporal_iou, temporal_nms)
 from ..utils import get_root_logger
 from .base import BaseDataset
-from .builder import DATASETS
+from .registry import DATASETS
 
 
 class SSNInstance:
@@ -767,7 +767,7 @@ class SSNDataset(BaseDataset):
         out_proposal_labels = []
         out_proposal_reg_targets = []
 
-        for _, proposal in enumerate(results['out_proposals']):
+        for idx, proposal in enumerate(results['out_proposals']):
             # proposal: [(video_id, SSNInstance), proposal_type]
             num_frames = proposal[0][1].num_video_frames
 

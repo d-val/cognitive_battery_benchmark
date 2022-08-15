@@ -52,8 +52,7 @@ class ExampleModel(nn.Module):
     def forward(self, imgs, return_loss=False):
         return self.bn(self.conv(imgs))
 
-    @staticmethod
-    def train_step(data_batch, optimizer, **kwargs):
+    def train_step(self, data_batch, optimizer, **kwargs):
         outputs = {
             'loss': 0.5,
             'log_vars': {
@@ -172,7 +171,7 @@ def test_precise_bn():
     runner.register_hook(precise_bn_hook)
     runner.run([loader], [('train', 1)], 1)
     imgs_list = list()
-    for _, data in enumerate(loader):
+    for i, data in enumerate(loader):
         imgs_list.append(np.array(data['imgs']))
     mean = np.mean([np.mean(batch) for batch in imgs_list])
     # bassel correction used in Pytorch, therefore ddof=1
