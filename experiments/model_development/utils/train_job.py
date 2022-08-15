@@ -11,6 +11,7 @@ import re, yaml, os
 import pickle5 as pickle
 import splitfolders
 import shutil
+import random
 from torch.utils.data import DataLoader
 from datetime import datetime
 from utils.framesdata import FramesDataset
@@ -78,7 +79,7 @@ class TrainingJob():
     """
     Trains and evaluates CNN+LSTM model based on a configuration file.
     """
-    def __init__(self, config, stdout=True, using_ffcv=False):
+    def __init__(self, config, stdout=True, using_ffcv=False, test=False):
         """
         Initialize the job and its parameters.
 
@@ -114,59 +115,68 @@ class TrainingJob():
 
         # Dataset setup
         self.original_data_path = self.config.data_loader.original_data_path
-        # TODO: fix the below commented code to only run once without manual intervention (i.e., we want `data/temp/...` and no further nesting)
-        # shutil.move(self.config.data_loader.original_data_path, 'temp')
-        # shutil.move('temp', self.original_data_path)
         self.split_data_path = self.config.data_loader.split_data_path
-        splitfolders.ratio(self.original_data_path, output=self.split_data_path, seed=self.cfg.seed, ratio=(0.8, 0.1, 0.1), move=False)
-        for subdirectory in os.listdir(self.split_data_path):
-            with open(os.path.join(self.split_data_path, subdirectory, '_labels.txt'), 'a') as label_file:
-                for iteration_dir in os.listdir(os.path.join(self.split_data_path, subdirectory, 'temp')):
-                    iteration_data_path = os.path.join(self.split_data_path, 'temp', iteration_dir, 'machine_readable', 'iteration_data.pickle')
+        if not os.path.exists(self.split_data_path):
+            os.makedirs(self.split_data_path, exist_ok=True)
+            num_iterations = len(os.listdir(self.original_data_path))
+            validation_iterations = random.sample(range(num_iterations), int((1 - self.config.data_loader.train_split) * num_iterations)) # TODO: account for case when test=True
+            for iteration_dir in os.listdir(self.original_data_path):
+                if iteration_dir == '.DS_Store':
+                    continue
 
-                    # get classification label
-                    with open(iteration_data_path, 'rb') as iteration_data_pickled:
-                        iteration_data_unpickled = pickle.load(iteration_data_pickled)
-                        label = self.label_translator(iteration_data_unpickled['label'])
+                iteration_data_path = os.path.join(self.original_data_path, iteration_dir, 'machine_readable', 'iteration_data.pickle')
 
-                    # rename video with iteration number and move .mp4 file to root of subdirectory
-                    old_video_name = os.path.join(subdirectory, 'temp', iteration_dir, 'experiment_video.mp4')
-                    new_video_name = os.path.join(subdirectory, iteration_dir + '_experiment_video.mp4')
-                    os.rename(old_video_name, new_video_name)
+                # get classification label
+                with open(iteration_data_path, 'rb') as iteration_data_pickled:
+                    iteration_data_unpickled = pickle.load(iteration_data_pickled)
+                    label = self.label_translator(iteration_data_unpickled['label'])
 
-                    # write video name and label as new line in label .txt file
+                # rename video with iteration number and move .mp4 file to root of subdirectory
+                old_video_name = os.path.join(self.original_data_path, iteration_dir, 'experiment_video.mp4')
+                if int(iteration_dir) in validation_iterations:
+                    os.makedirs(os.path.join(self.split_data_path, 'val'), exist_ok=True)
+                    label_file_path = os.path.join(self.split_data_path, 'val_labels.txt')
+                    new_video_name = os.path.join(self.split_data_path, 'val', iteration_dir + '_experiment_video.mp4')
+                else: # TODO: account for case when test=True
+                    os.makedirs(os.path.join(self.split_data_path, 'train'), exist_ok=True)
+                    label_file_path = os.path.join(self.split_data_path, 'train_labels.txt')
+                    new_video_name = os.path.join(self.split_data_path, 'train', iteration_dir + '_experiment_video.mp4')
+                os.rename(old_video_name, new_video_name)
+
+                # write video name and label as new line in label .txt file
+                with open(label_file_path, 'a+') as label_file:
                     label_file.write(new_video_name + ' ' + str(label))
                     label_file.write('\n')
 
         # Dataset root directories and annotations setup
         self.cfg.dataset_type = 'VideoDataset'
-        self.cfg.data_root = self.split_data_path + 'train/'
-        self.cfg.data_root_val = self.split_data_path + 'val/'
-        self.cfg.ann_file_train = self.split_data_path + 'train_labels.txt'
-        self.cfg.ann_file_val = self.split_data_path + 'val_labels.txt'
-        self.cfg.ann_file_test = self.split_data_path + 'test_labels.txt'
-
+        self.cfg.data_root = os.path.join(self.split_data_path, 'train/')
+        self.cfg.data_root_val = os.path.join(self.split_data_path, 'val/')
+        self.cfg.ann_file_train = os.path.join(self.split_data_path, 'train_labels.txt')
+        self.cfg.ann_file_val = os.path.join(self.split_data_path, 'val_labels.txt')
         # Training dataset setup
-        self.cfg.data.train.type = 'VideoDataset'
-        self.cfg.data.train.ann_file = self.split_data_path + 'train_labels.txt'
-        self.cfg.data.train.data_prefix = self.split_data_path + 'train/'
+        self.cfg.data.train.type = os.path.join('VideoDataset')
+        self.cfg.data.train.ann_file = os.path.join(self.split_data_path, 'train_labels.txt')
+        self.cfg.data.train.data_prefix = os.path.join(self.split_data_path, 'train/')
 
         # Validation dataset setup
-        self.cfg.data.val.type = 'VideoDataset'
-        self.cfg.data.val.ann_file = self.split_data_path + 'val_labels.txt'
-        self.cfg.data.val.data_prefix = self.split_data_path + 'val/'
+        self.cfg.data.val.type = os.path.join('VideoDataset')
+        self.cfg.data.val.ann_file = os.path.join(self.split_data_path, 'val_labels.txt')
+        self.cfg.data.val.data_prefix = os.path.join(self.split_data_path, 'val/')
 
         # Testing data setup
-        self.cfg.data.test.type = 'VideoDataset'
-        self.cfg.data.test.ann_file = self.split_data_path + 'test_labels.txt'
-        self.cfg.data.test.data_prefix = self.split_data_path + 'test/'
+        if test:
+            self.cfg.ann_file_test = os.path.join(self.split_data_path, 'test_labels.txt')
+            self.cfg.data.test.type = os.path.join('VideoDataset')
+            self.cfg.data.test.ann_file = os.path.join(self.split_data_path, 'test_labels.txt')
+            self.cfg.data.test.data_prefix = os.path.join(self.split_data_path, 'test/')
 
         # File and log save location setup
         self.cfg.work_dir = self._out_path
 
         # The original learning rate (LR) is set for 8-GPU training.
         # We divide it by 8 since we only use one GPU.
-        self.cfg.data.videos_per_gpu = self.cfg.data.videos_per_gpu // 16
+        self.cfg.data.videos_per_gpu = max(self.cfg.data.videos_per_gpu // 16, 1)
         self.cfg.optimizer.lr = self.cfg.optimizer.lr / 8 / 16
         self.cfg.total_epochs = 30
         self.cfg.gpu_ids = range(1)
