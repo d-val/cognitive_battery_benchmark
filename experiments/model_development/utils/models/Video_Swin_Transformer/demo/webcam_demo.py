@@ -1,4 +1,5 @@
 import argparse
+import time
 from collections import deque
 from operator import itemgetter
 from threading import Thread
@@ -6,6 +7,7 @@ from threading import Thread
 import cv2
 import numpy as np
 import torch
+from mmcv import Config, DictAction
 from mmcv.parallel import collate, scatter
 
 from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
@@ -43,7 +45,28 @@ def parse_args():
         type=int,
         default=1,
         help='number of latest clips to be averaged for prediction')
+    parser.add_argument(
+        '--drawing-fps',
+        type=int,
+        default=20,
+        help='Set upper bound FPS value of the output drawing')
+    parser.add_argument(
+        '--inference-fps',
+        type=int,
+        default=4,
+        help='Set upper bound FPS value of model inference')
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        default={},
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. For example, '
+        "'--cfg-options model.backbone.depth=18 model.backbone.with_cp=True'")
     args = parser.parse_args()
+    assert args.drawing_fps >= 0 and args.inference_fps >= 0, \
+        'upper bound FPS value of drawing and inference should be set as ' \
+        'positive number, or zero for no limit'
     return args
 
 
@@ -51,9 +74,10 @@ def show_results():
     print('Press "Esc", "q" or "Q" to exit')
 
     text_info = {}
+    cur_time = time.time()
     while True:
         msg = 'Waiting for action ...'
-        ret, frame = camera.read()
+        _, frame = camera.read()
         frame_queue.append(np.array(frame[:, :, ::-1]))
 
         if len(result_queue) != 0:
@@ -69,7 +93,7 @@ def show_results():
                 cv2.putText(frame, text, location, FONTFACE, FONTSCALE,
                             FONTCOLOR, THICKNESS, LINETYPE)
 
-        elif len(text_info):
+        elif len(text_info) != 0:
             for location, text in text_info.items():
                 cv2.putText(frame, text, location, FONTFACE, FONTSCALE,
                             FONTCOLOR, THICKNESS, LINETYPE)
@@ -84,10 +108,18 @@ def show_results():
         if ch == 27 or ch == ord('q') or ch == ord('Q'):
             break
 
+        if drawing_fps > 0:
+            # add a limiter for actual drawing fps <= drawing_fps
+            sleep_time = 1 / drawing_fps - (time.time() - cur_time)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            cur_time = time.time()
+
 
 def inference():
     score_cache = deque()
     scores_sum = 0
+    cur_time = time.time()
     while True:
         cur_windows = []
 
@@ -122,20 +154,34 @@ def inference():
             result_queue.append(results)
             scores_sum -= score_cache.popleft()
 
+        if inference_fps > 0:
+            # add a limiter for actual inference fps <= inference_fps
+            sleep_time = 1 / inference_fps - (time.time() - cur_time)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            cur_time = time.time()
+
     camera.release()
     cv2.destroyAllWindows()
 
 
 def main():
     global frame_queue, camera, frame, results, threshold, sample_length, \
-        data, test_pipeline, model, device, average_size, label, result_queue
+        data, test_pipeline, model, device, average_size, label, \
+        result_queue, drawing_fps, inference_fps
 
     args = parse_args()
     average_size = args.average_size
     threshold = args.threshold
+    drawing_fps = args.drawing_fps
+    inference_fps = args.inference_fps
 
     device = torch.device(args.device)
-    model = init_recognizer(args.config, args.checkpoint, device=device)
+
+    cfg = Config.fromfile(args.config)
+    cfg.merge_from_dict(args.cfg_options)
+
+    model = init_recognizer(cfg, args.checkpoint, device=device)
     camera = cv2.VideoCapture(args.camera_id)
     data = dict(img_shape=None, modality='RGB', label=-1)
 
@@ -145,7 +191,7 @@ def main():
     # prepare test pipeline from non-camera pipeline
     cfg = model.cfg
     sample_length = 0
-    pipeline = cfg.test_pipeline
+    pipeline = cfg.data.test.pipeline
     pipeline_ = pipeline.copy()
     for step in pipeline:
         if 'SampleFrames' in step['type']:

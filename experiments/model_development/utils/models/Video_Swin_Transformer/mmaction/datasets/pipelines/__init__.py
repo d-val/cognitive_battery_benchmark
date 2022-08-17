@@ -1,7 +1,7 @@
 from .augmentations import (AudioAmplify, CenterCrop, ColorJitter,
                             EntityBoxCrop, EntityBoxFlip, EntityBoxRescale,
                             Flip, Fuse, Imgaug, MelSpectrogram, MultiGroupCrop,
-                            MultiScaleCrop, Normalize, RandomCrop,
+                            MultiScaleCrop, Normalize, RandomCrop, RandomErasing,
                             RandomRescale, RandomResizedCrop, RandomScale,
                             Resize, TenCrop, ThreeCrop)
 from .compose import Compose
@@ -16,10 +16,12 @@ from .loading import (AudioDecode, AudioDecodeInit, AudioFeatureSelector,
                       PyAVDecodeMotionVector, PyAVInit, RawFrameDecode,
                       SampleAVAFrames, SampleFrames, SampleProposalFrames,
                       UntrimmedSampleFrames)
+from .pose_loading import (GeneratePoseTarget, LoadKineticsPose, PoseDecode,
+                           UniformSampleFrames)
 
 __all__ = [
     'SampleFrames', 'PyAVDecode', 'DecordDecode', 'DenseSampleFrames',
-    'OpenCVDecode', 'FrameSelector', 'MultiGroupCrop', 'MultiScaleCrop',
+    'OpenCVDecode', 'FrameSelector', 'MultiGroupCrop', 'MultiScaleCrop', 'RandomErasing',
     'RandomResizedCrop', 'RandomCrop', 'Resize', 'Flip', 'Fuse', 'Normalize',
     'ThreeCrop', 'CenterCrop', 'TenCrop', 'ImageToTensor', 'Transpose',
     'Collect', 'FormatShape', 'Compose', 'ToTensor', 'ToDataContainer',
@@ -31,5 +33,6 @@ __all__ = [
     'FormatAudioShape', 'LoadAudioFeature', 'AudioFeatureSelector',
     'AudioDecodeInit', 'EntityBoxFlip', 'EntityBoxCrop', 'EntityBoxRescale',
     'RandomScale', 'ImageDecode', 'BuildPseudoClip', 'RandomRescale',
-    'PyAVDecodeMotionVector', 'Rename', 'Imgaug'
+    'PyAVDecodeMotionVector', 'Rename', 'Imgaug', 'UniformSampleFrames',
+    'PoseDecode', 'LoadKineticsPose', 'GeneratePoseTarget'
 ]
