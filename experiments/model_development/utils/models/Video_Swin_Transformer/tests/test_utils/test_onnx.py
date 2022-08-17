@@ -2,7 +2,7 @@ import os.path as osp
 import tempfile
 
 import torch.nn as nn
-from tools.pytorch2onnx import _convert_batchnorm, pytorch2onnx
+from tools.deployment.pytorch2onnx import _convert_batchnorm, pytorch2onnx
 
 
 class TestModel(nn.Module):
@@ -16,7 +16,8 @@ class TestModel(nn.Module):
         return self.bn(self.conv(x))
 
     def forward_dummy(self, x):
-        return (self.forward(x), )
+        out = self.bn(self.conv(x))
+        return (out, )
 
 
 def test_onnx_exporting():
@@ -25,4 +26,6 @@ def test_onnx_exporting():
         model = TestModel()
         model = _convert_batchnorm(model)
         # test exporting
-        pytorch2onnx(model, (1, 1, 1, 1, 1), output_file=out_file)
+        if hasattr(model, 'forward_dummy'):
+            model.forward = model.forward_dummy
+        pytorch2onnx(model, (2, 1, 1, 1, 1), output_file=out_file, verify=True)

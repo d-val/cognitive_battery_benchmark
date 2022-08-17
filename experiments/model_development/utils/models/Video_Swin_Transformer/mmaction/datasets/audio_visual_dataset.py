@@ -1,7 +1,7 @@
 import os.path as osp
 
+from .builder import DATASETS
 from .rawframe_dataset import RawframeDataset
-from .registry import DATASETS
 
 
 @DATASETS.register_module()
@@ -65,7 +65,7 @@ class AudioVisualDataset(RawframeDataset):
                     idx += 1
                 # idx for label[s]
                 label = [int(x) for x in line_split[idx:]]
-                assert len(label), f'missing label in line: {line}'
+                assert len(label) != 0, f'missing label in line: {line}'
                 if self.multi_class:
                     assert self.num_classes is not None
                     video_info['label'] = label

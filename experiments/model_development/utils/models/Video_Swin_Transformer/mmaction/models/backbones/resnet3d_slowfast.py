@@ -5,7 +5,7 @@ from mmcv.runner import _load_checkpoint, load_checkpoint
 from mmcv.utils import print_log
 
 from ...utils import get_root_logger
-from ..registry import BACKBONES
+from ..builder import BACKBONES
 from .resnet3d import ResNet3d
 
 try:
@@ -120,7 +120,7 @@ class ResNet3dPathway(ResNet3d):
                 Default: ``pytorch``.
             inflate (int | Sequence[int]): Determine whether to inflate
                 for each block. Default: 1.
-            inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines
+            inflate_style (str): ``3x1x1`` or ``3x3x3``. which determines
                 the kernel sizes and padding strides for conv1 and
                 conv2 in each block. Default: ``3x1x1``.
             non_local (int | Sequence[int]): Determine whether to apply
@@ -236,11 +236,20 @@ class ResNet3dPathway(ResNet3d):
                     original_conv_name = name
                     # layer{X}.{Y}.conv{n}.bn->layer{X}.{Y}.bn{n}
                     original_bn_name = name.replace('conv', 'bn')
-                self._inflate_conv_params(module.conv, state_dict_r2d,
-                                          original_conv_name,
-                                          inflated_param_names)
-                self._inflate_bn_params(module.bn, state_dict_r2d,
-                                        original_bn_name, inflated_param_names)
+                if original_conv_name + '.weight' not in state_dict_r2d:
+                    logger.warning(f'Module not exist in the state_dict_r2d'
+                                   f': {original_conv_name}')
+                else:
+                    self._inflate_conv_params(module.conv, state_dict_r2d,
+                                              original_conv_name,
+                                              inflated_param_names)
+                if original_bn_name + '.weight' not in state_dict_r2d:
+                    logger.warning(f'Module not exist in the state_dict_r2d'
+                                   f': {original_bn_name}')
+                else:
+                    self._inflate_bn_params(module.bn, state_dict_r2d,
+                                            original_bn_name,
+                                            inflated_param_names)
 
         # check if any parameters in the 2d checkpoint are not loaded
         remaining_names = set(

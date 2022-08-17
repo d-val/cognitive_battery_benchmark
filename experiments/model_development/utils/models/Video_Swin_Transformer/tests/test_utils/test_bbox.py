@@ -6,17 +6,17 @@ import torch
 
 from utils.models.Video_Swin_Transformer.mmaction.core.bbox import bbox2result, bbox_target
 from utils.models.Video_Swin_Transformer.mmaction.datasets import AVADataset
-from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
 
 try:
     from mmdet.core.bbox import build_assigner, build_sampler
 except (ImportError, ModuleNotFoundError):
 
-    @import_module_error_func('mmdet')
+    # @import_module_error_func('mmdet')
     def build_assigner(*args, **kwargs):
         pass
 
-    @import_module_error_func('mmdet')
+    # @import_module_error_func('mmdet')
     def build_sampler(*args, **kwargs):
         pass
 

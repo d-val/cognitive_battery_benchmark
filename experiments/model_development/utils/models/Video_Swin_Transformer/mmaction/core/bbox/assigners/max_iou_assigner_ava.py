@@ -1,6 +1,6 @@
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class
+# from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_class
 
 try:
     from mmdet.core.bbox import AssignResult, MaxIoUAssigner
@@ -133,6 +133,6 @@ if mmdet_imported:
 
 else:
     # define an empty class, so that can be imported
-    @import_module_error_class('mmdet')
+    # @import_module_error_class('mmdet')
     class MaxIoUAssignerAVA:
         pass

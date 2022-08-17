@@ -4,6 +4,7 @@ import mmcv
 import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
+from numpy.testing import assert_array_almost_equal
 
 from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Flip
 from .base import check_flip
@@ -11,7 +12,8 @@ from .base import check_flip
 
 class TestFlip:
 
-    def test_flip(self):
+    @staticmethod
+    def test_flip():
         with pytest.raises(ValueError):
             # direction must be in ['horizontal', 'vertical']
             Flip(direction='vertically')
@@ -21,8 +23,6 @@ class TestFlip:
         # do not flip imgs.
         imgs = list(np.random.rand(2, 64, 64, 3))
         results = dict(imgs=copy.deepcopy(imgs), modality='RGB')
-        results['gt_bboxes'] = np.array([[0, 0, 60, 60]])
-        results['proposals'] = None
         flip = Flip(flip_ratio=0, direction='horizontal')
         flip_results = flip(results)
         assert assert_dict_has_keys(flip_results, target_keys)
@@ -33,6 +33,8 @@ class TestFlip:
         # always flip imgs horizontally.
         imgs = list(np.random.rand(2, 64, 64, 3))
         results = dict(imgs=copy.deepcopy(imgs), modality='RGB')
+        results['gt_bboxes'] = np.array([[0, 0, 60, 60]])
+        results['proposals'] = np.array([[0, 0, 60, 60]])
         flip = Flip(flip_ratio=1, direction='horizontal')
         flip_results = flip(results)
         assert assert_dict_has_keys(flip_results, target_keys)
@@ -101,3 +103,33 @@ class TestFlip:
             flip_label_map=_flip_label_map)
         flip_results = flip(results)
         assert results['label'] == 3
+
+        # flip the keypoints
+        results = dict(
+            keypoint=np.array([[1, 1], [63, 63]]).reshape([1, 1, 2, 2]),
+            modality='Pose',
+            img_shape=(64, 64))
+        flip = Flip(
+            flip_ratio=1, direction='horizontal', left_kp=[0], right_kp=[1])
+        flip_results = flip(results)
+        assert_array_almost_equal(flip_results['keypoint'][0, 0],
+                                  np.array([[1, 63], [63, 1]]))
+
+        results = dict(
+            keypoint=np.array([[1, 1], [63, 63]]).reshape([1, 1, 2, 2]),
+            modality='Pose',
+            img_shape=(64, 64))
+        flip = Flip(
+            flip_ratio=1, direction='horizontal', left_kp=[], right_kp=[])
+        flip_results = flip(results)
+        assert_array_almost_equal(flip_results['keypoint'][0, 0],
+                                  np.array([[63, 1], [1, 63]]))
+
+        with pytest.raises(AssertionError):
+            results = dict(
+                keypoint=np.array([[1, 1], [63, 63]]).reshape([1, 1, 2, 2]),
+                modality='Pose',
+                img_shape=(64, 64))
+            flip = Flip(
+                flip_ratio=1, direction='vertical', left_kp=[], right_kp=[])
+            flip_results = flip(results)

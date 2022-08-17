@@ -19,7 +19,7 @@ We provide some tips for MMAction2 data preparation in this file.
 MMAction2 supports two types of data format: raw frames and video. The former is widely used in previous projects such as [TSN](https://github.com/yjxiong/temporal-segment-networks).
 This is fast when SSD is available but fails to scale to the fast-growing datasets.
 (For example, the newest edition of [Kinetics](https://deepmind.com/research/open-source/open-source-datasets/kinetics/) has 650K  videos and the total frames will take up several TBs.)
-The latter saves much space but has to do the computation intensive video decoding at execution time
+The latter saves much space but has to do the computation intensive video decoding at execution time.
 To make video decoding faster, we support several efficient video loading libraries, such as [decord](https://github.com/zhreshold/decord), [PyAV](https://github.com/PyAV-Org/PyAV), etc.
 
 ## Getting Data
@@ -29,7 +29,7 @@ Similar to the datasets stated above, it is recommended organizing in `$MMACTION
 
 ### Prepare videos
 
- Please refer to the official website and/or the official script to prepare the videos.
+Please refer to the official website and/or the official script to prepare the videos.
 Note that the videos should be arranged in either
 
 (1). A two-level directory organized by `${CLASS_NAME}/${VIDEO_ID}`, which is recommended to be used for for action recognition datasets (such as UCF101 and Kinetics)
@@ -76,10 +76,10 @@ ln -s ${YOUR_FOLDER} $MMACTION2/data/$DATASET/rawframes
 
 #### Alternative to denseflow
 
-In case your device doesn't fulfill the installation requirement of [denseflow](https://github.com/open-mmlab/denseflow)(like Nvidia driver version), or you just want to see some quick demos about flow extraction, we provide a python script `tools/flow_extraction.py` as an alternative to denseflow. You can use it for rgb frames and optical flow extraction from one or several videos. Note that the speed of the script is much slower than denseflow, since it runs optical flow algorithms on CPU.
+In case your device doesn't fulfill the installation requirement of [denseflow](https://github.com/open-mmlab/denseflow)(like Nvidia driver version), or you just want to see some quick demos about flow extraction, we provide a python script `tools/misc/flow_extraction.py` as an alternative to denseflow. You can use it for rgb frames and optical flow extraction from one or several videos. Note that the speed of the script is much slower than denseflow, since it runs optical flow algorithms on CPU.
 
 ```shell
-python tools/flow_extraction.py --input ${INPUT} [--prefix ${PREFIX}] [--dest ${DEST}] [--rgb-tmpl ${RGB_TMPL}] \
+python tools/misc/flow_extraction.py --input ${INPUT} [--prefix ${PREFIX}] [--dest ${DEST}] [--rgb-tmpl ${RGB_TMPL}] \
     [--flow-tmpl ${FLOW_TMPL}] [--start-idx ${START_IDX}] [--method ${METHOD}] [--bound ${BOUND}] [--save-rgb]
 ```
 
@@ -95,7 +95,7 @@ python tools/flow_extraction.py --input ${INPUT} [--prefix ${PREFIX}] [--dest ${
 
 ### Generate file list
 
-We provide a convenient script to generate annotation file list. You can use the following command to extract frames.
+We provide a convenient script to generate annotation file list. You can use the following command to generate file lists given extracted frames / downloaded videos.
 
 ```shell
 cd $MMACTION2
