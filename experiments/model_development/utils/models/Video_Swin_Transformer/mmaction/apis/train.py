@@ -68,6 +68,24 @@ def train_model(model,
             build_dataloader(ds, **dataloader_setting) for ds in dataset
         ]
 
+    # build runner
+    optimizer = build_optimizer(model, cfg.optimizer)
+    # use apex fp16 optimizer
+    # Noticed that this is just a temporary patch. We should not encourage this kind of code style
+    use_amp = False
+    if (
+        cfg.optimizer_config.get("type", None)
+        and cfg.optimizer_config["type"] == "DistOptimizerHook"
+    ):
+        if cfg.optimizer_config.get("use_fp16", False):
+            model, optimizer = apex.amp.initialize(
+                model.cuda(), optimizer, opt_level="O1"
+            )
+            for m in model.modules():
+                if hasattr(m, "fp16_enabled"):
+                    m.fp16_enabled = True
+            use_amp = True
+
     # put model on gpus
     if distributed:
         find_unused_parameters = cfg.get('find_unused_parameters', False)
