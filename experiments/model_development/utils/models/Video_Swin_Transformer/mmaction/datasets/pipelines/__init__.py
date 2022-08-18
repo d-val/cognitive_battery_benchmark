@@ -16,8 +16,6 @@ from .loading import (AudioDecode, AudioDecodeInit, AudioFeatureSelector,
                       PyAVDecodeMotionVector, PyAVInit, RawFrameDecode,
                       SampleAVAFrames, SampleFrames, SampleProposalFrames,
                       UntrimmedSampleFrames)
-from .pose_loading import (GeneratePoseTarget, LoadKineticsPose, PoseDecode,
-                           UniformSampleFrames)
 
 __all__ = [
     'SampleFrames', 'PyAVDecode', 'DecordDecode', 'DenseSampleFrames',
@@ -33,6 +31,5 @@ __all__ = [
     'FormatAudioShape', 'LoadAudioFeature', 'AudioFeatureSelector',
     'AudioDecodeInit', 'EntityBoxFlip', 'EntityBoxCrop', 'EntityBoxRescale',
     'RandomScale', 'ImageDecode', 'BuildPseudoClip', 'RandomRescale',
-    'PyAVDecodeMotionVector', 'Rename', 'Imgaug', 'UniformSampleFrames',
-    'PoseDecode', 'LoadKineticsPose', 'GeneratePoseTarget'
+    'PyAVDecodeMotionVector', 'Rename', 'Imgaug' #, 'UniformSampleFrames',
 ]
