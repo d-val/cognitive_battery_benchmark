@@ -6,7 +6,7 @@ import mmcv
 import numpy as np
 import torch.multiprocessing as mp
 
-from utils.models.Video_Swin_Transformer.mmaction.localization import (generate_bsp_feature,
+from mmaction.localization import (generate_bsp_feature,
                                    generate_candidate_proposals)
 
 

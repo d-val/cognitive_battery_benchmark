@@ -6,7 +6,7 @@ import pytest
 from mmcv.utils import assert_dict_has_keys
 from numpy.testing import assert_array_almost_equal
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Flip
+from mmaction.datasets.pipelines import Flip
 from .base import check_flip
 
 

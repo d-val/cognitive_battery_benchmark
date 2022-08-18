@@ -1,6 +1,6 @@
 import os.path as osp
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets import RawVideoDataset
+from mmaction.datasets import RawVideoDataset
 from .base import BaseTestDataset
 
 

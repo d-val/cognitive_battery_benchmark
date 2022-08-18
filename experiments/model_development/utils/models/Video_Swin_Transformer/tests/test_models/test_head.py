@@ -7,8 +7,8 @@ import pytest
 import torch
 import torch.nn as nn
 
-import utils.models.Video_Swin_Transformer.mmaction
-from utils.models.Video_Swin_Transformer.mmaction.models import (ACRNHead, AudioTSNHead, BBoxHeadAVA, FBOHead,
+import mmaction
+from mmaction.models import (ACRNHead, AudioTSNHead, BBoxHeadAVA, FBOHead,
                              I3DHead, LFBInferHead, SlowFastHead, TPNHead,
                              TRNHead, TSMHead, TSNHead, X3DHead)
 from .base import generate_backbone_demo_inputs
@@ -312,7 +312,7 @@ def test_tsm_head():
 def test_trn_head():
     """Test loss method, layer construction, attributes and forward function in
     trn head."""
-    from utils.models.Video_Swin_Transformer.mmaction.models.heads.trn_head import (RelationModule,
+    from mmaction.models.heads.trn_head import (RelationModule,
                                                 RelationModuleMultiScale)
     trn_head = TRNHead(num_classes=4, in_channels=2048, relation_type='TRN')
     trn_head.init_weights()

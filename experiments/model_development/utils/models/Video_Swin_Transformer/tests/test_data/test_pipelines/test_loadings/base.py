@@ -69,7 +69,7 @@ class BaseTestLoading:
                 'segment': [3.0, 5.0],
                 'label': 'Rock climbing'
             }])
-        from utils.models.Video_Swin_Transformer.mmaction.datasets.ssn_dataset import SSNInstance
+        from mmaction.datasets.ssn_dataset import SSNInstance
         cls.proposal_results = dict(
             frame_dir=cls.img_dir,
             video_id='imgs',

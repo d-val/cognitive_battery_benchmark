@@ -235,7 +235,7 @@ It is **noteworthy** that the first key, commonly `imgs`, will be used as the ma
 1. Write a new pipeline in any file, e.g., `my_pipeline.py`. It takes a dict as input and return a dict.
 
     ```python
-    from utils.models.Video_Swin_Transformer.mmaction.datasets import PIPELINES
+    from mmaction.datasets import PIPELINES
 
     @PIPELINES.register_module()
     class MyTransform:

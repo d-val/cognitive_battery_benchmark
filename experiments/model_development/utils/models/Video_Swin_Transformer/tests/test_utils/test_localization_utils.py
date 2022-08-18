@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from utils.models.Video_Swin_Transformer.mmaction.localization import (generate_bsp_feature,
+from mmaction.localization import (generate_bsp_feature,
                                    generate_candidate_proposals, soft_nms,
                                    temporal_iop, temporal_iou)
 

@@ -2,7 +2,7 @@ import argparse
 
 from mmcv import Config
 
-from utils.models.Video_Swin_Transformer.mmaction.models import build_recognizer
+from mmaction.models import build_recognizer
 
 try:
     from mmcv.cnn import get_model_complexity_info

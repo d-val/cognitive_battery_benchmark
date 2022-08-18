@@ -205,7 +205,7 @@ if not from_mmcv:
             if not self.evaluation_flag(runner):
                 return
 
-            from utils.models.Video_Swin_Transformer.mmaction.apis import single_gpu_test
+            from mmaction.apis import single_gpu_test
             results = single_gpu_test(runner.model, self.dataloader)
             key_score = self.evaluate(runner, results)
             if self.save_best:
@@ -372,7 +372,7 @@ if not from_mmcv:
             if not self.evaluation_flag(runner):
                 return
 
-            from utils.models.Video_Swin_Transformer.mmaction.apis import multi_gpu_test
+            from mmaction.apis import multi_gpu_test
             tmpdir = self.tmpdir
             if tmpdir is None:
                 tmpdir = osp.join(runner.work_dir, '.eval_hook')

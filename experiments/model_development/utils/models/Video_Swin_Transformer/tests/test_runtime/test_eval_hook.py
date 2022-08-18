@@ -12,7 +12,7 @@ from mmcv.runner import EpochBasedRunner, IterBasedRunner
 from mmcv.utils import get_logger
 from torch.utils.data import DataLoader, Dataset
 
-# TODO import eval hooks from mmcv and delete them from utils.models.Video_Swin_Transformer.mmaction2
+# TODO import eval hooks from mmcv and delete them from mmaction2
 try:
     from mmcv.runner import EvalHook, DistEvalHook
     pytest.skip(
@@ -22,7 +22,7 @@ except ImportError:
     warnings.warn('DeprecationWarning: EvalHook and DistEvalHook from '
                   'mmaction2 will be deprecated. Please install mmcv through '
                   'master branch.')
-    from utils.models.Video_Swin_Transformer.mmaction.core import DistEvalHook, EvalHook
+    from mmaction.core import DistEvalHook, EvalHook
 
 
 class ExampleDataset(Dataset):

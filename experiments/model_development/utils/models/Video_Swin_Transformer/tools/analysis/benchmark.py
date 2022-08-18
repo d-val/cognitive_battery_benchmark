@@ -7,8 +7,8 @@ from mmcv.cnn import fuse_conv_bn
 from mmcv.parallel import MMDataParallel
 from mmcv.runner.fp16_utils import wrap_fp16_model
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataloader, build_dataset
-from utils.models.Video_Swin_Transformer.mmaction.models import build_model
+from mmaction.datasets import build_dataloader, build_dataset
+from mmaction.models import build_model
 
 
 def parse_args():

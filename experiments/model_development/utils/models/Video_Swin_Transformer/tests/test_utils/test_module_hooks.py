@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.models import build_recognizer
-from utils.models.Video_Swin_Transformer.mmaction.utils import register_module_hooks
-from utils.models.Video_Swin_Transformer.mmaction.utils.module_hooks import GPUNormalize
+from mmaction.models import build_recognizer
+from mmaction.utils import register_module_hooks
+from mmaction.utils.module_hooks import GPUNormalize
 
 
 def test_register_module_hooks():

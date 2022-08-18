@@ -6,7 +6,7 @@ import numpy as np
 from timm.models.layers import DropPath, trunc_normal_
 
 from mmcv.runner import load_checkpoint
-from utils.models.Video_Swin_Transformer.mmaction.utils import get_root_logger
+from mmaction.utils import get_root_logger
 from ..builder import BACKBONES
 
 from functools import reduce, lru_cache

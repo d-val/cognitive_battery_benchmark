@@ -4,7 +4,7 @@ import numpy as np
 from mmcv.utils import assert_dict_has_keys
 from numpy.testing import assert_array_almost_equal
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import GenerateLocalizationLabels
+from mmaction.datasets.pipelines import GenerateLocalizationLabels
 from .base import BaseTestLoading
 
 

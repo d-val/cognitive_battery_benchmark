@@ -8,9 +8,9 @@ import torch
 from mmcv import Config, DictAction
 from mmcv.parallel import collate, scatter
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Compose
-from utils.models.Video_Swin_Transformer.mmaction.utils import GradCAM
+from mmaction.apis import init_recognizer
+from mmaction.datasets.pipelines import Compose
+from mmaction.utils import GradCAM
 
 
 def parse_args():

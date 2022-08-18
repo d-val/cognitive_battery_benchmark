@@ -2,7 +2,7 @@ import pytest
 import torch
 from mmcv.utils import _BatchNorm
 
-from utils.models.Video_Swin_Transformer.mmaction.models import MobileNetV2
+from mmaction.models import MobileNetV2
 from ..base import check_norm_state, generate_backbone_demo_inputs
 
 
@@ -12,7 +12,7 @@ def test_mobilenetv2_backbone():
     Modified from mmclassification.
     """
     from torch.nn.modules import GroupNorm
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.mobilenet_v2 import InvertedResidual
+    from mmaction.models.backbones.mobilenet_v2 import InvertedResidual
 
     def is_norm(modules):
         """Check if is one of the norms."""
