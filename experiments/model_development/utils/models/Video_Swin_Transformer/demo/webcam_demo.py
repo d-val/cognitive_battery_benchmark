@@ -10,8 +10,8 @@ import torch
 from mmcv import Config, DictAction
 from mmcv.parallel import collate, scatter
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import Compose
+from mmaction.apis import init_recognizer
+from mmaction.datasets.pipelines import Compose
 
 FONTFACE = cv2.FONT_HERSHEY_COMPLEX_SMALL
 FONTSCALE = 1

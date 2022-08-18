@@ -2,7 +2,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from utils.models.Video_Swin_Transformer.mmaction.models import BaseRecognizer
+from mmaction.models import BaseRecognizer
 
 
 class ExampleRecognizer(BaseRecognizer):

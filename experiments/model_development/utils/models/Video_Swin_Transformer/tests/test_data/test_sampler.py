@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader, Dataset
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets.samplers import (ClassSpecificDistributedSampler,
+from mmaction.datasets.samplers import (ClassSpecificDistributedSampler,
                                         DistributedSampler)
 
 

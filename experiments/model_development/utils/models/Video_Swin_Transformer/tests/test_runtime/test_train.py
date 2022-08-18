@@ -8,8 +8,8 @@ import torch.nn as nn
 from mmcv import Config
 from torch.utils.data import Dataset
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
-from utils.models.Video_Swin_Transformer.mmaction.datasets import DATASETS
+from mmaction.apis import train_model
+from mmaction.datasets import DATASETS
 
 
 @DATASETS.register_module()

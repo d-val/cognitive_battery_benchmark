@@ -3,7 +3,7 @@ import os.path as osp
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets import HVUDataset
+from mmaction.datasets import HVUDataset
 from .base import BaseTestDataset
 
 

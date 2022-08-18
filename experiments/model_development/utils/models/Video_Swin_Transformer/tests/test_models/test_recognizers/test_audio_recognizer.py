@@ -1,6 +1,6 @@
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.models import build_recognizer
+from mmaction.models import build_recognizer
 from ..base import generate_recognizer_demo_inputs, get_audio_recognizer_cfg
 
 

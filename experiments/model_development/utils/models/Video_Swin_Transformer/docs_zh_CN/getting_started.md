@@ -131,7 +131,7 @@ python tools/test.py ${CONFIG_FILE} ${CHECKPOINT_FILE} [--out ${RESULT_FILE}] [-
 ```python
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
+from mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_video_inference_1x1x3_100e_kinetics400_rgb.py'
 # 从模型库中下载检测点，并把它放到 `checkpoints/` 文件夹下
@@ -160,7 +160,7 @@ for result in results:
 ```python
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
+from mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_inference_1x1x3_100e_kinetics400_rgb.py'
 # 从模型库中下载检测点，并把它放到 `checkpoints/` 文件夹下
@@ -189,7 +189,7 @@ for result in results:
 ```python
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import init_recognizer, inference_recognizer
+from mmaction.apis import init_recognizer, inference_recognizer
 
 config_file = 'configs/recognition/tsn/tsn_r50_inference_1x1x3_100e_kinetics400_rgb.py'
 # 从模型库中下载检测点，并把它放到 `checkpoints/` 文件夹下

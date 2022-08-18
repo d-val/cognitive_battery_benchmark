@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from mmcv.utils import _BatchNorm
 
-from utils.models.Video_Swin_Transformer.mmaction.models import (C3D, X3D, MobileNetV2TSM, ResNet2Plus1d,
+from mmaction.models import (C3D, X3D, MobileNetV2TSM, ResNet2Plus1d,
                              ResNet3dCSN, ResNet3dSlowFast, ResNet3dSlowOnly,
                              ResNetAudio, ResNetTIN, ResNetTSM, TANet)
-from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet_tsm import NL3DWrapper
+from mmaction.models.backbones.resnet_tsm import NL3DWrapper
 from .base import check_norm_state, generate_backbone_demo_inputs
 
 
@@ -226,8 +226,8 @@ def test_resnet_tsm_backbone():
         resnet_tsm_50_block = ResNetTSM(50, shift_place='Block')
         resnet_tsm_50_block.init_weights()
 
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet import Bottleneck
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet_tsm import TemporalShift
+    from mmaction.models.backbones.resnet import Bottleneck
+    from mmaction.models.backbones.resnet_tsm import TemporalShift
 
     input_shape = (8, 3, 64, 64)
     imgs = generate_backbone_demo_inputs(input_shape)
@@ -324,8 +324,8 @@ def test_resnet_tsm_backbone():
 
 def test_mobilenetv2_tsm_backbone():
     """Test mobilenetv2_tsm backbone."""
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet_tsm import TemporalShift
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.mobilenet_v2 import InvertedResidual
+    from mmaction.models.backbones.resnet_tsm import TemporalShift
+    from mmaction.models.backbones.mobilenet_v2 import InvertedResidual
     from mmcv.cnn import ConvModule
 
     input_shape = (8, 3, 64, 64)
@@ -598,8 +598,8 @@ def test_tanet_backbone():
         tanet_18 = TANet(18, 8)
         tanet_18.init_weights()
 
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet import Bottleneck
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.tanet import TABlock
+    from mmaction.models.backbones.resnet import Bottleneck
+    from mmaction.models.backbones.tanet import TABlock
 
     # tanet with depth 50
     tanet_50 = TANet(50, 8)
@@ -666,7 +666,7 @@ def test_resnet_tin_backbone():
         resnet_tin = ResNetTIN(50, num_segments=-1)
         resnet_tin.init_weights()
 
-    from utils.models.Video_Swin_Transformer.mmaction.models.backbones.resnet_tin import (CombineNet,
+    from mmaction.models.backbones.resnet_tin import (CombineNet,
                                                       TemporalInterlace)
 
     # resnet_tin with normal config

@@ -6,7 +6,7 @@ import pytest
 from mmcv import dump
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import (GeneratePoseTarget, LoadKineticsPose,
+from mmaction.datasets.pipelines import (GeneratePoseTarget, LoadKineticsPose,
                                          PoseDecode, UniformSampleFrames)
 
 

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.models.Video_Swin_Transformer.mmaction.core.bbox import bbox_target
+from mmaction.core.bbox import bbox_target
 
 try:
     from mmdet.models.builder import HEADS as MMDET_HEADS

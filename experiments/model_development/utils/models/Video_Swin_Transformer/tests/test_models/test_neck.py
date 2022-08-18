@@ -3,7 +3,7 @@ import copy
 import pytest
 import torch
 
-from utils.models.Video_Swin_Transformer.mmaction.models import TPN
+from mmaction.models import TPN
 from .base import generate_backbone_demo_inputs
 
 

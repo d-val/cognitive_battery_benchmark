@@ -19,8 +19,8 @@ import torch
 from mmcv import Config, DictAction
 from mmcv.runner import load_checkpoint
 
-from utils.models.Video_Swin_Transformer.mmaction.models import build_detector
-from utils.models.Video_Swin_Transformer.mmaction.utils import import_module_error_func
+from mmaction.models import build_detector
+from mmaction.utils import import_module_error_func
 
 try:
     from mmdet.apis import inference_detector, init_detector

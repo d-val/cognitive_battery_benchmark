@@ -7,7 +7,7 @@ from mmcv import ConfigDict
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from torch.autograd import Variable
 
-from utils.models.Video_Swin_Transformer.mmaction.models import (BCELossWithLogits, BinaryLogisticRegressionLoss,
+from mmaction.models import (BCELossWithLogits, BinaryLogisticRegressionLoss,
                              BMNLoss, CrossEntropyLoss, HVULoss, NLLLoss,
                              OHEMHingeLoss, SSNLoss)
 

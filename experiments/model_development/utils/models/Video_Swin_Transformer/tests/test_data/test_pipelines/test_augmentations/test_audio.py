@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
 
-from utils.models.Video_Swin_Transformer.mmaction.datasets.pipelines import AudioAmplify, MelSpectrogram
+from mmaction.datasets.pipelines import AudioAmplify, MelSpectrogram
 
 
 class TestAudio:

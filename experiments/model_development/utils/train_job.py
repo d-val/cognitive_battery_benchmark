@@ -22,13 +22,13 @@ from torch.autograd import Variable
 import os.path as osp
 import mmcv
 from mmcv import Config
-from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataset
-from utils.models.Video_Swin_Transformer.mmaction.models import build_model
-from utils.models.Video_Swin_Transformer.mmaction.apis import train_model
+from mmaction.datasets import build_dataset
+from mmaction.models import build_model
+from mmaction.apis import train_model
 
 # for testing
-from utils.models.Video_Swin_Transformer.mmaction.apis import single_gpu_test
-from utils.models.Video_Swin_Transformer.mmaction.datasets import build_dataloader
+from mmaction.apis import single_gpu_test
+from mmaction.datasets import build_dataloader
 from mmcv.parallel import MMDataParallel
 from mmcv.runner import set_random_seed
 

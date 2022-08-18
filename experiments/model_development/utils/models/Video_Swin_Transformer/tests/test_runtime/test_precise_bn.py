@@ -9,7 +9,7 @@ from mmcv.runner import EpochBasedRunner, build_optimizer
 from mmcv.utils import get_logger
 from torch.utils.data import DataLoader, Dataset
 
-from utils.models.Video_Swin_Transformer.mmaction.utils import PreciseBNHook
+from mmaction.utils import PreciseBNHook
 
 
 class ExampleDataset(Dataset):

@@ -4,7 +4,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from utils.models.Video_Swin_Transformer.mmaction.apis import inference_recognizer, init_recognizer
+from mmaction.apis import inference_recognizer, init_recognizer
 
 video_config_file = 'configs/recognition/tsn/tsn_r50_video_inference_1x1x3_100e_kinetics400_rgb.py'  # noqa: E501
 frame_config_file = 'configs/recognition/tsn/tsn_r50_inference_1x1x3_100e_kinetics400_rgb.py'  # noqa: E501
