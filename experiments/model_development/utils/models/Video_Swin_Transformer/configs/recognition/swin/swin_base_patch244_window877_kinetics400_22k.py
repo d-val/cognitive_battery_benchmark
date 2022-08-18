@@ -4,12 +4,12 @@ _base_ = [
 model=dict(backbone=dict(patch_size=(2,4,4), drop_path_rate=0.2), test_cfg=dict(max_testing_views=2))
 
 # dataset settings
-dataset_type = 'VideoDataset'
-data_root = 'data/kinetics400/train'
-data_root_val = 'data/kinetics400/val'
-ann_file_train = 'data/kinetics400/kinetics400_train_list.txt'
-ann_file_val = 'data/kinetics400/kinetics400_val_list.txt'
-ann_file_test = 'data/kinetics400/kinetics400_val_list.txt'
+dataset_type = 'RawframeDataset'
+data_root = '../../../data/'
+data_root_val = '../../../data/'
+ann_file_train = '../../../data/ann_file_train.txt'
+ann_file_val = '../../../data/ann_file_val.txt'
+ann_file_test = '../../../data/ann_file_val.txt'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 train_pipeline = [
@@ -109,14 +109,14 @@ checkpoint_config = dict(interval=1)
 work_dir = './work_dirs/k400_swin_base_22k_patch244_window877.py'
 find_unused_parameters = False
 
-
-# do not use mmdet version fp16
-fp16 = None
-optimizer_config = dict(
-    type="DistOptimizerHook",
-    update_interval=8,
-    grad_clip=None,
-    coalesce=True,
-    bucket_size_mb=-1,
-    use_fp16=True,
-)
+# TODO: uncomment to run with apex
+# # do not use mmdet version fp16
+# fp16 = None
+# optimizer_config = dict(
+#     type="DistOptimizerHook",
+#     update_interval=8,
+#     grad_clip=None,
+#     coalesce=True,
+#     bucket_size_mb=-1,
+#     use_fp16=True,
+# )
