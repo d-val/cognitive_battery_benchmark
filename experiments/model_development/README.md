@@ -10,38 +10,8 @@ pip install -r requirements.txt
 ```
 
 ## Running Code
-To run a sample training job, you need to
-1. Specify the model architecture and training parameters in `config/config.yaml`. A description of the config can be found below.
-2. Copy the data in this directory in the following format:
-    ```
-      data/
-           0/
-              machine_readable/
-                    iteration_data.pickle
-           1/
-              machine_readable/
-                    iteration_data.pickle
-            ⋮
-    ```
-    Alternatively, you may specify a path to a folder following the previous format in `config/config.yaml`. A toy example of a data directory is available [here](https://www.dropbox.com/s/50j2mi9kqls3v7k/data.zip).
-3. Run `train.py`.
-
-This will run a training job with the specified name and save the resulting log(s) and model(s) in the `output` directory.
-
-## Config Parameters
-* `job_name`: a name used to identify the output of the current job.
-* `expt_name`: the name of the experiment for which the data belongs. For now, it must be `"gravity"`, `swap`, or `shape`.
-* `model`: contains a description of the model. Should specify:
-  * `cnn_architecture`: name of CNN architecture. For now, supports `resnet18`, `resnet34`, and `alexnet`. 
-  * `lstm_num_layers`: number of layers in the LSTM block.
-  * `lstm_hidden_size`: the hidden size of the LSTM block.
-  * `num_classes`: the number of output classes.
-* `data_loader`: contains the config for the data loading mechanism.
-  * `data_path`: the path where data is loaded. Typically, it should be `"data/"`.
-  * `batch_size`: how many videos to load per training pass.
-  * `train_split`: the portion of data to use for training (e.g. `0.8` uses %80 of data for training and %20 for testing).
-* `train_params`: contains some parameters of the training job.
-  * `epochs`: how many transits through the training data for this training job.
-  * `lr`: the gradient step size at each iteration.
-
-An example config file is available in `config/config.yaml`.
+To run a training job, ensure that you have completed dataset generation and saved the output to `data/`; then, navigate to the Video Swin Transformer subdirectory and execute the training shell script.
+```
+cd utils/models/Video_Swin_Transformer
+sh train.sh
+```
