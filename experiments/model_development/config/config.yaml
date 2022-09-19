@@ -2,10 +2,9 @@ job_name: "CodeTesting"
 expt_name: "shape"
 
 model:
-  cnn_architecture: "resnet18"
-  lstm_num_layers: 2
-  lstm_hidden_size: 512
-  num_classes: 3
+  model_dir: "models/ViViT/pretrained/vivit_kinetics_400_vivit_base_16x2_unfactorized_saved_model/"
+  name: "ViViT"
+  num_classes: 2
 
 data_loader:
   batch_size: 1
@@ -14,5 +13,6 @@ data_loader:
   skip_every: 2
 
 train_params:
-  epochs: 100
+  seed: 123
+  epochs: 5
   lr: 0.005

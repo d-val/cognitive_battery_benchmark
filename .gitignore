@@ -17,3 +17,4 @@ experiments/dataset_generation/output
 *env/
 *cog-battery-baseline/
 *output/
+**/*pretrained
