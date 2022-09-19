@@ -74,8 +74,12 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        self.train_images, self.train_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
-        self.test_images, self.test_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
+        data_rng, rng = jax.random.split(rng)
+        dataset = train_utils.get_dataset(
+        config, data_rng
+
+        self.train_videos, self.train_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
+        self.test_videos, self.test_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
 
         self.model = model = tf.saved_model.load(self.config.model_dir)
         # TODO ! self.loss_fn = nn.CrossEntropyLoss()
@@ -95,7 +99,7 @@ class TrainingJob():
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        model.fit(self.train_images, self.train_labels, epochs=self.config.train_params.epochs)
+        model.fit(self.train_videos, self.train_labels, epochs=self.config.train_params.epochs)
 
         self._debug("Started training")
         self._log("TRAINING")
@@ -109,10 +113,10 @@ class TrainingJob():
         """
 
         self._debug("\t Checking accuracy on training data")
-        train_acc, train_loss = self.model.evaluate(self.train_images, self.train_labels, verbose=2)
+        train_acc, train_loss = self.model.evaluate(self.train_videos, self.train_labels, verbose=2)
 
         self._debug("\t Checking accuracy on test data")
-        test_acc, test_loss = self.model.evaluate(self.test_images, self.test_labels, verbose=2)
+        test_acc, test_loss = self.model.evaluate(self.test_videos, self.test_labels, verbose=2)
 
         return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
 

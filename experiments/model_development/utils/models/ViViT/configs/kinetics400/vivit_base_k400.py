@@ -109,7 +109,7 @@ def get_config():
   # Download pretrained ImageNet checkpoints from here:
   # https://github.com/google-research/scenic/tree/main/scenic/projects/baselines (checkpoint_format = 'scenic')  pylint: disable=line-too-long
   # https://github.com/google-research/vision_transformer (checkpoint_format = 'big_vision')  pylint: disable=line-too-long
-  config.init_from.checkpoint_path = 'path_to_checkpoint_of_vit_b_16'
+  config.init_from.checkpoint_path = 'ViT_B_16_ImageNet21k'
   config.init_from.checkpoint_format = 'scenic'
   config.init_from.model_config = ml_collections.ConfigDict()
   config.init_from.model_config.model = ml_collections.ConfigDict()
@@ -133,6 +133,23 @@ def get_config():
   config.checkpoint = True  # Do checkpointing.
   config.debug_train = False  # Debug mode during training.
   config.debug_eval = False  # Debug mode during eval.
+
+  # Dataset
+  dataset_configs = ml_collections.ConfigDict()
+
+  dataset_configs.base_dir = '../../urop-cbb/experiments/model_development/utils/dmvr_dataset'
+  dataset_configs.tables = {
+      'train': 'data_split_video-00000-of-00003',
+      'validation': 'data_split_video-00001-of-00003',
+      'test': 'data_split_video-00002-of-00003t'
+  }
+  dataset_configs.examples_per_subset = {
+      'train': 3,
+      'validation': 3,
+      'test': 3
+  }
+  dataset_configs.num_classes = 2
+
   return config
 
 
