@@ -7,6 +7,7 @@ from clu import metric_writers
 import jax
 import jax.numpy as jnp
 import ml_collections
+from . import app
 from scenic import app
 from scenic.projects.vivit import model as vivit_model
 from scenic.projects.vivit import trainer as vivit_trainer
