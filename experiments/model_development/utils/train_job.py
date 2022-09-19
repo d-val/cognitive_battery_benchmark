@@ -13,7 +13,7 @@ from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
 from utils.translators import expts
 
-from utils.models.vivit_module import ViViTBackbone
+from utils.models.vivit_module import ViViT
 
 import matplotlib.pyplot as plt
 
@@ -76,7 +76,7 @@ class TrainingJob():
         # Public training job attributes
         self.config = config
         self.using_ffcv = using_ffcv
-        self.cnn_architecture = config.model.cnn_architecture
+        self.name = config.model.name
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
 
@@ -91,20 +91,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = ViViTBackbone(
-            t=9, # 32
-            h=8, # 64
-            w=8, # 64
-            patch_t=1, # 8
-            patch_h=4, # 4
-            patch_w=4, # 4
-            num_classes=2, # 10
-            dim=144, # 512
-            depth=6, # 6
-            heads=10, # 10
-            mlp_dim=8, # 8
-            model=3 # 3
-        ).to(device)
+        self.model = ViViT(image_size=144, patch_size=16, num_classes=2, num_frames=52).to(device)
 
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)

@@ -3,7 +3,7 @@ expt_name: "shape"
 
 model:
   model_dir: "models/ViViT/pretrained/vivit_kinetics_400_vivit_base_16x2_unfactorized_saved_model/"
-  cnn_architecture: "ViViT"
+  name: "ViViT"
   num_classes: 2
 
 data_loader:
@@ -13,5 +13,5 @@ data_loader:
   skip_every: 2
 
 train_params:
-  epochs: 100
+  epochs: 5
   lr: 0.005
