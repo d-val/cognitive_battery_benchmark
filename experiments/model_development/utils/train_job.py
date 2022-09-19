@@ -2,11 +2,22 @@
 train_job.py: contains the implementation of a model training job and its interface with the config file.
 """
 
-import tensorflow as tf
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from datetime import datetime
+import re, yaml, os
+
+from utils.framesdata import FramesDataset
+from utils.model import CNNLSTM
+from utils.translators import expts
+
+from utils.models.vivit_module import ViViTBackbone
+
 import matplotlib.pyplot as plt
 
-from datetime import datetime
-from utils.translators import expts
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
     """
@@ -51,13 +62,17 @@ class TrainingConfig():
 
 class TrainingJob():
     """
-    Trains and evaluates model based on a configuration file.
+    Trains and evaluates CNN+LSTM model based on a configuration file.
     """
     def __init__(self, config, stdout=True, using_ffcv=False):
         """
         Initialize the job and its parameters.
-        """
 
+        :param TrainignConfig config: configuration for model training.
+        :param function label_to_int: a function that translates labels from the dataset output into 0-indexed integers.
+        :param bool using_ffcv: whether data is stored in FFCV format.
+        :param bool stdout: whether to show training progress in stdout.
+        """
         # Public training job attributes
         self.config = config
         self.using_ffcv = using_ffcv
@@ -74,16 +89,25 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        data_rng, rng = jax.random.split(rng)
-        dataset = train_utils.get_dataset(
-        config, data_rng
+        # Setting up data loaders, the model, and the optimizer & loss function
+        self.train_loader, self.test_loader = self._get_loaders()
+        self.model = ViViTBackbone(
+            t=9, # 32
+            h=8, # 64
+            w=8, # 64
+            patch_t=1, # 8
+            patch_h=4, # 4
+            patch_w=4, # 4
+            num_classes=2, # 10
+            dim=144, # 512
+            depth=6, # 6
+            heads=10, # 10
+            mlp_dim=8, # 8
+            model=3 # 3
+        ).to(device)
 
-        self.train_videos, self.train_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
-        self.test_videos, self.test_labels = # TODO !! see https://github.com/deepmind/dmvr/tree/master/examples#creating-and-reading-your-own-dmvr-dataset-using-open-source-tools
-
-        self.model = model = tf.saved_model.load(self.config.model_dir)
-        # TODO ! self.loss_fn = nn.CrossEntropyLoss()
-        # TODO ! self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
+        self.loss_fn = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
         self._log(f"Starting Log")
@@ -99,10 +123,54 @@ class TrainingJob():
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        model.fit(self.train_videos, self.train_labels, epochs=self.config.train_params.epochs)
+        # Set the model in training state
+        self.model.train()
 
         self._debug("Started training")
         self._log("TRAINING")
+
+        best_loss = float("inf")
+        for epoch in range(1, self.config.train_params.epochs + 1):
+            for it, (data, targets) in enumerate(self.train_loader):
+
+                # Images are in NHWC, torch works in NCHW
+                self._debug(f"Epoch:{epoch}, it:{it}")
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
+                data = torch.permute(data, (0,1,4,2,3))
+
+                # get data to cuda if possible
+                data = data.to(device=device).squeeze(1)
+                if self.using_ffcv:
+                    targets = targets.to(device=device).squeeze(1)
+                else:
+                    targets = targets.to(device=device)
+
+                # forward
+                prediction = self.model(data)
+                loss = self.loss_fn(prediction, targets)
+
+                # backward
+                self.optimizer.zero_grad()
+                loss.backward()
+
+                # gradient descent/optimizer step
+                self.optimizer.step()
+
+            if evaluate:
+                # Calculate training and testing accuracies and losses for this epoch
+                evals = self.evaluate()
+                train_acc, train_loss = evals["train"]
+                test_acc, test_loss = evals["test"]
+                self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
+
+                # Save train and test loss for later plotability
+                self.train_losses.append(train_loss)
+                self.test_losses.append(test_loss)
+
+                # Update best model file if a better model is found.
+                if test_loss < best_loss:
+                    best_loss = test_loss
+                    torch.save(self.model, self._best_model_path)
 
     def evaluate(self):
         """
@@ -113,10 +181,10 @@ class TrainingJob():
         """
 
         self._debug("\t Checking accuracy on training data")
-        train_acc, train_loss = self.model.evaluate(self.train_videos, self.train_labels, verbose=2)
+        train_acc, train_loss = self._check_accuracy(self.train_loader)
 
         self._debug("\t Checking accuracy on test data")
-        test_acc, test_loss = self.model.evaluate(self.test_videos, self.test_labels, verbose=2)
+        test_acc, test_loss = self._check_accuracy(self.test_loader)
 
         return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
 
@@ -140,6 +208,50 @@ class TrainingJob():
         if show:
             plt.show()
 
+    def _check_accuracy(self, loader):
+        """
+        Checks the accuracy and loss of a model on a data loader.
+
+        :param DataLoader loader: a loader of data samples to check the accuracy against.
+        :return: the training accuracy and the per-batch loss.
+        :rtype: tuple(float, float)
+        """
+        num_correct, num_samples, running_loss = 0, 0, 0
+
+        # Set the model to evaluation state
+        self.model.eval()
+
+        with torch.no_grad():
+            for x, y in loader:
+
+                # Pre-process data and correct labels
+                x = torch.permute(x, (0,1,4,2,3))
+                x = x.to(device=device).squeeze(1)
+                y = y.to(device=device)
+                if self.using_ffcv:
+                    y = y.squeeze(1)
+
+                # Get model predictions and calculate loss
+                scores = self.model(x)
+                _, prediction = scores.max(1)
+                loss = self.loss_fn(scores, y)
+
+                # Compute accuracy and loss so far
+                num_correct += (prediction == y).sum()
+                num_samples += prediction.size(0)
+                running_loss += loss.item()
+
+            self._debug(
+                f"\t Got {num_correct} / {num_samples} with accuracy  \
+                {float(num_correct)/float(num_samples)*100:.2f}"
+            )
+            acc = float(num_correct)/float(num_samples)*100
+
+        # Reset the model to train state
+        self.model.train()
+
+        return acc, running_loss / num_samples
+
     def _log(self, statement):
         """
         Logs a statement in a training log file.
@@ -148,7 +260,7 @@ class TrainingJob():
         """
         if self.stdout:
             print(statement)
-            
+
         # Write statement to log file
         with open(self._log_path, "a+") as logf:
             logf.write(statement)
@@ -168,6 +280,44 @@ class TrainingJob():
         with open(self._debug_path, "a+") as logf:
             logf.write(statement)
             logf.write("\n")
+
+    def _get_loaders(self):
+        """
+        Creates datasets and data loaders from the current data directory.
+
+        :return: two data loader containing the training data and testing data, respectively.
+        :rtype: tuple(DataLoader, DataLoader)
+        """
+        data_path = self.config.data_loader.data_path
+        if self.using_ffcv:
+            # Import necessary FFCV defs
+            from ffcv.loader import Loader, OrderOption
+            from ffcv.transforms import ToTensor
+            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
+
+            # Preprocessing pipeline
+            pipelines = {
+                "video": [NDArrayDecoder(), ToTensor()],
+                "label": [IntDecoder(), ToTensor()],
+            }
+
+            # Initialize training and testing data loaders.
+            train_loader = Loader(data_path, batch_size=self.config.data_loader.batch_size, num_workers=1,
+                            order=OrderOption.RANDOM, pipelines=pipelines)
+            test_loader = train_loader # TODO: add train/test split for FFCV
+
+        else:
+            # Initializing datasets and data-loaders.
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
+            train_size = int(self.config.data_loader.train_split * len(full_dataset))
+            test_size = len(full_dataset) - train_size
+
+            # Construct loaders from datasets
+            train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
+            train_loader = DataLoader(dataset=train_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
+            test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
+
+        return train_loader, test_loader
 
 if __name__ == '__main__':
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")
