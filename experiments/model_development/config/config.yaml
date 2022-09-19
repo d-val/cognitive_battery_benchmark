@@ -13,5 +13,6 @@ data_loader:
   skip_every: 2
 
 train_params:
+  seed: 123
   epochs: 5
   lr: 0.005
