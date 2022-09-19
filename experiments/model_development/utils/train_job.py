@@ -80,6 +80,8 @@ class TrainingJob():
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
 
+        torch.manual_seed(config.train_params.seed)
+
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
         self._out_path = f"output/{self.config.job_name}_{self._start_time}"
