@@ -4,7 +4,6 @@ expt_name: "shape"
 model:
   model_dir: "models/ViViT/pretrained/vivit_kinetics_400_vivit_base_16x2_unfactorized_saved_model/"
   name: "ViViT"
-  num_classes: 2
 
 data_loader:
   batch_size: 1

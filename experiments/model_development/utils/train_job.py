@@ -10,8 +10,7 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expt_dicts
 
 from utils.models.vivit_module import ViViT
 
@@ -78,7 +77,8 @@ class TrainingJob():
         self.using_ffcv = using_ffcv
         self.name = config.model.name
         self.stdout = stdout
-        self.label_translator = expts[config.expt_name]
+        self.label_dict = expt_dicts[config.expt_name]
+        self.label_translator = lambda label : self.label_dict[label]
 
         torch.manual_seed(config.train_params.seed)
 
@@ -93,8 +93,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = ViViT(image_size=144, patch_size=16, num_classes=2, num_frames=52).to(device)
-
+        self.model = ViViT(image_size=144, patch_size=16, num_classes=len(self.label_dict), num_frames=52).to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
