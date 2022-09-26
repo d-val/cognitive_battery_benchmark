@@ -3,7 +3,6 @@ expt_name: "shape"
 
 model:
   cnn_architecture: "Motionformer"
-  num_classes: 2
 
 data_loader:
   batch_size: 1
