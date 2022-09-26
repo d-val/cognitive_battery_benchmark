@@ -95,7 +95,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.defaults_cfg = get_cfg()
+        self.defaults_cfg = get_cfg(num_classes = len(self.label_dict))
         self.cfg_url_name = 'vit_1k'
 
         self.model = VisionTransformer(self.defaults_cfg)
