@@ -10,7 +10,7 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.translators import expts
+from utils.translators import expt_dicts
 
 from utils.models.TimeSformer.timesformer.models.vit import TimeSformer
 
@@ -76,7 +76,8 @@ class TrainingJob():
         self.config = config
         self.using_ffcv = using_ffcv
         self.stdout = stdout
-        self.label_translator = expts[config.expt_name]
+        self.label_dict = expt_dicts[config.expt_name]
+        self.label_translator = lambda label : self.label_dict[label]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -89,7 +90,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss funciton
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = TimeSformer(img_size=144, patch_size=16, num_classes=config.model.num_classes, pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', num_frames=104)
+        self.model = TimeSformer(img_size=144, patch_size=16, num_classes=len(self.label_dict), pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', num_frames=104)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 

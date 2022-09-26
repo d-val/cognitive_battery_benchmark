@@ -3,7 +3,6 @@ expt_name: "shape"
 
 model:
   name: "TimeSFormer-L"
-  num_classes: 2
 
 data_loader:
   image_size: 144
