@@ -10,8 +10,11 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expt_dicts
+
+from utils.models.TimeSformer.timesformer.models.vit import TimeSformer
+
+import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
 
@@ -19,7 +22,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
     """
-    An intuitive way of translating config data from memory/disk into an object. 
+    An intuitive way of translating config data from memory/disk into an object.
     """
     def __init__(self, data={}):
         """
@@ -74,9 +77,9 @@ class TrainingJob():
         # Public training job attributes
         self.config = config
         self.using_ffcv = using_ffcv
-        self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
-        self.label_translator = expts[config.expt_name]
+        self.label_dict = expt_dicts[config.expt_name]
+        self.label_translator = lambda label : self.label_dict[label]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -89,19 +92,19 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
+        self.model = TimeSformer(img_size=144, patch_size=16, num_classes=len(self.label_dict), pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', num_frames=104)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log")
         self.train_losses = []
         self.test_losses = []
 
     def train(self, evaluate=False):
         """
         Runs the training job by training the model on the training data.
-        
+
         :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -117,8 +120,9 @@ class TrainingJob():
         for epoch in range(1, self.config.train_params.epochs + 1):
             for it, (data, targets) in enumerate(self.train_loader):
 
-                # Images are in NHWC, torch works in NCHW
+                # Images are in NHWC; torch works in NCHW (batch N, channels C, depth D, height H, width W)
                 self._debug(f"Epoch:{epoch}, it:{it}")
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
                 data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
@@ -127,6 +131,7 @@ class TrainingJob():
                     targets = targets.to(device=device).squeeze(1)
                 else:
                     targets = targets.to(device=device)
+                data = torch.permute(data, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
 
                 # forward
                 prediction = self.model(data)
@@ -149,7 +154,7 @@ class TrainingJob():
                 # Save train and test loss for later plotability
                 self.train_losses.append(train_loss)
                 self.test_losses.append(test_loss)
-                
+
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
@@ -182,7 +187,7 @@ class TrainingJob():
         plt.plot(self.test_losses, label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch")
+        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
         plt.legend()
 
         if save:
@@ -213,6 +218,7 @@ class TrainingJob():
                 y = y.to(device=device)
                 if self.using_ffcv:
                     y = y.squeeze(1)
+                x = torch.permute(x, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
 
                 # Get model predictions and calculate loss
                 scores = self.model(x)
@@ -229,7 +235,7 @@ class TrainingJob():
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct)/float(num_samples)*100
-        
+
         # Reset the model to train state
         self.model.train()
 

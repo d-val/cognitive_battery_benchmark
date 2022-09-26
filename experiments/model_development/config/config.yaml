@@ -2,12 +2,10 @@ job_name: "CodeTesting"
 expt_name: "shape"
 
 model:
-  cnn_architecture: "resnet18"
-  lstm_num_layers: 2
-  lstm_hidden_size: 512
-  num_classes: 3
+  name: "TimeSFormer-L"
 
 data_loader:
+  image_size: 144
   batch_size: 1
   data_path: "data/"
   train_split: 0.8
