@@ -11,7 +11,7 @@ import re, yaml, os
 
 from utils.framesdata import FramesDataset
 from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expt_dicts
 
 import matplotlib.pyplot as plt
 
@@ -19,7 +19,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
     """
-    An intuitive way of translating config data from memory/disk into an object. 
+    An intuitive way of translating config data from memory/disk into an object.
     """
     def __init__(self, data={}):
         """
@@ -76,7 +76,8 @@ class TrainingJob():
         self.using_ffcv = using_ffcv
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
-        self.label_translator = expts[config.expt_name]
+        self.label_dict = expt_dicts[config.expt_name]
+        self.label_translator = lambda label : self.label_dict[label]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -89,7 +90,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
+        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, len(self.label_dict), cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
@@ -101,7 +102,7 @@ class TrainingJob():
     def train(self, evaluate=False):
         """
         Runs the training job by training the model on the training data.
-        
+
         :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -149,7 +150,7 @@ class TrainingJob():
                 # Save train and test loss for later plotability
                 self.train_losses.append(train_loss)
                 self.test_losses.append(test_loss)
-                
+
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
@@ -229,7 +230,7 @@ class TrainingJob():
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct)/float(num_samples)*100
-        
+
         # Reset the model to train state
         self.model.train()
 
