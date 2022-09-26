@@ -12,6 +12,7 @@ frames/
 resources/
 experiments/dataset_generation/output
 .gravitybiasout/
-data/
-experiments/model_development/output/
-*/*/env
+**/data*
+**/env/
+**/cog-battery-baseline/
+**/output/
