@@ -10,16 +10,21 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset
-from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expt_dicts
 
 import matplotlib.pyplot as plt
+
+from utils.models.Motionformer.slowfast.config.defaults import get_cfg
+from utils.models.Motionformer.slowfast.models import build_model
+from utils.models.Motionformer.slowfast.models import vit_helper
+from utils.models.Motionformer.slowfast.models.video_model_builder import VisionTransformer
+import math
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
     """
-    An intuitive way of translating config data from memory/disk into an object. 
+    An intuitive way of translating config data from memory/disk into an object.
     """
     def __init__(self, data={}):
         """
@@ -76,7 +81,8 @@ class TrainingJob():
         self.using_ffcv = using_ffcv
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
-        self.label_translator = expts[config.expt_name]
+        self.label_dict = expt_dicts[config.expt_name]
+        self.label_translator = lambda label : self.label_dict[label]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
@@ -89,19 +95,31 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(config.model.lstm_hidden_size, config.model.lstm_num_layers, config.model.num_classes, cnn_architecture=self.cnn_architecture, pretrained=True).to(device)
+        self.defaults_cfg = get_cfg(num_classes = len(self.label_dict))
+        self.cfg_url_name = 'vit_1k'
+
+        self.model = VisionTransformer(self.defaults_cfg)
+        vit_helper.load_pretrained(
+            self.model, cfg=self.defaults_cfg,
+            in_chans=self.defaults_cfg.VIT.CHANNELS, filter_fn=vit_helper._conv_filter,
+            strict=False, cfg_url_name=self.cfg_url_name
+        )
+        if hasattr(self.model, 'st_embed'):
+            self.model.st_embed.data[:, 1:, :] = self.model.pos_embed.data[:, 1:, :].repeat(
+                1, self.defaults_cfg.VIT.TEMPORAL_RESOLUTION, 1)
+            self.model.st_embed.data[:, 0, :] = self.model.pos_embed.data[:, 0, :]
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log")
         self.train_losses = []
         self.test_losses = []
 
     def train(self, evaluate=False):
         """
         Runs the training job by training the model on the training data.
-        
+
         :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -119,6 +137,7 @@ class TrainingJob():
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
                 data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
@@ -149,7 +168,7 @@ class TrainingJob():
                 # Save train and test loss for later plotability
                 self.train_losses.append(train_loss)
                 self.test_losses.append(test_loss)
-                
+
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
@@ -229,7 +248,7 @@ class TrainingJob():
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct)/float(num_samples)*100
-        
+
         # Reset the model to train state
         self.model.train()
 
@@ -301,6 +320,17 @@ class TrainingJob():
             test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
         
         return train_loader, test_loader
+
+    def write_defaults(self, path):
+        """
+        Writes contents of Python defaults into Python file.
+
+        :param str path: path of .py file to which the data is dumped.
+        """
+        with open(self._defaults_path, "r") as og_file:
+            with open(path, "w") as new_file:
+                for line in og_file:
+                    new_file.write(line)
 
 if __name__ == '__main__':
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")

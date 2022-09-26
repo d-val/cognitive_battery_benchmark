@@ -2,10 +2,7 @@ job_name: "CodeTesting"
 expt_name: "shape"
 
 model:
-  cnn_architecture: "resnet18"
-  lstm_num_layers: 2
-  lstm_hidden_size: 512
-  num_classes: 3
+  cnn_architecture: "Motionformer"
 
 data_loader:
   batch_size: 1
