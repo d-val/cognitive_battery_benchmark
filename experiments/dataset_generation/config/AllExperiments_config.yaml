@@ -31,7 +31,7 @@ Rotation:
     moveup_magnitude: 0.4
 
 Shape:
-  iterations: 20
+  iterations: 10
   run:
     rewardTypes: ["Potato", "Tomato", "Apple"]
     rewardType: null

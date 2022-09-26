@@ -16,6 +16,8 @@ from utils.models.TimeSformer.timesformer.models.vit import TimeSformer
 
 import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class TrainingConfig():
@@ -88,7 +90,7 @@ class TrainingJob():
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        # Setting up data loaders, the model, and the optimizer & loss funciton
+        # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
         self.model = TimeSformer(img_size=144, patch_size=16, num_classes=len(self.label_dict), pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', num_frames=104)
         self.loss_fn = nn.CrossEntropyLoss()
@@ -177,6 +179,7 @@ class TrainingJob():
     def plot(self, show=True, save=True):
         """
         Generates a plot of training and test loss over epochs.
+
         :param boolean show: whether to show the generated plot
         :param boolean save: whether to save the generated plot
         """
@@ -242,7 +245,7 @@ class TrainingJob():
         """
         Logs a statement in a training log file.
 
-        :param: str satatement: a statement to add to the training log file.
+        :param: str statement: a statement to add to the training log file.
         """
         if self.stdout:
             print(statement)
