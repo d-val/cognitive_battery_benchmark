@@ -214,9 +214,6 @@ _C.MODEL.ARCH = "slowfast"
 # Model name
 _C.MODEL.MODEL_NAME = "SlowFast"
 
-# The number of classes to predict for the model.
-_C.MODEL.NUM_CLASSES = 2
-
 # Loss function.
 _C.MODEL.LOSS_FUNC = "cross_entropy"
 
@@ -955,8 +952,10 @@ def _assert_and_infer_cfg(cfg):
     return cfg
 
 
-def get_cfg():
+def get_cfg(num_classes):
     """
     Get a copy of the default config.
     """
-    return _assert_and_infer_cfg(_C.clone())
+    config_copy = _C.clone()
+    config_copy.MODEL.NUM_CLASSES = num_classes
+    return _assert_and_infer_cfg(config_copy)
