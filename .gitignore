@@ -14,4 +14,4 @@ experiments/dataset_generation/output
 .gravitybiasout/
 data/
 experiments/model_development/output/
-*/*/env
+**/env
