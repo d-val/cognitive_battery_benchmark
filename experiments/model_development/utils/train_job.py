@@ -93,7 +93,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = ViViT(image_size=144, patch_size=16, num_classes=len(self.label_dict), num_frames=52).to(device)
+        self.model = ViViT(image_size=self.config.data_loader.image_size, patch_size=16, num_classes=len(self.label_dict), num_frames=52).to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
