@@ -137,7 +137,7 @@ class SimpleSwap(Experiment):
                         },
                     }
                 )
-            positions = np.linspace(*receptacle_position_limits, num=num_receptacles)
+            positions = np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
             if obj["objectType"] == receptacleType:
                 for i in range(num_receptacles):
@@ -238,8 +238,8 @@ class SimpleSwap(Experiment):
             self.swap(pot_swap)
         swap_directions = [
             [
-                self.determine_reward_loc(-pot1[1], positions),
-                self.determine_reward_loc(-pot2[1], positions),
+                self.determine_reward_loc(pot1[1], positions),
+                self.determine_reward_loc(pot2[1], positions),
             ]
             for pot1, pot2 in pots_to_swap
         ]
@@ -274,7 +274,7 @@ class SimpleSwap(Experiment):
     def determine_reward_loc(z_coor, positions):
         array = np.asarray(positions)
         idx = (np.abs(array - z_coor)).argmin()
-        return idx
+        return int(idx)
 
     # Swap 2 receptacles
     def swap(self, swap_receptacles):
