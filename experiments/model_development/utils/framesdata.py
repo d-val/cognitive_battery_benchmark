@@ -4,15 +4,20 @@ framesdata.py: contains the custom FramesDataset.
 from torch.utils.data import IterableDataset
 import numpy as np
 import pickle
+
 if pickle.HIGHEST_PROTOCOL < 5:
     import pickle5 as pickle
 import os, random
+
 
 class FramesDataset(IterableDataset):
     """
     Wrapper around torch IterableDataset to load videos stored at disk.
     """
-    def __init__(self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True):
+
+    def __init__(
+        self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True
+    ):
         """
         Loads the machine readable data from experiment and initializes the dataset.
 
@@ -52,9 +57,11 @@ class FramesDataset(IterableDataset):
         """
         if index > self.__len__():
             raise IndexError()
-        
+
         itr = self.iters[index]
-        pickle_path = os.path.join(self.path, str(itr), "machine_readable", "iteration_data.pickle")
+        pickle_path = os.path.join(
+            self.path, str(itr), "machine_readable", "iteration_data.pickle"
+        )
         return self._load_file(pickle_path)
 
     def __iter__(self):
@@ -84,17 +91,19 @@ class FramesDataset(IterableDataset):
         images = every_kth(data["images"], self.skip_every)
         if self.fpv != None:
             if self.fpv <= len(images):
-                images = images[:self.fpv]
+                images = images[: self.fpv]
             else:
-                images = np.concatenate((images, np.repeat(images[-1:], self.fpv-len(images), axis=0)))
+                images = np.concatenate(
+                    (images, np.repeat(images[-1:], self.fpv - len(images), axis=0))
+                )
         images = np.asarray(images, dtype="float32")
         label = self.label_translator(data["label"])
 
         return images, label
 
-    def _get_iters(self, iters = None, cur_max = -1):
+    def _get_iters(self, iters=None, cur_max=-1):
         """
-        Checks the output path to find the iterations of the experiment. 
+        Checks the output path to find the iterations of the experiment.
 
         :param list iters: the existing known iterations. If None, initialized to an empty list.
         :param int cur_max: the current max iteration number. If -1, assume no current iterations.
@@ -104,7 +113,7 @@ class FramesDataset(IterableDataset):
 
         if iters == None:
             iters = []
-        
+
         # Add iterations with new identifiers to the dataset
         for dirname in os.listdir(self.path):
             if dirname.isdigit() and int(dirname) > cur_max:
@@ -139,8 +148,11 @@ class FramesDataset(IterableDataset):
                 max_iter = max(self.iters)
 
             # Load current iteration and return its (images, label) pair.
-            pickle_path = os.path.join(path, str(i), "machine_readable", "iteration_data.pickle")
+            pickle_path = os.path.join(
+                path, str(i), "machine_readable", "iteration_data.pickle"
+            )
             yield self._load_file(pickle_path)
+
 
 def every_kth(array, k):
     """
@@ -155,7 +167,8 @@ def every_kth(array, k):
         return array
     return np.array([array[i] for i in range(len(array)) if i % k == 0])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     # Initialize dataset
     path = "../data/"
@@ -163,18 +176,21 @@ if __name__ == '__main__':
 
     # You can start a Data Loader
     from torch.utils.data import DataLoader
+
     dataloader = DataLoader(dataset=dataset)
 
     # Or you can start an FFCV Writer and write the dataset into an FFCV file.
     from ffcv.writer import DatasetWriter
     from ffcv.fields import NDArrayField, IntField
 
-    write_path = '../ds.beton'
-    writer = DatasetWriter(write_path, {
-        'video': NDArrayField(dtype=np.dtype("float32"), shape=(350, 224, 224, 3)),
-        'label': IntField()
+    write_path = "../ds.beton"
+    writer = DatasetWriter(
+        write_path,
+        {
+            "video": NDArrayField(dtype=np.dtype("float32"), shape=(350, 224, 224, 3)),
+            "label": IntField(),
         },
-        page_size = 2<<28)
+        page_size=2 << 28,
+    )
 
     writer.from_indexed_dataset(dataset)
-    
