@@ -1,34 +1,32 @@
 
-# Simulated Cognitive Test Battery
+# Simulated Cognitive Experiment Test Suite
 
-There are several established collections of cognition tests used to test aspects of intelligence in animals (e.g. crows, monkeys) and humans such as the [Primate Cognition Test Battery](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032024). These experiments help determine, for example, an agent's ability to understand object permanence and causality. Although these experiments are very common in cognitive science, they have not been deployed on and applied to machine learning models and algorithms. This is mostly because, so far, these cognitive science experiments were undertaken manually, with an experimenter having to physically move objects in from of the test agent while recording the interaction as a data point. The goal of the Simulated Cognitive Test Battery is to allow these experiments to be deployed for machine learning research, and at scale. We therefore recreate these experiments in 3D in a randomized and programmatic fashion to allow for the creation of rich, large datasets. 
+There are several established collections of cognition tests used to test aspects of intelligence in animals (e.g. crows, monkeys) and humans such as the [Primate Cognition Test Battery](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032024). These experiments help determine, for example, an agent's ability to understand object permanence and causality. Although these experiments are very common in cognitive science, they have not been deployed on and applied to machine learning models and algorithms. This is mostly because, so far, these cognitive science experiments were undertaken manually, with an experimenter having to physically move objects in from of the test agent while recording the interaction as a data point. 
+
+The goal of the Simulated Cognitive Experiment Test Suite is to allow these experiments to be deployed for machine learning research, and at scale. We therefore recreate these experiments in 3D in a randomized and programmatic fashion to allow for the creation of rich, large datasets. 
 
 This repository contains the implementation of these experiments built using [AI2-THOR](https://github.com/allenai/ai2thor) and Unity 3D.
 
 
 ## 🤖️ Implemented simulations:
 
+Before attempting to reproduce these simulations, ensure that you have completed [basic setup](#💻-installation).
 
-### Relative numbers
-This is the simplest experiment whereby the agent has to decide which plate has more rewards.
 
-![relative](static/relative_numbers.jpeg)
+### Gravity Bias
+This experiment tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
 
-```angular2html
-cd experiments/dataset_generation
-python relative_numbers_example.py
-```
-
-### Simple swap
-This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
+Unlike some other experiments, this experiment was built using Unity3D instead of AI2-THOR. To set up the experiment, you need to:
+- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/5wdirl50wcwh1dr/GravityBias.zip).
+- Unzip the GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
 ```angular2html
 cd experiments/dataset_generation
-python simple_swap_example.py
+python gravity_bias_example.py
 ```
 
+https://user-images.githubusercontent.com/45083797/151129645-a284595b-16fc-4aa8-9142-66918c56dc3b.mp4
 
-https://user-images.githubusercontent.com/1942909/152035221-c4f68359-cffa-4064-b885-2dc2af0f5dc9.mp4
 
 
 
@@ -64,6 +62,28 @@ https://user-images.githubusercontent.com/1942909/152035368-e0843b69-684f-4a45-b
 
 
 
+### Relative numbers
+This is the simplest experiment whereby the agent has to decide which plate has more rewards.
+
+![relative](static/relative_numbers.jpeg)
+
+```angular2html
+cd experiments/dataset_generation
+python relative_numbers_example.py
+```
+
+### Simple swap
+This is based on the famous shell game where a reward is put in/under one bowl, and the bowl is swapped around. The agent has to infer based on the motion of the bowls which bowl did the rewards end up in.
+
+```angular2html
+cd experiments/dataset_generation
+python simple_swap_example.py
+```
+
+
+https://user-images.githubusercontent.com/1942909/152035221-c4f68359-cffa-4064-b885-2dc2af0f5dc9.mp4
+
+
 ### Rotation
 In this experiment, similar to the simple swap experiment, the agent has to where the reward ends up. Instead of swaps, the receptables are moved using rotations.
 
@@ -73,29 +93,7 @@ python rotation_example.py
 ```
 
 
-
 https://user-images.githubusercontent.com/1942909/152035396-739de83b-bdb7-4744-a45c-6de23a653439.mp4
-
-
-
-### Gravity Bias
-This expirement tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
-
-Unlike the previous expirements, this expirement was built using Unity3D instead of AI2THOR. To set up the expirement, you need to:
-- Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/l9fg5yva00z6i74/GravityBias.zip?dl=0).
-- Download the unzip GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
-
-```angular2html
-cd experiments/dataset_generation
-python gravity_bias.py -r -s
-```
-The `-r` flag indicates whether to save the expirement output. The `-s` flag indicates whether to show the expirement while running.
-
-
-
-https://user-images.githubusercontent.com/45083797/151129645-a284595b-16fc-4aa8-9142-66918c56dc3b.mp4
-
-
 
 
 ## 💻 Installation
@@ -110,6 +108,9 @@ git clone https://github.com/d-val/cognitive_battery_benchmark
 - Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder
 
 ### Python 3.7 or 3.8 set-up:
+
+Select one of the below installation options (pip *or* conda).
+
 #### With pip:
 
 ```bash
@@ -124,7 +125,7 @@ conda activate cognitive-battery-benchmark
 ```
 
 ## 🕹️ Running simulation
-#### Minimal Example to test if AI2-THOR installation:
+### Minimal Example to test if AI2-THOR installation:
 
 Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents.
 After running `pip` or `conda` install earlier, it should have installed AI2-THOR. you can verify that everything is working correctly by running the following minimal example:
@@ -156,25 +157,26 @@ success! <ai2thor.server.Event at 0x7fadd0b87250
 
 
 
-#### Running Human Cognitive Battery Experiment
-To run the experiment:
+### Running Human Cognitive Battery Experiments
+To run [the experiments described above](#🤖️-implemented-simulations), paste the code snippet into the terminal.
 
-#### `SimpleSwap` example
+For instance, for the `SimpleSwap` example, run the code below:
 ```
 cd experiments/dataset_generation
 python simple_swap_example.py
 ```
-If success, a window will pop up, and the experiment will run in the terminal.
+
+If successful, a window will pop up, and the experiment will run in the terminal. The output for the `SimpleSwap` example is shown below:
 
 <img src="static/simpleswap.png" width="200">
 
 ## 💾 Saving Images
 
-To save images of a simulation, uncomment the last line `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py`
+To save images of a simulation, ensure that the last line is uncommented. (By default, the last line is uncommented. For instance, `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py` is uncommented.)
 
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
 
-## 🤖️ Technical definitions and implementation summary:
+## 📝 Technical definitions and implementation summary:
 Each of the simulated experiments are instances of the `Experiment` class saved within the 'experiments/dataset_generation/utils/experiment.py' class definition.
 
 To run all experiments as a job,
@@ -196,6 +198,8 @@ Running Experiment: Shape | 1 Iterations
 100%||█████████████████████████| 1/1 [00:09<00:00,  9.99s/it]
 Running Experiment: SimpleSwap | 1 Iterations
 100%||█████████████████████████| 1/1 [00:12<00:00, 12.46s/it]
+Running Experiment: GravityBias | 1 Iterations
+100%|████████████████████████████████████████████████████████| 1/1 [00:22<00:00, 22.57s/it]
 
 ```
 
@@ -203,8 +207,12 @@ The created datasets will be stored in `cd experiments/dataset_generation/output
 
 Here is a [link](https://www.dropbox.com/s/olexofguy109jli/2022-01-31_15_28_40_429894.zip?dl=0) to a zipped folder as an example of the expected output. 
 
-## 🏗️ Module Structure (in progress)
 
+## 🚨 Issues & Debugging
+- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
+
+## 🏗️ Repository Structure (in progress)
+<!-- 
 The structure of the `cognitive_battery_benchmark` folder is as follows:
 
 - **experiments**: files necessary to run experiments, based on reference paper
@@ -214,13 +222,12 @@ The structure of the `cognitive_battery_benchmark` folder is as follows:
   - [**not working**] `relative_numbers.py`: relative numbers test class
   - `rotation.py`: rotation swap test class
   - `simple_swap.py`: simple swap test class
+  - `gravity_bias.py`: gravity bias test class
   - **utils**: helper files for experiments
     - `util.py`: helper functions
     - `video_controller.py`: basic implementation for a video controller for AI2THOR  
   - **frames**: folder to store frames of experiments
 - **setup**: helper files for setting up the module
   - `environment.yml`: setup conda installation
-  - `requirements.txt`: setup pip installation
+  - `requirements.txt`: setup pip installation -->
 
-## Issues & Debugging
-- When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
