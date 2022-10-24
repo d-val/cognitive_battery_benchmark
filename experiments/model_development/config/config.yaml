@@ -11,7 +11,8 @@ data_loader:
   batch_size: 1
   data_path: "data/"
   train_split: 0.8
+  skip_every: 2
 
 train_params:
-  epochs: 20
+  epochs: 100
   lr: 0.005
