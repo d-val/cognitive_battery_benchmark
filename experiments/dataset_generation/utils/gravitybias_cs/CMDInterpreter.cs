@@ -18,6 +18,11 @@ public class CMDInterpreter : MonoBehaviour
                 GetComponent<FrameRecorder>().isRecording = true;
             }
 
+            // Enable dev logging, if flagged
+            if (args[i] == "--dev"){
+                GetComponent<DevLogger>().enabled = true;
+            }
+
             // Set the output directory of frames, video, stats, etc ..
             if (args[i] == "--outdir"){
                 // Initializes the output directory
@@ -102,7 +107,7 @@ public class CMDInterpreter : MonoBehaviour
                 }
             }
 
-            // Sets the reward type if provided
+            // Sets the number of rewards if provided
             if (args[i] == "--num-rewards"){
                 if (i+1 < args.Length){
                     int numRewards = 0;
@@ -111,12 +116,21 @@ public class CMDInterpreter : MonoBehaviour
                 }
             }
 
-            // Sets the reward type if provided
+            // Sets the number of receptacles if provided
             if (args[i] == "--num-receptacles"){
                 if (i+1 < args.Length){
                     int numReceptacles = 0;
                     int.TryParse(args[i+1], out numReceptacles);
                     GetComponent<GravityBiasRunner>().numReceptacles = numReceptacles;
+                }
+            }
+
+            // Sets the number of tubes if provided
+            if (args[i] == "--num-tubes"){
+                if (i+1 < args.Length){
+                    int numTubes = 0;
+                    int.TryParse(args[i+1], out numTubes);
+                    GetComponent<GravityBiasRunner>().numTubes = numTubes;
                 }
             }
         }

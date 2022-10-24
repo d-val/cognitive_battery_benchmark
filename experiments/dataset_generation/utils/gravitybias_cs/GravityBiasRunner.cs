@@ -35,32 +35,52 @@ public class GravityBiasRunner : MonoBehaviour
             this.final = final;
         }
     }
-
+    
+    // Meshes for tubes
     public GameObject VTube;
     public GameObject STube;
     public GameObject STubeLong;
     public GameObject DoubleSTubeShort;
     public GameObject DoubleSTubeMedium;
     public GameObject DoubleSTubeLong;
+
+    // List of tubes generated in the scene.
     public List<GameObject> tubes;
 
+    // Main camera, used for viewing (Main Camera)
     public GameObject sceneCamera;
+
+    // Recorder, used to start/stop recording
     public FrameRecorder recorder;
 
+    // Number of receptacles in scene, choose at random if -1
     public int numReceptacles = -1;
+
+    // Number of tubes in scene, choose at random if -1
+    public int numTubes = -1;
+
+    // Choice of receptacle type (e.g. cup, bowl, etc..)
     public int receptType = -1; 
     public List<GameObject> receptaclePrefabs;
+
+    // List of bowls generated in the scene.
     public List<GameObject> receptacles = new List<GameObject>();
 
-    public int numRewards = -1;
-    public int rewardType = -1;
+    // Reward randomization?
+    public int numRewards = -1; // how many there are
+    public int rewardType = -1; // apple, tomato, etc..
     public List<GameObject> rewardPrefabs;
+
+    // List of rewards generated in the scene.
     public List<GameObject> rewards = new List<GameObject>();
 
+    // How fast you want rewards to move
     public int movingSpeed;
     
+    // Randomization seed
     public int seed;
     
+    // X and Y positions that rewards need to end up in.
     public Dictionary<string, float> coordinateRanges = new Dictionary<string, float>(){
         {"xmin", -2f},
         {"xmax", -1.9f},
@@ -71,6 +91,7 @@ public class GravityBiasRunner : MonoBehaviour
         {"zmin", 0},
         {"zmax", 0},
     };
+
 
     private int curRewardIdx = 0;
     private Vector3 destVector;
@@ -132,9 +153,14 @@ public class GravityBiasRunner : MonoBehaviour
         if (numReceptacles == -1){ // unspecified
             numReceptacles = Random.Range(2, 9);
         }
-        if (receptType == -1){ // unspecified
-            receptType = Random.Range(2, 9);
+        if (numTubes == -1){ // unspecified
+            numTubes = Random.Range(1, numReceptacles);
         }
+        if (receptType == -1){ // unspecified
+            receptType = 0;
+        }
+
+        // Places receptacles on table
         float receptStartPos = (numReceptacles*1.35f)/2 - 1f;
         for (int i=0; i<numReceptacles; i++){
             Vector3 receptPos = new Vector3(-2f, 8.47f, receptStartPos - i*1.35f);
@@ -142,8 +168,10 @@ public class GravityBiasRunner : MonoBehaviour
             receptacles.Add(recept);
         }
 
+        // Determining reward drop and final locations
+        int margin = Mathf.Min(2, numReceptacles - numTubes); // determines by how far the drop and final locations should be sepearated
         int dropLocation = Random.Range(0, numReceptacles);
-        int finalLocation = Random.Range(Mathf.Max(dropLocation-2, 0) , Mathf.Min(dropLocation+2 + 1, numReceptacles));
+        int finalLocation = Random.Range(Mathf.Max(dropLocation-margin, 0) , Mathf.Min(dropLocation+margin + 1, numReceptacles));
         List<TubeState> condition = generateCondition(testTubes, dropLocation, finalLocation);
         foreach (TubeState ts in condition){
             PlaceTube(ts);
@@ -155,21 +183,23 @@ public class GravityBiasRunner : MonoBehaviour
         stats.Add("final_location", finalLocation.ToString());
         stats.Add("reward_type", rewardPrefabs[rewardType].name);
         stats.Add("num_receptacles", numReceptacles.ToString());
+        stats.Add("num_tubes", numTubes.ToString());
         stats.Add("num_rewards", numRewards.ToString());
-        stats.Add("num_tubes", condition.Count.ToString());
 
         destVector = newDestVector();
+        Debug.Log("numReceptacles: " + numReceptacles.ToString());
+        Debug.Log("numTubes: " + numTubes.ToString());
+        Debug.Log("numRewards: " + numRewards.ToString());
     }
 
     // Runs every frame
     void Update()
     {
-        
         GameObject reward = rewards[0];
         if (curRewardIdx < rewards.Count){
             reward = rewards[curRewardIdx];
             reward.GetComponent<Rigidbody>().useGravity = false;
-                reward.GetComponent<Rigidbody>().isKinematic = true;
+            reward.GetComponent<Rigidbody>().isKinematic = true;
             float step = movingSpeed * Time.deltaTime;
             reward.transform.position = Vector3.MoveTowards(reward.transform.position, destVector, step);
             if (reward.transform.position == destVector){
@@ -180,6 +210,7 @@ public class GravityBiasRunner : MonoBehaviour
             }
         }
         else{
+            // Wait for some time then stop recording
             int waitTime = (int) Mathf.Round(7 / Mathf.Log(movingSpeed + 1, 2));
             StartCoroutine(endExpt(waitTime));
         }
@@ -188,23 +219,21 @@ public class GravityBiasRunner : MonoBehaviour
     
     // Defines the ragnes of the rewards based on the selected tube.
     void setRewardsRanges(int state){
-        float zlambda = 0f;
         float zValue = receptacles[state].transform.position.z;
-        coordinateRanges["zmin"] = zValue - zlambda;
-        coordinateRanges["zmax"] = zValue + zlambda;
+        coordinateRanges["zmin"] = zValue;
+        coordinateRanges["zmax"] = zValue;
     }
 
     // Generates one of the tubes (either vertical or s-shaped)
     List<TubeState> generateCondition(List<Tube> tubes, int drop, int final){
         if (!(tubes.Count > 0 && Mathf.Abs(drop - final) <= 2 && drop < numReceptacles && final < numReceptacles)){
-            Debug.Log("Something is wrong..");
             Debug.Log(tubes.Count > 0);
             Debug.Log(Mathf.Abs(drop - final) <= 2);
             Debug.Log(drop < numReceptacles);
             Debug.Log(final < numReceptacles);
             return new List<TubeState>();
         }
-        SysRandom randomizer = new SysRandom();
+        SysRandom randomizer = new SysRandom(seed);
 
         bool validTube(Tube tube, int drop){
             return (drop + tube.occupies[0] >= 0) && (drop + tube.occupies[1] < numReceptacles);
@@ -213,12 +242,16 @@ public class GravityBiasRunner : MonoBehaviour
         List<TubeState> finalPlacements = new List<TubeState>();
         bool[] occupied = new bool[numReceptacles];
         tubes = tubes.OrderBy(x => randomizer.Next()).ToList();
+
+        int margin = numReceptacles - numTubes;
+        int tOccupDiff;
         
         foreach (Tube t in tubes){
-            if ((t.offset == final - drop) && validTube(t, drop)){
+            tOccupDiff = t.occupies[1] - t.occupies[0];
+            if ((t.offset == final - drop) && validTube(t, drop) && (margin >= tOccupDiff)){
                 // Main Tube
                 finalPlacements.Add(new TubeState(t, drop, final));
-
+                margin -= tOccupDiff;
                 // Marking its range as occupied
                 for (int i=t.occupies[0]; i<=t.occupies[1]; i++){
                     occupied[drop+i] = true;
@@ -226,14 +259,25 @@ public class GravityBiasRunner : MonoBehaviour
                 break;
             }
         }
+        if (finalPlacements.Count == 0){
+            Debug.Log("SNAFUUUUU!!!");
+            // throw new Exception("No tube combination matches initial conditions of numTubes and numReceptacles");
+        }
 
-        while (occupied.Contains(false) && randomizer.NextDouble() > 1/(2*numReceptacles)){
+        while (occupied.Contains(false) && finalPlacements.Count < numTubes){
             tubes = tubes.OrderBy(x => randomizer.Next()).ToList();
             int[] indices = Enumerable.Range(0, numReceptacles).OrderBy(x => randomizer.Next()).ToArray();
             foreach (int i in indices){
                 if (occupied[i]){continue;}
+                if (finalPlacements.Count >= numTubes){break;}
                 foreach (Tube t in tubes){
                     if (!validTube(t, i)){continue;}
+
+                    tOccupDiff = t.occupies[1] - t.occupies[0];
+                    if (!(margin >= tOccupDiff)){
+                        continue;
+                    }
+
                     bool empty = true;
                     for (int j=t.occupies[0]; j<=t.occupies[1]; j++){
                         if (occupied[i+j]==true){empty = false;}
@@ -243,6 +287,7 @@ public class GravityBiasRunner : MonoBehaviour
                             occupied[i+j] = true;
                         }
                         finalPlacements.Add(new TubeState(t, i, i+t.offset));
+                        margin -= tOccupDiff;
                         break;
                     }
                 }
