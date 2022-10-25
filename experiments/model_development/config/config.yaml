@@ -1,18 +1,22 @@
 job_name: "CodeTesting"
-expt_name: "shape"
+expt_name: "rotation"
+# expt_name: "shape" # "swap"
 
 model:
-  cnn_architecture: "resnet18"
-  lstm_num_layers: 2
-  lstm_hidden_size: 512
-  num_classes: 3
+  model_dir: "models/ViViT/pretrained/vivit_kinetics_400_vivit_base_16x2_unfactorized_saved_model/"
+  name: "ViViT"
 
 data_loader:
   batch_size: 1
-  data_path: "data/"
+  data_path: "data_all/Rotation"
+  # data_path: "data_all/Shape" # "data_all/SimpleSwap/"
   train_split: 0.8
   skip_every: 2
+  image_size: 256
+  patch_size: 16 # 16 # 64
+  num_frames: 42 # 52 # 172
 
 train_params:
-  epochs: 100
+  seed: 123
+  epochs: 5
   lr: 0.005
