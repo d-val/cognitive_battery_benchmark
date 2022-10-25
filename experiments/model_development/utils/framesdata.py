@@ -12,7 +12,7 @@ class FramesDataset(IterableDataset):
     """
     Wrapper around torch IterableDataset to load videos stored at disk.
     """
-    def __init__(self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True):
+    def __init__(self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True, num_frames=100):
         """
         Loads the machine readable data from experiment and initializes the dataset.
 
@@ -31,6 +31,7 @@ class FramesDataset(IterableDataset):
         self.shuffle = shuffle
         self.label_translator = label_translator
         self.iters = self._get_iters()
+        self.num_frames = num_frames
 
     def __len__(self):
         """
@@ -87,6 +88,7 @@ class FramesDataset(IterableDataset):
                 images = images[:self.fpv]
             else:
                 images = np.concatenate((images, np.repeat(images[-1:], self.fpv-len(images), axis=0)))
+        images = images[:self.num_frames]
         images = np.asarray(images, dtype="float32")
         label = self.label_translator(data["label"])
 
