@@ -93,7 +93,7 @@ class TrainingJob():
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = ViViT(image_size=self.config.data_loader.image_size, patch_size=16, num_classes=len(self.label_dict), num_frames=52).to(device)
+        self.model = ViViT(image_size=self.config.data_loader.image_size, patch_size=self.config.data_loader.patch_size, num_classes=len(self.label_dict), num_frames=self.config.data_loader.num_frames).to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
@@ -296,7 +296,7 @@ class TrainingJob():
 
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True, num_frames=self.config.data_loader.num_frames)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
