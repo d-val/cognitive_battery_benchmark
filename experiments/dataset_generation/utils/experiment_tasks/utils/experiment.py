@@ -55,17 +55,16 @@ class Experiment(Controller):
             self.frame_list if self.fov == "front" else self.third_party_camera_frames
         )
 
+        if not os.path.isdir(base_task_dir):
+            os.makedirs(base_task_dir)
         with open(f'{base_task_dir}/labels.txt', 'a') as labels_file:
-            labels_file.write(f'\n{i},{self.label}')
+            labels_file.write(f'\n{iteration},{self.label}')
 
         if db_mode:
             db_SAVE_DIRS = {
                 "human": f"{SAVE_DIR}/human_readable",
                 "machine": f"{SAVE_DIR}/machine_readable",
             }
-
-            if not os.path.isdir(base_task_dir):
-                os.makedirs(base_task_dir)
 
             for name, folder in db_SAVE_DIRS.items():
                 if not os.path.isdir(f"{folder}"):
