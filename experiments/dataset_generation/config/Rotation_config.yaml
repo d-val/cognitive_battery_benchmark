@@ -1,0 +1,11 @@
+Rotation:
+  iterations: 100
+  run:
+    angle: null
+    reward_loc: null
+    distances: null
+    rewardTypes: [ "Potato", "Tomato", "Apple" ]
+    rewardType: null
+    degree_rotation_per_frame: 9
+    moveup_magnitude: 0.4
+    num_receptacles: 2

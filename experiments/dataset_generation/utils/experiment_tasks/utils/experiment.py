@@ -6,7 +6,7 @@ import imageio
 import yaml
 from PIL import Image
 from ai2thor.controller import Controller
-
+import numpy as np
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 
@@ -46,6 +46,7 @@ class Experiment(Controller):
         save_stats=True,
         db_mode=True,
         save_video=True,
+        save_raw_data=False
     ):
         fov = first_person if first_person is not None else self.fov
         fov_frames = (
@@ -79,12 +80,12 @@ class Experiment(Controller):
                         "label": self.label,
                         "stats": self.stats,
                     }
-                    with open(f"{folder}/iteration_data.pickle", "wb") as handle:
-                        pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    if save_raw_data:
+                        with open(f"{folder}/iteration_data.pickle", "wb") as handle:
+                            pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
         else:
             if not os.path.isdir(f"{SAVE_DIR}"):
                 os.makedirs(f"{SAVE_DIR}")
-
             elif save_stats:
                 with open(
                     f"{SAVE_DIR}/experiment_stats.yaml",

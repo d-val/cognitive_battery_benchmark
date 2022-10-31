@@ -74,8 +74,10 @@ class RelativeNumbers(Experiment):
         self,
         rewardType=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
-        max_rewards=[8, 8],
+        max_rewards=8,
         defined_rewards=None,
+        num_receptacles=4,
+        receptacle_position_limits=[-0.9, 0.9]
     ):
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -100,61 +102,52 @@ class RelativeNumbers(Experiment):
             }
 
             # Set the Plates location (pre-determined)
+            positions = np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
             if object["objectType"] == "Plate":
                 # left plate (z < 0)
-                initialPoses.append(
-                    {
-                        "objectName": object["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.34, "y": 1.105, "z": -0.34},
-                    }
-                )
-
-                # right plate (z > 0)
-                initialPoses.append(
-                    {
-                        "objectName": object["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.34, "y": 1.105, "z": 0.34},
-                    }
-                )
-            reward = namedtuple("reward", ["left", "right"])
+                for position in positions:
+                    initialPoses.append(
+                        {
+                            "objectName": object["name"],
+                            "rotation": {"x": -0.0, "y": 0, "z": 0},
+                            "position": {"x": -0.34, "y": 1.105, "z": position},
+                        }
+                    )
 
             defined_rewards = (
-                reward(*[np.random.randint(0, max_r) for max_r in max_rewards])
+                [np.random.randint(0, max_rewards) for _ in range(num_receptacles)]
                 if defined_rewards is None
-                else reward(*defined_rewards)
+                else np.array(defined_rewards)
             )
+            max_reward = np.max(defined_rewards)
+            max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[0]
+            if len(max_defined_rewards) != 1:
+                selected_max = np.random.choice(max_defined_rewards, 1)
+                for selected_reward in max_defined_rewards:
+                    if selected_reward == selected_max:
+                        if max_reward == 0:
+                            defined_rewards[selected_reward] = 1
+                    else:
+                        if max_reward != 0:
+                            defined_rewards[selected_reward] -= 1
 
             # Set the rewards'locations randomly around the plate
             if object["objectType"] == rewardType:
 
                 # left plate
-                for i in range(0, defined_rewards.left):
-                    initialPoses.append(
-                        {
-                            "objectName": object["name"],
-                            "rotation": {"x": 0.0, "y": 0, "z": 0},
-                            "position": {
-                                "x": -0.34 + random.uniform(-0.13, 0.13),
-                                "y": 1.15 + 0.001 * i,
-                                "z": 0.34 + random.uniform(-0.13, 0.13),
-                            },
-                        }
-                    )
-                # right plate
-                for i in range(0, defined_rewards.right):
-                    initialPoses.append(
-                        {
-                            "objectName": object["name"],
-                            "rotation": {"x": 0.0, "y": 0, "z": 0},
-                            "position": {
-                                "x": -0.34 + random.uniform(-0.13, 0.13),
-                                "y": 1.15 + 0.001 * i,
-                                "z": -0.34 + random.uniform(-0.13, 0.13),
-                            },
-                        }
-                    )
+                for ix, position in enumerate(positions):
+                    for i in range(0, defined_rewards[ix]):
+                        initialPoses.append(
+                            {
+                                "objectName": object["name"],
+                                "rotation": {"x": 0.0, "y": 0, "z": 0},
+                                "position": {
+                                    "x": -0.34 + random.uniform(-0.13, 0.13),
+                                    "y": 1.15 + 0.001 * i,
+                                    "z": position + random.uniform(-0.13, 0.13),
+                                },
+                            }
+                        )
 
             # Ignore reward and receptacles object, they will not be randomized on the table
             if object["objectType"] in {"Plate", rewardType}:
@@ -187,30 +180,13 @@ class RelativeNumbers(Experiment):
             excludedObjectIds=excludedRewardsId,
         )
 
-        # count rewards to get output
-        out = "equal"  # left == right
-
-        left = 0
-        right = 0
-
-        for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == rewardType:
-                if obj["position"]["z"] < 0:
-                    right += 1
-                if obj["position"]["z"] > 0:
-                    left += 1
-        if left > right:
-            out = "left"
-        elif left < right:
-            out = "right"
 
         self.frame_list = [self.last_event.frame]
-
+        out = np.argmax(defined_rewards)
         self.stats.update(
             {
                 "reward_type": rewardType,
-                "defined_left_reward": defined_rewards.left,
-                "defined_right_reward": defined_rewards.right,
+                "defined_left_reward": defined_rewards,
                 "final_greater_side": out,
             }
         )

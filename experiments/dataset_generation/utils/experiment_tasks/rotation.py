@@ -78,20 +78,23 @@ class Rotation(Experiment):
 
     def run(
         self,
-        case=None,
+        angle=None,
+        reward_loc=None,
         distances=None,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
         degree_rotation_per_frame=9,
         moveup_magnitude=0.4,
+        num_receptacles=6,
+        receptacle_position_limits=[-0.9, 0.9]
     ):
         # List of initial poses (receptacle_names' poses)
-        case = case if case is not None else random.randint(1, 3)
         distances = (
             distances
             if distances is not None
-            else {"left": 0.4, "middle": 0, "right": -0.4}
+            else np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
         )
+
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
         )
@@ -106,19 +109,7 @@ class Rotation(Experiment):
         # set number of rotation, 11 for 360 degree and 6 for 180 degree
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times
         degrees_to_rotate = 0
-
-        # rotate 180, food in middle
-        if case == 1:
-            degrees_to_rotate = 180
-            food_dist = distances["middle"]
-        # rotate 360, food in left or right
-        if case == 2:
-            degrees_to_rotate = 360
-            food_dist = random.choice([distances["left"], distances["right"]])
-        # rotate 180, food in left or right
-        if case == 3:
-            degrees_to_rotate = 180
-            food_dist = random.choice([distances["left"], distances["right"]])
+        degrees_to_rotate, reward_loc = np.random.choice([180, 360], 1), np.random.randint(0, num_receptacles-1)
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         assert (
@@ -171,9 +162,9 @@ class Rotation(Experiment):
                             "objectName": obj["name"],
                             "rotation": {"x": -0.0, "y": angle, "z": 0},
                             "position": {
-                                "x": food_dist * math.sin(angle_radian),
+                                "x": distances[reward_loc] * math.sin(angle_radian),
                                 "y": 1.205,
-                                "z": food_dist * math.cos(angle_radian),
+                                "z": distances[reward_loc] * math.cos(angle_radian),
                             },
                         }
                     )
@@ -185,39 +176,18 @@ class Rotation(Experiment):
                     "position": {"x": 0, "y": 1.105, "z": 0},
                 }
             )
-            initialPoses.append(
-                {
-                    "objectName": "Cup1",
-                    "rotation": {"x": -0.0, "y": angle, "z": 180},
-                    "position": {
-                        "x": 0 + distances["right"] * math.sin(angle_radian),
-                        "y": 1.505,
-                        "z": distances["right"] * math.cos(angle_radian),
-                    },
-                }
-            )
-            initialPoses.append(
-                {
-                    "objectName": "Cup1",
-                    "rotation": {"x": -0.0, "y": angle, "z": 180},
-                    "position": {
-                        "x": distances["middle"] * math.sin(angle_radian),
-                        "y": 1.505,
-                        "z": distances["middle"] * math.cos(angle_radian),
-                    },
-                }
-            )
-            initialPoses.append(
-                {
-                    "objectName": "Cup1",
-                    "rotation": {"x": -0.0, "y": angle, "z": 180},
-                    "position": {
-                        "x": distances["left"] * math.sin(angle_radian),
-                        "y": 1.505,
-                        "z": distances["left"] * math.cos(angle_radian),
-                    },
-                }
-            )
+            for position in distances:
+                initialPoses.append(
+                    {
+                        "objectName": "Cup1",
+                        "rotation": {"x": -0.0, "y": angle, "z": 180},
+                        "position": {
+                            "x": position * math.sin(angle_radian),
+                            "y": 1.505,
+                            "z": position * math.cos(angle_radian),
+                        },
+                    }
+                )
 
             # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
             self.step(
@@ -241,28 +211,19 @@ class Rotation(Experiment):
                             self.third_party_camera_frames,
                         )
         out = None
-        # return value
-        # 1 = right, 0 = middle, -1 = left
-        for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == rewardType:
-                dist = obj["position"]["z"]
-                if dist < 0.3:
-                    out = "right"
-                if dist > -0.3:
-                    out = "left"
-                if abs(dist) <= 0.3:
-                    out = "middle"
+        if degrees_to_rotate == 180:
+            out = (reward_loc + num_receptacles - 1) % num_receptacles
 
-        for loc, val in distances.items():
-            if val == food_dist:
-                initialLoc = loc
+        # for loc, val in distances.items():
+        #     if val == food_dist:
+        #         initialLoc = loc
 
         self.stats.update(
             {
-                "case": case,
-                "distances": distances,
+                "degrees_to_rotate": int(degrees_to_rotate),
+                "distances": distances.tolist(),
                 "reward_type": rewardType,
-                "initial_object_location": initialLoc,
+                "initial_object_location": reward_loc,
                 "final_object_location": out,
             }
         )
