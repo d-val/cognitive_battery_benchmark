@@ -95,6 +95,8 @@ class AdditionNumbers(Experiment):
         rewardType=None,
         max_rewards=[6, 6, 6],
         defined_rewards=None,
+        num_receptacles=2,
+        receptacle_position_limits=[-0.7, 0.7],
     ):
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
@@ -143,7 +145,7 @@ class AdditionNumbers(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": 0, "y": 1.105, "z": 0},
+                        "position": {"x": 0.25, "y": 1.105, "z": 0},
                     }
                 )
 
@@ -224,7 +226,7 @@ class AdditionNumbers(Experiment):
                             "objectName": obj["name"],
                             "rotation": {"x": -0.0, "y": 0, "z": 0},
                             "position": {
-                                "x": 0 + r * math.cos(theta),
+                                "x": 0.25 + r * math.cos(theta),
                                 "y": 1.205,
                                 "z": 0 + +r * math.cos(theta),
                             },
@@ -236,7 +238,7 @@ class AdditionNumbers(Experiment):
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "rotation": {"x": 0.25, "y": 0, "z": 180},
                         "position": {"x": 0, "y": 1.455, "z": 0},
                     }
                 )
@@ -247,8 +249,9 @@ class AdditionNumbers(Experiment):
             action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
         )
 
-        current_objects = self.last_event.metadata["objects"]
+        current_objects = self.last_event.metadata["objects"].copy()
         # set aside all occluders
+
         for obj in current_objects:
             if obj["name"][:8] == "Occluder":
                 dir = -0.75 if obj["position"]["z"] < 0 else 0.35
@@ -287,7 +290,7 @@ class AdditionNumbers(Experiment):
             multiplier = 1
             move_side = "left"
         for obj in current_objects:
-            if obj["name"].startswith(rewardType) and abs(obj["position"]["z"]) < 0.3:
+            if obj["name"].startswith(rewardType) and obj["position"]["x"] >= 0:
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],

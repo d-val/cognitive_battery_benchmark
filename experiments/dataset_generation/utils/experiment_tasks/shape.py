@@ -153,7 +153,7 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": 0.28},
+                        "position": {"x": -0.55, "y": 1.3587, "z": 0.6},
                     }
                 )
 
@@ -161,7 +161,23 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": -0.28},
+                        "position": {"x": -0.55, "y": 1.3587, "z": 0.2},
+                    }
+                )
+
+                initialPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": -0.55, "y": 1.3587, "z": -0.2},
+                    }
+                )
+
+                initialPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": -0.55, "y": 1.3587, "z": -0.6},
                     }
                 )
 
@@ -169,7 +185,7 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": 0.28},
+                        "position": {"x": 0.4, "y": 1.3587, "z": 0.6},
                     }
                 )
 
@@ -177,7 +193,23 @@ class Shape(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": -0.28},
+                        "position": {"x": 0.4, "y": 1.3587, "z": 0.2},
+                    }
+                )
+
+                afterPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": 0.4, "y": 1.3587, "z": -0.2},
+                    }
+                )
+
+                afterPoses.append(
+                    {
+                        "objectName": obj["name"],
+                        "rotation": {"x": -0.0, "y": 0, "z": 180},
+                        "position": {"x": 0.4, "y": 1.3587, "z": -0.6},
                     }
                 )
 
