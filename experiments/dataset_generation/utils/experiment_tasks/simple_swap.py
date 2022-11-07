@@ -85,7 +85,7 @@ class SimpleSwap(Experiment):
         swaps=None,
         pots_to_swap=None,
         reward_position=None,
-        num_receptacles=8,
+        num_receptacles=3,
         receptacle_position_limits=[-0.7, 0.7],
     ):
 
