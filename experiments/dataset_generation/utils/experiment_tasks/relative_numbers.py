@@ -77,7 +77,7 @@ class RelativeNumbers(Experiment):
         max_rewards=8,
         defined_rewards=None,
         num_receptacles=4,
-        receptacle_position_limits=[-0.9, 0.9]
+        receptacle_position_limits=[-0.9, 0.9],
     ):
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -102,7 +102,9 @@ class RelativeNumbers(Experiment):
             }
 
             # Set the Plates location (pre-determined)
-            positions = np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
+            positions = np.linspace(
+                *receptacle_position_limits[::-1], num=num_receptacles
+            )
             if object["objectType"] == "Plate":
                 # left plate (z < 0)
                 for position in positions:
@@ -120,7 +122,9 @@ class RelativeNumbers(Experiment):
                 else np.array(defined_rewards)
             )
             max_reward = np.max(defined_rewards)
-            max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[0]
+            max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[
+                0
+            ]
             if len(max_defined_rewards) != 1:
                 selected_max = np.random.choice(max_defined_rewards, 1)
                 for selected_reward in max_defined_rewards:
@@ -179,7 +183,6 @@ class RelativeNumbers(Experiment):
             placeStationary=True,
             excludedObjectIds=excludedRewardsId,
         )
-
 
         self.frame_list = [self.last_event.frame]
         out = np.argmax(defined_rewards)

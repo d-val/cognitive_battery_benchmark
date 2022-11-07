@@ -1,36 +1,41 @@
 import logging
 import os
 import pickle
-
+from sys import platform
 import imageio
 import yaml
 from PIL import Image
 from ai2thor.controller import Controller
 import numpy as np
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 
 
 class Experiment(Controller):
     def __init__(self, controller_args, fov="front"):
+        config_dict = {  # local build
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            # step sizes
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            # image modalities
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            # camera properties
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        }
+        if not "linux" in platform:
+            config_dict[
+                "local_executable_path"
+            ] = f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR"
         super().__init__(
             **{
-                **{  # local build
-                    "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
-                    "agentMode": "default",
-                    "scene": "FloorPlan1",
-                    # step sizes
-                    "gridSize": 0.25,
-                    "snapToGrid": False,
-                    "rotateStepDegrees": 90,
-                    # image modalities
-                    "renderDepthImage": False,
-                    "renderInstanceSegmentation": False,
-                    # camera properties
-                    "width": 300,
-                    "height": 300,
-                    "makeAgentsVisible": False,
-                },
+                **config_dict,
                 **controller_args,
             }
         )
@@ -46,7 +51,7 @@ class Experiment(Controller):
         save_stats=True,
         db_mode=True,
         save_video=True,
-        save_raw_data=False
+        save_raw_data=False,
     ):
         fov = first_person if first_person is not None else self.fov
         fov_frames = (
@@ -82,7 +87,9 @@ class Experiment(Controller):
                     }
                     if save_raw_data:
                         with open(f"{folder}/iteration_data.pickle", "wb") as handle:
-                            pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                            pickle.dump(
+                                iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL
+                            )
         else:
             if not os.path.isdir(f"{SAVE_DIR}"):
                 os.makedirs(f"{SAVE_DIR}")
