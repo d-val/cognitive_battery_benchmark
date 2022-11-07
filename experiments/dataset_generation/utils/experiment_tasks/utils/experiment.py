@@ -41,22 +41,31 @@ class Experiment(Controller):
 
     def save_frames_to_folder(
         self,
-        SAVE_DIR,
+        base_task_dir,
+        iteration,
         first_person=None,
         save_stats=True,
         db_mode=True,
         save_video=True,
     ):
+        SAVE_DIR = os.path.join(base_task_dir, str(iteration))
+
         fov = first_person if first_person is not None else self.fov
         fov_frames = (
             self.frame_list if self.fov == "front" else self.third_party_camera_frames
         )
+
+        if not os.path.isdir(base_task_dir):
+            os.makedirs(base_task_dir)
+        with open(f'{base_task_dir}/labels.txt', 'a') as labels_file:
+            labels_file.write(f'\n{iteration},{self.label}')
 
         if db_mode:
             db_SAVE_DIRS = {
                 "human": f"{SAVE_DIR}/human_readable",
                 "machine": f"{SAVE_DIR}/machine_readable",
             }
+
             for name, folder in db_SAVE_DIRS.items():
                 if not os.path.isdir(f"{folder}"):
                     if name == "human":
@@ -79,8 +88,8 @@ class Experiment(Controller):
                         "label": self.label,
                         "stats": self.stats,
                     }
-                    with open(f"{folder}/iteration_data.pickle", "wb") as handle:
-                        pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    # with open(f"{folder}/iteration_data.pickle", "wb") as handle:
+                    #     pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
         else:
             if not os.path.isdir(f"{SAVE_DIR}"):
                 os.makedirs(f"{SAVE_DIR}")
