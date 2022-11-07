@@ -137,7 +137,9 @@ class SimpleSwap(Experiment):
                         },
                     }
                 )
-            positions = np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
+            positions = np.linspace(
+                *receptacle_position_limits[::-1], num=num_receptacles
+            )
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
             if obj["objectType"] == receptacleType:
                 for i in range(num_receptacles):
@@ -301,7 +303,7 @@ class SimpleSwap(Experiment):
             [
                 (0, 0, self.moveup_magnitude),
                 (self.move_recep_ahead_mag, 0, 0),
-                (0, 0, -self.moveup_magnitude+0.1),
+                (0, 0, -self.moveup_magnitude + 0.1),
             ],
             self.frame_list,
             self.third_party_camera_frames,

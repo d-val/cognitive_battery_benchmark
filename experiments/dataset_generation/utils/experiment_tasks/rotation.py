@@ -86,7 +86,7 @@ class Rotation(Experiment):
         degree_rotation_per_frame=9,
         moveup_magnitude=0.4,
         num_receptacles=6,
-        receptacle_position_limits=[-0.9, 0.9]
+        receptacle_position_limits=[-0.9, 0.9],
     ):
         # List of initial poses (receptacle_names' poses)
         distances = (
@@ -109,7 +109,9 @@ class Rotation(Experiment):
         # set number of rotation, 11 for 360 degree and 6 for 180 degree
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times
         degrees_to_rotate = 0
-        degrees_to_rotate, reward_loc = np.random.choice([180, 360], 1), np.random.randint(0, num_receptacles-1)
+        degrees_to_rotate, reward_loc = np.random.choice(
+            [180, 360], 1
+        ), np.random.randint(0, num_receptacles - 1)
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         assert (
