@@ -1,3 +1,15 @@
+from IPython.display import HTML, display
+import sys
+
+from moviepy.editor import ImageSequenceClip
+from typing import Sequence
+import numpy as np
+import os
+from typing import Optional
+import ai2thor.server
+from typing import Union
+from PIL import Image
+
 def start_xserver() -> None:
     """Provide the ability to render AI2-THOR using Google Colab."""
 
@@ -83,5 +95,5 @@ def start_xserver() -> None:
     progress_bar.update(progress(100))
 
 
-if __name__ == __main__:
+if __name__ == "__main__":
     start_xserver()
