@@ -85,7 +85,7 @@ class SimpleSwap(Experiment):
         swaps=None,
         pots_to_swap=None,
         reward_position=None,
-        num_receptacles=3,
+        num_receptacles=4,
         receptacle_position_limits=[-0.7, 0.7],
     ):
 
@@ -301,7 +301,7 @@ class SimpleSwap(Experiment):
             [
                 (0, 0, self.moveup_magnitude),
                 (self.move_recep_ahead_mag, 0, 0),
-                (0, 0, -self.moveup_magnitude),
+                (0, 0, -self.moveup_magnitude+0.1),
             ],
             self.frame_list,
             self.third_party_camera_frames,
