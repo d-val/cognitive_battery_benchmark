@@ -14,6 +14,7 @@ from .experiment_tasks.rotation import Rotation
 from .experiment_tasks.shape import Shape
 from .experiment_tasks.simple_swap import SimpleSwap
 from .experiment_tasks.gravity_bias import GravityBias
+from ai2thor.platform import CloudRendering
 
 
 class ExperimentJob:
@@ -25,6 +26,8 @@ class ExperimentJob:
         with open(f"{renderer_file}", "r") as stream:
             self.renderer_data = yaml.safe_load(stream)
 
+        if self.renderer_data.get("platform", None) is not None:
+            self.renderer_data["platform"] = CloudRendering
         self.experiment_data = {}
         for experiment_file in experiment_files:
             with open(f"{experiment_file}", "r") as stream:

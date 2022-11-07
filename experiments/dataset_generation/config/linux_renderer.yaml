@@ -1,5 +1,7 @@
 # local build
 local_executable_path:
+platform: "CloudRendering"
+
 agentMode: "default"
 scene: "FloorPlan1"
 
