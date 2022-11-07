@@ -83,7 +83,7 @@ class TrainingJob():
         self._out_path = f"output/{self.config.job_name}_{self._start_time}"
         os.makedirs(self._out_path)
         self._log_path = os.path.join(self._out_path, "training.log")
-        self._debug_path = os.path.join(self._out_path, "debugging.log")
+        self._debug_path = os.path.join(self._out_path, "training.log")
         self._best_model_path = os.path.join(self._out_path, "model.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
@@ -291,7 +291,7 @@ class TrainingJob():
             
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True, source_type=self.config.data_loader.source_type)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
