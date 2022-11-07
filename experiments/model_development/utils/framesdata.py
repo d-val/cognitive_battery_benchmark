@@ -81,6 +81,15 @@ class FramesDataset(IterableDataset):
         for images, label in loader:
             yield (images, label)
 
+    def _load_labels(self):
+        labels_path = os.path.join(self.path, 'labels.txt')
+        labels = {}
+        with open(labels_path, 'r') as labels_file:
+            for line in labels_file:
+                iter_num, label = line.split(',')
+                labels[iter_num] = label
+        return labels
+
     def _load_pickle(self, pickle_path):
         """
         Loads an iter file and reads its images and label.
@@ -107,6 +116,8 @@ class FramesDataset(IterableDataset):
 
     def _load_video(self, video_path):
         cap = cv.VideoCapture(video_path)
+        all_labels = self._load_labels()
+        iter_num = frames_path.split('/')[-3]
 
         images = []
         labels = []
@@ -115,12 +126,14 @@ class FramesDataset(IterableDataset):
             if ret == False:
                 break
             images.append(np.asarray(frame, dtype='float32'))
-
-            ... # TODO: fetch label and append to labels
+            labels.append(all_labels[iter_num])
 
         return every_kth(images, self.skip_every), every_kth(labels, self.skip_every)
 
     def _load_frames(self, frames_path):
+        all_labels = self._load_labels()
+        iter_num = frames_path.split('/')[-3]
+
         images = []
         labels = []
         frame_counter = 0
@@ -136,8 +149,7 @@ class FramesDataset(IterableDataset):
 
             frame = Image.open(frame_path)
             images.append(np.asarray(frame, dtype='float32'))
-
-            ... # TODO: fetch label and append to labels
+            labels.append(all_labels[iter_num])
 
             frame_counter += 1
 
