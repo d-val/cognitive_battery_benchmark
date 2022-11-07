@@ -9,9 +9,10 @@ model:
 
 data_loader:
   batch_size: 1
-  data_path: "data/"
+  data_path: "data_separate_labels/"
   train_split: 0.8
   skip_every: 2
+  source_type: "video"
 
 train_params:
   epochs: 100
