@@ -1,0 +1,6 @@
+defined_left_reward: 6
+defined_right_reward: 6
+final_greater_side: equal
+fov: 103
+reward_type: Tomato
+visibility_distance: 2

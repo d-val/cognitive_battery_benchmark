@@ -91,7 +91,7 @@ class VideoController(Controller):
 
     def _cdf(self, x, std_dev=0.5, mean=0.0):
         """Cumulative distribution function"""
-        return (1.0 + erf((x - mean) / sqrt(2.0 * std_dev ** 2))) / 2.0
+        return (1.0 + erf((x - mean) / sqrt(2.0 * std_dev**2))) / 2.0
 
     def _linear_to_smooth(self, curr_frame, total_frames, std_dev=0.5, min_val=3):
         # start at -3 STD on a normal gaussian, go to 3 STD on gaussian

@@ -1,0 +1,6 @@
+defined_left_reward: 7
+defined_right_reward: 6
+final_greater_side: left
+fov: 106
+reward_type: Apple
+visibility_distance: 2
