@@ -1,0 +1,6 @@
+defined_left_reward: 6
+defined_right_reward: 3
+final_greater_side: left
+fov: 91
+reward_type: Potato
+visibility_distance: 2
