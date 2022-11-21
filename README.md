@@ -207,6 +207,14 @@ The created datasets will be stored in `cd experiments/dataset_generation/output
 
 Here is a [link](https://www.dropbox.com/s/olexofguy109jli/2022-01-31_15_28_40_429894.zip?dl=0) to a zipped folder as an example of the expected output. 
 
+### Running headless
+If you plan to generate a dataset with a Linux headless instance, run:
+
+```bash
+python setup/linux_setup.py
+```
+
+Then, make sure to use the `_linux` renderer config; then the rest of the dataset generation is the same.
 
 ## 🚨 Issues & Debugging
 - When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.
