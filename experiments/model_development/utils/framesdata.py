@@ -4,20 +4,17 @@ framesdata.py: contains the custom FramesDataset.
 from torch.utils.data import IterableDataset
 import numpy as np
 import pickle
-
 if pickle.HIGHEST_PROTOCOL < 5:
     import pickle5 as pickle
 import os, random
-
+import cv2 as cv
+from PIL import Image
 
 class FramesDataset(IterableDataset):
     """
     Wrapper around torch IterableDataset to load videos stored at disk.
     """
-
-    def __init__(
-        self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True
-    ):
+    def __init__(self, path, label_translator, fpv=None, skip_every=1, train=False, shuffle=True, source_type='pickle'):
         """
         Loads the machine readable data from experiment and initializes the dataset.
 
@@ -27,6 +24,7 @@ class FramesDataset(IterableDataset):
         :param int skip_every: ratio of frames to skip when loading video data (e.g. 3 => load 1/3 of frames).
         :param bool train: whether or not this is a training dataset.
         :param bool shuffle: whether or not to shuffle the dataset before iterating.
+        :param string source_type: one of 'pickle', 'video', or 'frames'
         """
         super(FramesDataset).__init__()
         self.path = path
@@ -35,7 +33,17 @@ class FramesDataset(IterableDataset):
         self.train = train
         self.shuffle = shuffle
         self.label_translator = label_translator
+        self.source_type = source_type
         self.iters = self._get_iters()
+
+        if self.source_type == 'pickle':
+            self.load_file_function = self._load_pickle
+        elif self.source_type == 'video':
+            self.load_file_function = self._load_video
+        elif self.source_type == 'frames':
+            self.load_file_function = self._load_frames
+        else:
+            raise ValueError('invalid source type: must be "pickle", "video", or "frames"')
 
     def __len__(self):
         """
@@ -57,12 +65,10 @@ class FramesDataset(IterableDataset):
         """
         if index > self.__len__():
             raise IndexError()
-
+        
         itr = self.iters[index]
-        pickle_path = os.path.join(
-            self.path, str(itr), "machine_readable", "iteration_data.pickle"
-        )
-        return self._load_file(pickle_path)
+        pickle_path = os.path.join(self.path, str(itr), "machine_readable", "iteration_data.pickle")
+        return self.load_file_function(self.data_source_path(itr))
 
     def __iter__(self):
         """
@@ -71,11 +77,11 @@ class FramesDataset(IterableDataset):
         :return: a generator of images and labels.
         :rtype: generator of tuples (np.ndarray[fpv, *frame_shape], int)
         """
-        loader = self._load_all()
+        loader = self._load_all(self.source_type)
         for images, label in loader:
             yield (images, label)
 
-    def _load_file(self, pickle_path):
+    def _load_pickle(self, pickle_path):
         """
         Loads an iter file and reads its images and label.
 
@@ -91,19 +97,55 @@ class FramesDataset(IterableDataset):
         images = every_kth(data["images"], self.skip_every)
         if self.fpv != None:
             if self.fpv <= len(images):
-                images = images[: self.fpv]
+                images = images[:self.fpv]
             else:
-                images = np.concatenate(
-                    (images, np.repeat(images[-1:], self.fpv - len(images), axis=0))
-                )
+                images = np.concatenate((images, np.repeat(images[-1:], self.fpv-len(images), axis=0)))
         images = np.asarray(images, dtype="float32")
         label = self.label_translator(data["label"])
 
         return images, label
 
-    def _get_iters(self, iters=None, cur_max=-1):
+    def _load_video(self, video_path):
+        cap = cv.VideoCapture(video_path)
+
+        images = []
+        labels = []
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret == False:
+                break
+            images.append(np.asarray(frame, dtype='float32'))
+
+            ... # TODO: fetch label and append to labels
+
+        return every_kth(images, self.skip_every), every_kth(labels, self.skip_every)
+
+    def _load_frames(self, frames_path):
+        images = []
+        labels = []
+        frame_counter = 0
+        while True:
+            try:
+                frame_path = os.path.join(frames_path, f'frame_{frame_counter}.jpeg')
+            except FileNotFoundError:
+                frame_path = os.path.join(frames_path, f'frame_{frame_counter}.jpg')
+            except FileNotFoundError:
+                frame_path = os.path.join(frames_path, f'frame_{frame_counter}.png')
+            except FileNotFoundError:
+                break
+
+            frame = Image.open(frame_path)
+            images.append(np.asarray(frame, dtype='float32'))
+
+            ... # TODO: fetch label and append to labels
+
+            frame_counter += 1
+
+        return every_kth(images, self.skip_every), every_kth(labels, self.skip_every)
+
+    def _get_iters(self, iters = None, cur_max = -1):
         """
-        Checks the output path to find the iterations of the experiment.
+        Checks the output path to find the iterations of the experiment. 
 
         :param list iters: the existing known iterations. If None, initialized to an empty list.
         :param int cur_max: the current max iteration number. If -1, assume no current iterations.
@@ -113,7 +155,7 @@ class FramesDataset(IterableDataset):
 
         if iters == None:
             iters = []
-
+        
         # Add iterations with new identifiers to the dataset
         for dirname in os.listdir(self.path):
             if dirname.isdigit() and int(dirname) > cur_max:
@@ -127,7 +169,7 @@ class FramesDataset(IterableDataset):
 
         return iters
 
-    def _load_all(self):
+    def _load_all(self, source_type):
         """
         Loads all the iterations of the experiment in the dataset.
 
@@ -148,11 +190,17 @@ class FramesDataset(IterableDataset):
                 max_iter = max(self.iters)
 
             # Load current iteration and return its (images, label) pair.
-            pickle_path = os.path.join(
-                path, str(i), "machine_readable", "iteration_data.pickle"
-            )
-            yield self._load_file(pickle_path)
+            yield self.load_file_function(self.data_source_path(i))
 
+    def data_source_path(self, i):
+        if self.source_type == 'pickle':
+            return os.path.join(self.path, str(i), "machine_readable", "iteration_data.pickle")
+        elif self.source_type == 'video':
+            return os.path.join(self.path, str(i), "experiment_video.mp4")
+        elif self.source_type == 'frames':
+            return os.path.join(self.path, str(i), "human_readable", "frames")
+        else:
+            raise ValueError('invalid source type: must be "pickle", "video", or "frames"')
 
 def every_kth(array, k):
     """
@@ -167,8 +215,7 @@ def every_kth(array, k):
         return array
     return np.array([array[i] for i in range(len(array)) if i % k == 0])
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     # Initialize dataset
     path = "../data/"
@@ -176,21 +223,18 @@ if __name__ == "__main__":
 
     # You can start a Data Loader
     from torch.utils.data import DataLoader
-
     dataloader = DataLoader(dataset=dataset)
 
     # Or you can start an FFCV Writer and write the dataset into an FFCV file.
     from ffcv.writer import DatasetWriter
     from ffcv.fields import NDArrayField, IntField
 
-    write_path = "../ds.beton"
-    writer = DatasetWriter(
-        write_path,
-        {
-            "video": NDArrayField(dtype=np.dtype("float32"), shape=(350, 224, 224, 3)),
-            "label": IntField(),
+    write_path = '../ds.beton'
+    writer = DatasetWriter(write_path, {
+        'video': NDArrayField(dtype=np.dtype("float32"), shape=(350, 224, 224, 3)),
+        'label': IntField()
         },
-        page_size=2 << 28,
-    )
+        page_size = 2<<28)
 
     writer.from_indexed_dataset(dataset)
+    
