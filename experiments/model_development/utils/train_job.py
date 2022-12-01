@@ -173,9 +173,9 @@ class TrainingJob:
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
-    
+
                 if self.config.train_params.save_all_epochs:
-                    torch.save(self.model, self._epoch_model_path %epoch)
+                    torch.save(self.model, self._epoch_model_path % epoch)
 
     def evaluate(self):
         """
