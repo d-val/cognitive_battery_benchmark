@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import re, yaml, os
 
-from utils.framesdata import FramesDataset, collate_videos
+from utils.framesdata import FramesDataset, collate_video
 from utils.model import CNNLSTM
 from utils.translators import expts
 
@@ -66,7 +66,7 @@ class TrainingJob:
     Trains and evaluates CNN+LSTM model based on a configuration file.
     """
 
-    def __init__(self, config, stdout=True, using_ffcv=False):
+    def __init__(self, config, stdout=True, using_ffcv=False, ckpt_path=None):
         """
         Initialize the job and its parameters.
 
@@ -88,18 +88,23 @@ class TrainingJob:
         os.makedirs(self._out_path)
         self._log_path = os.path.join(self._out_path, "training.log")
         self._debug_path = os.path.join(self._out_path, "debugging.log")
-        self._best_model_path = os.path.join(self._out_path, "model.pt")
+        self._best_model_path = os.path.join(self._out_path, "best_model.pt")
+        self._epoch_model_path = os.path.join(self._out_path, "model_e%i.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(
-            config.model.lstm_hidden_size,
-            config.model.lstm_num_layers,
-            config.model.num_classes,
-            cnn_architecture=self.cnn_architecture,
-            pretrained=True,
-        ).to(device)
+        if ckpt_path:
+            self.model = torch.load(ckpt_path)
+        else:
+            self.model = CNNLSTM(
+                config.model.lstm_hidden_size,
+                config.model.lstm_num_layers,
+                config.model.num_classes,
+                cnn_architecture=self.cnn_architecture,
+                pretrained=True,
+            )
+        self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(
             self.model.parameters(), lr=self.config.train_params.lr
@@ -168,6 +173,9 @@ class TrainingJob:
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
+    
+                if self.config.train_params.save_all_epochs:
+                    torch.save(self.model, self._epoch_model_path %epoch)
 
     def evaluate(self):
         """
@@ -329,11 +337,13 @@ class TrainingJob:
                 dataset=train_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
+                collate_fn=collate_video,
             )
             test_loader = DataLoader(
                 dataset=test_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
+                collate_fn=collate_video,
             )
 
         return train_loader, test_loader
