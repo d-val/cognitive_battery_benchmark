@@ -322,12 +322,6 @@ class TrainingJob:
             test_size = len(full_dataset) - train_size
 
             # Construct loaders from datasets
-<<<<<<< HEAD
-            train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
-            train_loader = DataLoader(dataset=train_dataset, collate_fn=collate_videos, batch_size=self.config.data_loader.batch_size, shuffle=True)
-            test_loader = DataLoader(dataset=test_dataset, collate_fn=collate_videos, batch_size=self.config.data_loader.batch_size, shuffle=True)
-        
-=======
             train_dataset, test_dataset = torch.utils.data.random_split(
                 full_dataset, [train_size, test_size]
             )
@@ -342,7 +336,6 @@ class TrainingJob:
                 shuffle=True,
             )
 
->>>>>>> 3f7ab5dd5c2d25ddf2bf28739e613cf4558940b3
         return train_loader, test_loader
 
 
