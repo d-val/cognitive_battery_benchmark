@@ -6,17 +6,18 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 import re, yaml, os
 
-from utils.framesdata import FramesDataset, collate_video
+from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
 from utils.translators import expts
 
 import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+writer = SummaryWriter() # Writer will output to ./runs/ directory by default
 
 class TrainingConfig:
     """
@@ -112,8 +113,9 @@ class TrainingJob:
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
-        self.train_losses = []
-        self.test_losses = []
+        
+        # Keep count of samples seen in training
+        self.train_count = 0
 
     def train(self, evaluate=False):
         """
@@ -152,6 +154,9 @@ class TrainingJob:
                 # backward
                 self.optimizer.zero_grad()
                 loss.backward()
+                
+                writer.add_scalar("Loss/train", loss.item(), self.train_count)
+                self.train_count += 1
 
                 # gradient descent/optimizer step
                 self.optimizer.step()
@@ -159,15 +164,18 @@ class TrainingJob:
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
+                
                 train_acc, train_loss = evals["train"]
+                writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
+                writer.add_scalar("Loss/train_epoch", train_loss, epoch)
+                
                 test_acc, test_loss = evals["test"]
+                writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
+                writer.add_scalar("Loss/test_epoch", test_loss, epoch)
+                
                 self._log(
                     f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
                 )
-
-                # Save train and test loss for later plotability
-                self.train_losses.append(train_loss)
-                self.test_losses.append(test_loss)
 
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
@@ -192,26 +200,6 @@ class TrainingJob:
         test_acc, test_loss = self._check_accuracy(self.test_loader)
 
         return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
-
-    def plot(self, show=True, save=True):
-        """
-        Generates a plot of training and test loss over epochs.
-
-        :param boolean show: whether to show the generated plot
-        :param boolean save: whether to save the generated plot
-        """
-        plt.plot(self.train_losses, label="Training Loss")
-        plt.plot(self.test_losses, label="Testing Loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch")
-        plt.legend()
-
-        if save:
-            plt.savefig(os.path.join(self._out_path, "loss.png"))
-
-        if show:
-            plt.show()
 
     def _check_accuracy(self, loader):
         """
@@ -337,13 +325,13 @@ class TrainingJob:
                 dataset=train_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
-                collate_fn=collate_video,
+                collate_fn=collate_videos,
             )
             test_loader = DataLoader(
                 dataset=test_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
-                collate_fn=collate_video,
+                collate_fn=collate_videos,
             )
 
         return train_loader, test_loader

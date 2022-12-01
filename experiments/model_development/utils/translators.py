@@ -9,7 +9,7 @@ def SHAPE(label):
 
 # Translator for the Gravity Bias experiment
 def GRAVITY(label):
-    return {0: 0, 1: 1, 2: 2}[label]
+    return label
 
 
 # Translator for the Simple Swap experiment
