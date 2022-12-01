@@ -13,8 +13,9 @@ frames/
 resources/
 experiments/dataset_generation/output
 .gravitybiasout/
-data/
+*data/
 *env/
+*runs/
 *cog-battery-baseline/
 *output/
 experiments/human_baseline/img
