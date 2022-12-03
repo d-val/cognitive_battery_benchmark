@@ -17,7 +17,6 @@ from utils.translators import expts
 import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-writer = SummaryWriter() # Writer will output to ./runs/ directory by default
 
 class TrainingConfig:
     """
@@ -85,13 +84,19 @@ class TrainingJob:
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
-        self._out_path = f"output/{self.config.job_name}_{self._start_time}"
-        os.makedirs(self._out_path)
-        self._log_path = os.path.join(self._out_path, "training.log")
-        self._debug_path = os.path.join(self._out_path, "debugging.log")
-        self._best_model_path = os.path.join(self._out_path, "best_model.pt")
-        self._epoch_model_path = os.path.join(self._out_path, "model_e%i.pt")
-        self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
+        
+        out_path = f"output/{self.config.job_name}_{self._start_time}"
+        os.makedirs(out_path)
+        self._log_path = os.path.join(out_path, "training.log")
+        self._debug_path = os.path.join(out_path, "debugging.log")
+        self.config.write_yaml(os.path.join(out_path, "config.yaml"))
+        
+        ckpts_path = os.path.join(out_path, "ckpts")
+        os.makedirs(ckpts_path)
+        self._best_model_path = os.path.join(ckpts_path, "best.ckpt")
+        self._epoch_model_path = os.path.join(ckpts_path, "ep%i.ckpt")
+        
+        self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
@@ -113,7 +118,7 @@ class TrainingJob:
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
-        
+
         # Keep count of samples seen in training
         self.train_count = 0
 
@@ -154,8 +159,8 @@ class TrainingJob:
                 # backward
                 self.optimizer.zero_grad()
                 loss.backward()
-                
-                writer.add_scalar("Loss/train", loss.item(), self.train_count)
+
+                self.writer.add_scalar("Loss/train", loss.item(), self.train_count)
                 self.train_count += 1
 
                 # gradient descent/optimizer step
@@ -164,18 +169,19 @@ class TrainingJob:
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
-                
+
                 train_acc, train_loss = evals["train"]
-                writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
-                writer.add_scalar("Loss/train_epoch", train_loss, epoch)
-                
+                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
+                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
+
                 test_acc, test_loss = evals["test"]
-                writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
-                writer.add_scalar("Loss/test_epoch", test_loss, epoch)
-                
+                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
+                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
+
                 self._log(
                     f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
                 )
+                self.writer.flush()
 
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
@@ -243,7 +249,7 @@ class TrainingJob:
         # Reset the model to train state
         self.model.train()
 
-        return acc, running_loss / num_samples
+        return acc, running_loss / len(loader)
 
     def _log(self, statement):
         """

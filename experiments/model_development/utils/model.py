@@ -71,9 +71,7 @@ class LSTMBlock(nn.Module):
         :return: predictions of shape [batch_size, num_classes].
         :rtype: Tensor
         """
-        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm(x, (h0, c0))
+        out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         return out
 
