@@ -44,23 +44,32 @@ class Experiment(Controller):
 
     def save_frames_to_folder(
         self,
-        SAVE_DIR,
+        base_task_dir,
+        iteration,
         first_person=None,
         save_stats=True,
         db_mode=True,
         save_video=True,
     ):
+        SAVE_DIR = os.path.join(base_task_dir, str(iteration))
+
         fov = first_person if first_person is not None else self.fov
         fov_frames = (
             self.frame_list if self.fov == "front" else self.third_party_camera_frames
         )
         depth_frames = self.depth_list
 
+        if not os.path.isdir(base_task_dir):
+            os.makedirs(base_task_dir)
+        with open(f'{base_task_dir}/labels.txt', 'a') as labels_file:
+            labels_file.write(f'\n{iteration},{self.label}')
+
         if db_mode:
             db_SAVE_DIRS = {
                 "human": f"{SAVE_DIR}/human_readable",
                 "machine": f"{SAVE_DIR}/machine_readable",
             }
+
             for name, folder in db_SAVE_DIRS.items():
                 if not os.path.isdir(f"{folder}"):
                     if name == "human":

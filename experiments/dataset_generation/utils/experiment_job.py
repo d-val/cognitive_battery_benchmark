@@ -75,7 +75,8 @@ class ExperimentJob:
                 experimentClass.run(**parameters["run"])
                 experimentClass.stop()
                 experimentClass.save_frames_to_folder(
-                    f"{folder_name}/{self.jobName}/{experiment}/{iteration}"
+                    base_task_dir=f'{folder_name}/{self.jobName}/{experiment}',
+                    iteration=iteration
                 )
 
     @staticmethod

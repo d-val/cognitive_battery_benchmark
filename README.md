@@ -10,11 +10,13 @@ This repository contains the implementation of these experiments built using [AI
 
 ## 🤖️ Implemented simulations:
 
+Before attempting to reproduce these simulations, ensure that you have completed [basic setup](#💻-installation).
+
 
 ### Gravity Bias
 This experiment tests an agent's ability to recognize the role gravity plays in objects' movements. A number of rewards is dropped through an opaque tube into one of three receptables, and the agent has to infer in which receptable the reward lands.
 
-Unlike the previous experiment, this experiment was built using Unity3D instead of AI2-THOR. To set up the experiment, you need to:
+Unlike some other experiments, this experiment was built using Unity3D instead of AI2-THOR. To set up the experiment, you need to:
 - Download the Gravity Bias Unity build from the following link [here](https://www.dropbox.com/s/5wdirl50wcwh1dr/GravityBias.zip).
 - Unzip the GravityBias.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder.
 
@@ -106,6 +108,9 @@ git clone https://github.com/d-val/cognitive_battery_benchmark
 - Unzip the downloaded thor-OSXIntel64-local.zip file in the `cognitive_battery_benchmark/experiments/dataset_generation/utils` folder
 
 ### Python 3.7 or 3.8 set-up:
+
+Select one of the below installation options (pip *or* conda).
+
 #### With pip:
 
 ```bash
@@ -120,7 +125,7 @@ conda activate cognitive-battery-benchmark
 ```
 
 ## 🕹️ Running simulation
-#### Minimal Example to test if AI2-THOR installation:
+### Minimal Example to test if AI2-THOR installation:
 
 Most of our simulated environments are built on top of the excellent [AI2-THOR](https://github.com/allenai/ai2thor) interactable framework for embodied AI agents.
 After running `pip` or `conda` install earlier, it should have installed AI2-THOR. you can verify that everything is working correctly by running the following minimal example:
@@ -152,21 +157,22 @@ success! <ai2thor.server.Event at 0x7fadd0b87250
 
 
 
-#### Running Human Cognitive Battery Experiment
-To run the experiment:
+### Running Human Cognitive Battery Experiments
+To run [the experiments described above](#🤖️-implemented-simulations), paste the code snippet into the terminal.
 
-#### `SimpleSwap` example
+For instance, for the `SimpleSwap` example, run the code below:
 ```
 cd experiments/dataset_generation
 python simple_swap_example.py
 ```
-If success, a window will pop up, and the experiment will run in the terminal.
+
+If successful, a window will pop up, and the experiment will run in the terminal. The output for the `SimpleSwap` example is shown below:
 
 <img src="static/simpleswap.png" width="200">
 
 ## 💾 Saving Images
 
-To save images of a simulation, uncomment the last line `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py`
+To save images of a simulation, ensure that the last line is uncommented. (By default, the last line is uncommented. For instance, `SimpleSwapExperiment.save_frames_to_folder('output')` in `experiments/dataset_generation/simple_swap_example.py` is uncommented.)
 
 This will save the experiment inside of `experiments/dataset_generation/output` as a `human_readable/` set of frames with accompanying target/label (in the swap experiment, this is the zero-indexed index of the correct pot where the reward ended in), a `machine_readable/` pickle file containing all frames and metadata, and a video `experiment_video.mp4`.
 
@@ -192,6 +198,8 @@ Running Experiment: Shape | 1 Iterations
 100%||█████████████████████████| 1/1 [00:09<00:00,  9.99s/it]
 Running Experiment: SimpleSwap | 1 Iterations
 100%||█████████████████████████| 1/1 [00:12<00:00, 12.46s/it]
+Running Experiment: GravityBias | 1 Iterations
+100%|████████████████████████████████████████████████████████| 1/1 [00:22<00:00, 22.57s/it]
 
 ```
 
@@ -199,6 +207,14 @@ The created datasets will be stored in `cd experiments/dataset_generation/output
 
 Here is a [link](https://www.dropbox.com/s/olexofguy109jli/2022-01-31_15_28_40_429894.zip?dl=0) to a zipped folder as an example of the expected output. 
 
+### Running headless
+If you plan to generate a dataset with a Linux headless instance, run:
+
+```bash
+python setup/linux_setup.py
+```
+
+Then, make sure to use the `_linux` renderer config; then the rest of the dataset generation is the same.
 
 ## 🚨 Issues & Debugging
 - When running on OS X, you might get a prompt that `thor-OSXIntel64-local` is not verified. Follow the following [steps](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac) for allowing running of the file.

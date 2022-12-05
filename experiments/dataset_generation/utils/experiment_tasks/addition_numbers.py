@@ -259,7 +259,7 @@ class AdditionNumbers(Experiment):
                 _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
-                    [(0, 0, 0.4), (-0.73, 0, 0), (0, dir*0.2, 0),(0, 0, -0.5)],
+                    [(0, 0, 0.4), (-0.73, 0, 0), (0, dir * 0.2, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.depth_list,
                     self.third_party_camera_frames,
