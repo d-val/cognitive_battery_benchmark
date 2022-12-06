@@ -229,6 +229,7 @@ class Rotation(Experiment):
             # add frame to corresponding frame list
             self.frame_list.append(self.last_event.frame)
             self.depth_list.append(self.last_event.depth_frame)
+            self.segmentation_list.append(self.last_event.instance_segmentation_frame)
             self.third_party_camera_frames.append(
                 self.last_event.third_party_camera_frames[0]
             )
@@ -242,6 +243,7 @@ class Rotation(Experiment):
                             [(0, 0, moveup_magnitude), (0, 0, -moveup_magnitude)],
                             self.frame_list,
                             self.depth_list,
+                            self.segmentation_list,
                             self.third_party_camera_frames,
                         )
         out = None

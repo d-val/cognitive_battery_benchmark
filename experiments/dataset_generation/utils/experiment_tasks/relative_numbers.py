@@ -208,6 +208,7 @@ class RelativeNumbers(Experiment):
 
         self.frame_list = [self.last_event.frame]
         self.depth_list = [self.last_event.depth_frame]
+        self.segmentation_list = [self.last_event.instance_segmentation_frame]
 
         self.stats.update(
             {

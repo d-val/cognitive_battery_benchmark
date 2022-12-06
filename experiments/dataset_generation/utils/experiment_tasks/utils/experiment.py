@@ -37,15 +37,17 @@ class Experiment(Controller):
         )
         self.frame_list = []
         self.depth_list = []
+        self.segmentation_list = []
         self.saved_frames = []
         self.third_party_camera_frames = []
         self.fov = fov
         self.include_depth = controller_args["renderDepthImage"]
+        self.include_segmentation = controller_args["renderInstanceSegmentation"]
 
     def save_frames_to_folder(
         self,
         base_task_dir,
-        iteration,
+        iteration=0,
         first_person=None,
         save_stats=True,
         db_mode=True,
@@ -58,6 +60,7 @@ class Experiment(Controller):
             self.frame_list if self.fov == "front" else self.third_party_camera_frames
         )
         depth_frames = self.depth_list
+        segmentation_frames = self.segmentation_list
 
         if not os.path.isdir(base_task_dir):
             os.makedirs(base_task_dir)
@@ -76,6 +79,8 @@ class Experiment(Controller):
                         os.makedirs(f"{folder}/frames")
                         if self.include_depth:
                             os.makedirs(f"{folder}/depths")
+                        if self.include_segmentation:
+                            os.makedirs(f"{folder}/segmented")
                     else:
                         os.makedirs(f"{folder}")
                 with open(
@@ -93,7 +98,12 @@ class Experiment(Controller):
                     # Saving depth frames.
                     if self.include_depth:
                         for i, frame in enumerate(depth_frames):
-                            np.save(f"{folder}/depths/frame_{i}.npy", frame)       
+                            np.save(f"{folder}/depths/frame_{i}.npy", frame)    
+
+                    # Saving depth frames.
+                    if self.include_segmentation:
+                        for i, frame in enumerate(segmentation_frames):
+                            np.save(f"{folder}/segmented/frame_{i}.npy", frame)       
                 elif name == "machine":
                     iter_data = {
                         "images": fov_frames,
@@ -102,6 +112,8 @@ class Experiment(Controller):
                     }
                     if self.include_depth:
                         iter_data["depths"] = depth_frames
+                    if self.include_segmentation:
+                        iter_data["segmented"] = segmentation_frames
                     with open(f"{folder}/iteration_data.pickle", "wb") as handle:
                         pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
         else:

@@ -204,21 +204,23 @@ class Shape(Experiment):
 
         for obj in self.last_event.metadata["objects"]:
             if obj["name"] == "Occluder":
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
             elif "Occluder" in obj["name"]:
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
 
@@ -228,21 +230,23 @@ class Shape(Experiment):
 
         for obj in self.last_event.metadata["objects"]:
             if obj["name"] == "Occluder":
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.1), (0, -1, 0)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
             elif "Occluder" in obj["name"]:
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.1), (0, 1, 0)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
 

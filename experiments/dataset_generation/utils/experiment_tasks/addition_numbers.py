@@ -256,12 +256,13 @@ class AdditionNumbers(Experiment):
                 dir = -0.75 if obj["position"]["z"] < 0 else 0.35
 
                 # left and right stay on table
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.4), (-0.73, 0, 0), (0, dir * 0.2, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
 
@@ -269,12 +270,13 @@ class AdditionNumbers(Experiment):
         # remove all bowls
         for obj in current_objects:
             if obj["name"][:7] == "BigBowl" and abs(obj["position"]["z"]):
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.4), (0.9, 0, 0), (0, 0, -0.5)],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
 
@@ -292,7 +294,7 @@ class AdditionNumbers(Experiment):
             move_side = "left"
         for obj in current_objects:
             if obj["name"].startswith(rewardType) and abs(obj["position"]["z"]) < 0.3:
-                _, self.frame_list, self.depth_list, self.third_party_camera_frames = move_object(
+                _, self.frame_list, self.depth_list, self.segmentation_list, self.third_party_camera_frames = move_object(
                     self,
                     obj["objectId"],
                     [
@@ -303,6 +305,7 @@ class AdditionNumbers(Experiment):
                     ],
                     self.frame_list,
                     self.depth_list,
+                    self.segmentation_list,
                     self.third_party_camera_frames,
                 )
 
