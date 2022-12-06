@@ -4,7 +4,6 @@ AdditionNumbers:
     width: 300
     height: 300
   init:
-    fov: [ 90, 120 ]
     visibilityDistance: 5
   run:
     rewardTypes: ["Potato", "Tomato", "Apple"]

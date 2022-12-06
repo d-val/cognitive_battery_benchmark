@@ -33,6 +33,8 @@ class GravityBias(Experiment):
 
         self.seed = seed
         self.fov = fov
+        if isinstance(self.fov, list):
+            self.fov = random.randint(*self.fov)
         self.unity_build = controller_args["unity_build"]
 
         self.controller_args = controller_args
@@ -143,7 +145,7 @@ class GravityBias(Experiment):
         args += f'--outdir "{self.outpath}" -record --seed {self.seed} '
         args += f'--width {self.controller_args["width"]} '
         args += f'--height {self.controller_args["width"]} '
-        args += f'--fov {np.random.uniform(self.fov[0], self.fov[1])} '
+        args += f'--fov {self.fov} '
         args += f'--speed {play_speed} '
 
         if type(num_receptacles) == int:
