@@ -141,7 +141,7 @@ class FramesDataset(IterableDataset):
     def _load_frames(self, frames_path):
         # Load images
         images = []
-        for frame in os.path.listdir(frames_path):
+        for frame in os.listdir(frames_path):
             frame_path = os.path.join(frames_path, frame)
             frame = Image.open(frame_path)
             images.append(np.asarray(frame, dtype=np.float32))
