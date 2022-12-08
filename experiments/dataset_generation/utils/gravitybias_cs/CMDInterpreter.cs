@@ -12,10 +12,19 @@ public class CMDInterpreter : MonoBehaviour
         int screenWidth = 1920; // Default width
         int screenHeight = 1080; // Default height
 
+        FrameRecorder fr = GetComponent<FrameRecorder>();
+
         for (int i = 0; i < args.Length; i++) {
-            if (args[i] == "-record") {
-                // Start recorder
-                GetComponent<FrameRecorder>().isRecording = true;
+            if (args[i] == "--record") {
+                fr.isRecording = true;
+            }
+
+            if (args[i] == "--depth") {
+                fr.isRecordingDepth = true;
+            }
+
+            if (args[i] == "--segmentation") {
+                fr.isRecordingSegmentation = true;
             }
 
             // Enable dev logging, if flagged
@@ -41,7 +50,7 @@ public class CMDInterpreter : MonoBehaviour
                 }
                 
                 // Sets the recorder's directory
-                GetComponent<FrameRecorder>().outPath = Path.Combine(outPath, "human_readable", "frames");
+                GetComponent<FrameRecorder>().outPath = Path.Combine(outPath, "human_readable");
                 GetComponent<ExptStatsWriter>().statsOutPath = outPath;
             }
 

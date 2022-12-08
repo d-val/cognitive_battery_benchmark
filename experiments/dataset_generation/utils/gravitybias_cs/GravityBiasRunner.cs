@@ -187,9 +187,6 @@ public class GravityBiasRunner : MonoBehaviour
         stats.Add("num_rewards", numRewards.ToString());
 
         destVector = newDestVector();
-        Debug.Log("numReceptacles: " + numReceptacles.ToString());
-        Debug.Log("numTubes: " + numTubes.ToString());
-        Debug.Log("numRewards: " + numRewards.ToString());
     }
 
     // Runs every frame
@@ -227,10 +224,6 @@ public class GravityBiasRunner : MonoBehaviour
     // Generates one of the tubes (either vertical or s-shaped)
     List<TubeState> generateCondition(List<Tube> tubes, int drop, int final){
         if (!(tubes.Count > 0 && Mathf.Abs(drop - final) <= 2 && drop < numReceptacles && final < numReceptacles)){
-            Debug.Log(tubes.Count > 0);
-            Debug.Log(Mathf.Abs(drop - final) <= 2);
-            Debug.Log(drop < numReceptacles);
-            Debug.Log(final < numReceptacles);
             return new List<TubeState>();
         }
         SysRandom randomizer = new SysRandom(seed);
@@ -258,10 +251,6 @@ public class GravityBiasRunner : MonoBehaviour
                 }
                 break;
             }
-        }
-        if (finalPlacements.Count == 0){
-            Debug.Log("SNAFUUUUU!!!");
-            // throw new Exception("No tube combination matches initial conditions of numTubes and numReceptacles");
         }
 
         while (occupied.Contains(false) && finalPlacements.Count < numTubes){

@@ -10,19 +10,21 @@ import pickle
 import yaml
 import cv2
 import shutil
+from PIL import Image
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 SUPPRESS_BUILD_OUTPUT = True
 
 
 class GravityBias(Experiment):
-
     def __init__(
         self,
         controller_args={
             "unity_build": "utils/GravityBias.app",
-            "width": 800,
-            "height": 800,
+            "width": 300,
+            "height": 300,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
             "show": True,
         },
         fov=[50, 65],
@@ -44,10 +46,7 @@ class GravityBias(Experiment):
                 "The Gravity Bias build is not in utils. "
                 "Please download it and re-run this script."
             )
-        self.bin_path = os.path.join(
-            self.unity_build,
-            'Contents/MacOS/"Gravity Bias"'
-        )
+        self.bin_path = os.path.join(self.unity_build, 'Contents/MacOS/"Gravity Bias"')
 
         self.outpath = os.path.join(os.getcwd(), ".gravitybiasout/")
         if os.path.isdir(self.outpath):
@@ -56,12 +55,15 @@ class GravityBias(Experiment):
 
         os.makedirs(os.path.join(self.outpath + "human_readable/" + "frames/"))
         os.makedirs(os.path.join(self.outpath + "machine_readable"))
+        if controller_args["renderDepthImage"]:
+            os.makedirs(os.path.join(self.outpath + "human_readable/" + "depths/"))
+        if controller_args["renderInstanceSegmentation"]:
+            os.makedirs(os.path.join(self.outpath + "human_readable/" + "segmented/"))
 
     def save_pickle(self, pickle_path, hr_path, frames):
         # Getting 'images'
         frame_names = sorted(
-            frames.keys(),
-            key=lambda x: int(x[:-4].split("_")[-1])
+            frames.keys(), key=lambda x: int(x.split(".")[0].split("_")[-1])
         )
         images = [np.asarray(frames[img]) for img in frame_names]
 
@@ -90,15 +92,14 @@ class GravityBias(Experiment):
 
         # Initializing frames and their dims
         frame_names = sorted(
-            frames.keys(),
-            key=lambda x: int(x[:-4].split("_")[-1])
+            frames.keys(), key=lambda x: int(x.split(".")[0].split("_")[-1])
         )
         init_frame = frames[frame_names[0]]
         height, width, _layers = init_frame.shape
 
         # Creating the video at video_path
         fps = 30
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         video = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
 
         # Appending the frames to the video one by one
@@ -118,7 +119,7 @@ class GravityBias(Experiment):
 
         images = {}
         for image in os.listdir(frames_dir):
-            if image.endswith("png"):
+            if image.endswith("png") or image.endswith("jpeg"):
                 images[image] = cv2.imread(os.path.join(frames_dir, image))
         return images
 
@@ -141,22 +142,27 @@ class GravityBias(Experiment):
         if not self.controller_args["show"]:
             args += " -batchmode "
         if dev_mode:
-            args += f'--dev {play_speed} '
-        args += f'--outdir "{self.outpath}" -record --seed {self.seed} '
+            args += f"--dev {play_speed} "
+        args += f'--outdir "{self.outpath}" --record --seed {self.seed} '
         args += f'--width {self.controller_args["width"]} '
         args += f'--height {self.controller_args["width"]} '
-        args += f'--fov {self.fov} '
-        args += f'--speed {play_speed} '
+        args += f"--fov {self.fov} "
+        args += f"--speed {play_speed} "
 
         if type(num_receptacles) == int:
-            args += f'--num-receptacles {num_receptacles} '
+            args += f"--num-receptacles {num_receptacles} "
         elif type(num_receptacles) in {list, tuple}:
-            args += f'--num-receptacles {np.random.choice(num_receptacles)} '
+            args += f"--num-receptacles {np.random.choice(num_receptacles)} "
 
         if type(num_tubes) == int:
-            args += f'--num-tubes {num_tubes} '
+            args += f"--num-tubes {num_tubes} "
         elif type(num_tubes) in {list, tuple}:
-            args += f'--num-tubes {np.random.choice(num_tubes)} '
+            args += f"--num-tubes {np.random.choice(num_tubes)} "
+
+        if self.controller_args["renderDepthImage"]:
+            args += "--depth "
+        if self.controller_args["renderInstanceSegmentation"]:
+            args += "--segmentation "
 
         suppress_suffix = " > /dev/null " if SUPPRESS_BUILD_OUTPUT else ""
 
@@ -165,7 +171,7 @@ class GravityBias(Experiment):
         os.system(f"xattr -r -d com.apple.quarantine {self.unity_build}")
 
         # Runs the experiment binary
-        os.system(f'./{self.bin_path} {args} {suppress_suffix}')
+        os.system(f"./{self.bin_path} {args} {suppress_suffix}")
 
     def stop(self):
         # Automatically stops
@@ -193,16 +199,19 @@ class GravityBias(Experiment):
             shutil.move(self.outpath, new_path)
             self.outpath = new_path
         except OSError:
-            raise ValueError(f"The directory {SAVE_DIR} is not empty. "
-                             "Output remain in {self.outpath}")
+            raise ValueError(
+                f"The directory {SAVE_DIR} is not empty. "
+                "Output remain in {self.outpath}"
+            )
         except Exception:
-            raise ValueError(f"Could not save in {SAVE_DIR}. "
-                             "Output remain in {self.outpath}")
+            raise ValueError(
+                f"Could not save in {SAVE_DIR}. " "Output remain in {self.outpath}"
+            )
 
         db_SAVE_DIRS = {
-                "human": f"{SAVE_DIR}/human_readable",
-                "machine": f"{SAVE_DIR}/machine_readable",
-            }
+            "human": f"{SAVE_DIR}/human_readable",
+            "machine": f"{SAVE_DIR}/machine_readable",
+        }
 
         if save_video or save_stats:
             frames_path = os.path.join(db_SAVE_DIRS["human"], "frames")
@@ -211,22 +220,36 @@ class GravityBias(Experiment):
                 video_path = os.path.join(SAVE_DIR, "experiment_video.mp4")
                 self.save_video(frames, video_path)
             if save_stats:
-                self.save_pickle(
-                    db_SAVE_DIRS["machine"],
-                    db_SAVE_DIRS["human"],
-                    frames
-                )
+                self.save_pickle(db_SAVE_DIRS["machine"], db_SAVE_DIRS["human"], frames)
+                
+        if self.controller_args["renderDepthImage"]:
+            depth_outpath = os.path.join(db_SAVE_DIRS["human"], "depths")
+            for fname in os.listdir(depth_outpath):
+                frame_path = os.path.join(depth_outpath, fname)
+                depth_img = Image.open(frame_path)
+                
+                depth_npy_path = os.path.join(depth_outpath, fname.replace("png", "npy"))
+                depth_npy = np.power(np.asarray(depth_img)[..., 0] / 256.0, 4) * 5
+                np.save(depth_npy_path, depth_npy)
+                os.remove(frame_path)
+            
+        if self.controller_args["renderInstanceSegmentation"]:
+            segmented_outpath = os.path.join(db_SAVE_DIRS["human"], "segmented")
+            for fname in os.listdir(segmented_outpath):
+                frame_path = os.path.join(segmented_outpath, fname)
+                seg_img = Image.open(frame_path)
+                
+                seg_npy = np.asarray(seg_img)
+                seg_npy_path = os.path.join(segmented_outpath, fname.replace("png", "npy"))
+                np.save(seg_npy_path, seg_npy)
+                os.remove(frame_path)
+        
         return
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Rotation from file")
-    parser.add_argument(
-        "-S",
-        "--show",
-        action="store_true",
-        help="show experiment"
-    )
+    parser.add_argument("-S", "--show", action="store_true", help="show experiment")
     parser.add_argument(
         "saveTo",
         action="store",
@@ -265,11 +288,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     experiment = GravityBias(
-        {"height": args.height,
-         "width": args.width,
-         "unity_build": args.buildPath,
-         "show": args.show},
-        seed=args.seed
+        {
+            "height": args.height,
+            "width": args.width,
+            "unity_build": args.buildPath,
+            "show": args.show,
+        },
+        seed=args.seed,
     )
     experiment.run(
         case=args.case,
