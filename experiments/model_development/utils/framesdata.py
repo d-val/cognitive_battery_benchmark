@@ -11,7 +11,7 @@ if pickle.HIGHEST_PROTOCOL < 5:
 import os, random
 import cv2 as cv
 from PIL import Image
-
+import yaml
 
 class FramesDataset(IterableDataset):
     """
@@ -27,6 +27,7 @@ class FramesDataset(IterableDataset):
         train=False,
         shuffle=True,
         source_type="pickle",
+        yaml_label_key="label",
     ):
         """
         Loads the machine readable data from experiment and initializes the dataset.
@@ -47,6 +48,7 @@ class FramesDataset(IterableDataset):
         self.shuffle = shuffle
         self.label_translator = label_translator
         self.source_type = source_type
+        self.yaml_label_key = yaml_label_key
         self.iters = self._get_iters()
 
         if self.source_type == "pickle":
@@ -82,9 +84,6 @@ class FramesDataset(IterableDataset):
             raise IndexError()
 
         itr = self.iters[index]
-        pickle_path = os.path.join(
-            self.path, str(itr), "machine_readable", "iteration_data.pickle"
-        )
         return self.load_file_function(self.data_source_path(itr))
 
     def __iter__(self):
@@ -94,7 +93,7 @@ class FramesDataset(IterableDataset):
         :return: a generator of images and labels.
         :rtype: generator of tuples (np.ndarray[fpv, *frame_shape], int)
         """
-        loader = self._load_all(self.source_type)
+        loader = self._load_all()
         for images, label in loader:
             yield (images, label)
 
@@ -140,27 +139,21 @@ class FramesDataset(IterableDataset):
         return every_kth(images, self.skip_every), every_kth(labels, self.skip_every)
 
     def _load_frames(self, frames_path):
+        # Load images
         images = []
-        labels = []
-        frame_counter = 0
-        while True:
-            try:
-                frame_path = os.path.join(frames_path, f"frame_{frame_counter}.jpeg")
-            except FileNotFoundError:
-                frame_path = os.path.join(frames_path, f"frame_{frame_counter}.jpg")
-            except FileNotFoundError:
-                frame_path = os.path.join(frames_path, f"frame_{frame_counter}.png")
-            except FileNotFoundError:
-                break
-
+        for frame in os.path.listdir(frames_path):
+            frame_path = os.path.join(frames_path, frame)
             frame = Image.open(frame_path)
-            images.append(np.asarray(frame, dtype="float32"))
-
-            ...  # TODO: fetch label and append to labels
-
-            frame_counter += 1
-
-        return every_kth(images, self.skip_every), every_kth(labels, self.skip_every)
+            images.append(np.asarray(frame, dtype=np.float32))
+            
+        images = every_kth(images, self.skip_every)
+        
+        # Load label
+        with open(os.path.join(frames_path, "..", "experiment_stats.yaml")) as f:
+            data = yaml.safe_load(f)
+            label = data[self.yaml_label_key]
+        
+        return images, label
 
     def _get_iters(self, iters=None, cur_max=-1):
         """
@@ -188,7 +181,7 @@ class FramesDataset(IterableDataset):
 
         return iters
 
-    def _load_all(self, source_type):
+    def _load_all(self):
         """
         Loads all the iterations of the experiment in the dataset.
 

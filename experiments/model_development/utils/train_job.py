@@ -12,7 +12,7 @@ import re, yaml, os
 
 from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expts, label_keys
 
 import matplotlib.pyplot as plt
 
@@ -319,6 +319,8 @@ class TrainingJob:
                 skip_every=self.config.data_loader.skip_every,
                 train=True,
                 shuffle=True,
+                source_type=self.config.data_loader.source_type,
+                yaml_label_key=label_keys[config.expt_name],
             )
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
