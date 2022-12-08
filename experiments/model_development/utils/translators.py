@@ -18,3 +18,7 @@ def SWAP(label):
 
 
 expts = {"shape": SHAPE, "gravity": GRAVITY, "swap": SWAP}
+label_keys = {
+    "swap": "final_object_location",
+    "gravity": "final_drop_location",
+}
