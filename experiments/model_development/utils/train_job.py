@@ -320,7 +320,7 @@ class TrainingJob:
                 train=True,
                 shuffle=True,
                 source_type=self.config.data_loader.source_type,
-                yaml_label_key=label_keys[config.expt_name],
+                yaml_label_key=label_keys[self.config.expt_name],
             )
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
