@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "scripts": {
+    "jspsych": "jspsych -e experiment",
+    "start": "npm run jspsych -- run",
+    "build": "npm run jspsych -- build",
+    "jatos": "npm run jspsych -- build --jatos"
+  },
+  "dependencies": {
+    "@jspsych/plugin-fullscreen": "^1.1.1",
+    "@jspsych/plugin-html-keyboard-response": "^1.1.1",
+    "@jspsych/plugin-preload": "^1.1.1",
+    "@jspsych/plugin-survey-multi-choice": "^1.1.2",
+    "@jspsych/plugin-survey-text": "^1.1.2",
+    "@jspsych/plugin-video-keyboard-response": "^1.1.2",
+    "@jspsych/plugin-webgazer-init-camera": "^1.0.2",
+    "js-yaml": "^4.1.0",
+    "jspsych": "^7.2.3"
+  },
+  "devDependencies": {
+    "jspsych-builder": "^4.3.1",
+    "react-app-rewired": "^2.2.1"
+  },
+  "browserslist": ">0.25%, not dead"
+}

@@ -1,0 +1,12 @@
+RelativeNumbers:
+  iterations: 1000
+  run:
+    defined_rewards: null
+    max_rewards:
+    - 8
+    - 8
+    rewardType: null
+    rewardTypes:
+    - Potato
+    - Tomato
+    - Apple
