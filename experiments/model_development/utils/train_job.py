@@ -103,16 +103,13 @@ class TrainingJob:
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        if ckpt_path:
-            self.model = torch.load(ckpt_path)
-        else:
-            self.model = CNNLSTM(
-                config.model.lstm_hidden_size,
-                config.model.lstm_num_layers,
-                config.model.num_classes,
-                cnn_architecture=self.cnn_architecture,
-                pretrained=True,
-            )
+        self.model = TimeSformer(
+            img_size=self.config.data_loader.image_size,
+            patch_size=self.config.data_loader.patch_size,
+            num_classes=config.model.num_classes,
+            pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', # download from https://github.com/facebookresearch/TimeSformer
+            num_frames=104
+        )
         self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(
