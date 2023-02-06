@@ -21,10 +21,12 @@ CNN_OUTPUT_SIZES = {
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 class Identity(nn.Module):
     """
     An Identity neural network block.
     """
+
     def __init__(self):
         super(Identity, self).__init__()
 
@@ -38,10 +40,12 @@ class Identity(nn.Module):
         """
         return x
 
+
 class LSTMBlock(nn.Module):
     """
     An LSTM block consisting of bidriectional RNNs.
     """
+
     def __init__(self, input_size, hidden_size, num_layers, num_classes):
         """
         Creates a bidirectional LSTM block
@@ -67,17 +71,24 @@ class LSTMBlock(nn.Module):
         :return: predictions of shape [batch_size, num_classes].
         :rtype: Tensor
         """
-        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm(x, (h0, c0))
+        out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         return out
+
 
 class CNNLSTM(nn.Module):
     """
     Wrapper around CNNs with the FC layer replaced by an LSTM block.
     """
-    def __init__(self, lstm_hidden_size, lstm_num_layers, num_classes, cnn_architecture="resnet18", pretrained=True):
+
+    def __init__(
+        self,
+        lstm_hidden_size,
+        lstm_num_layers,
+        num_classes,
+        cnn_architecture="resnet18",
+        pretrained=True,
+    ):
         """
         Loads the appropriate CNN model, disables the output layer, and adds an LSTM block.
 
@@ -90,7 +101,12 @@ class CNNLSTM(nn.Module):
         super(CNNLSTM, self).__init__()
         self.cnn = CNN_MODELS[cnn_architecture](pretrained=pretrained)
         set_last_identity(self.cnn, cnn_architecture)
-        self.lstm = LSTMBlock(CNN_OUTPUT_SIZES[cnn_architecture], lstm_hidden_size, lstm_num_layers, num_classes)
+        self.lstm = LSTMBlock(
+            CNN_OUTPUT_SIZES[cnn_architecture],
+            lstm_hidden_size,
+            lstm_num_layers,
+            num_classes,
+        )
 
     def forward(self, videos: torch.Tensor) -> torch.Tensor:
         """
@@ -101,11 +117,12 @@ class CNNLSTM(nn.Module):
         :rtype: Tensor
         """
         batch_size, timesteps, C, H, W = videos.size()
-        c_in = videos.view(batch_size*timesteps, C, H, W)  
+        c_in = videos.view(batch_size * timesteps, C, H, W)
         c_out = self.cnn(c_in)
         r_in = c_out.view(batch_size, timesteps, -1)
         r_out = self.lstm(r_in)
         return r_out
+
 
 def set_last_identity(model, cnn_architecture):
     """
@@ -122,6 +139,7 @@ def set_last_identity(model, cnn_architecture):
     else:
         pass
 
+
 if __name__ == "__main__":
     # Loads a Resnet18 + LSTM model
     cnn_architecture = "resnet18"
@@ -129,4 +147,5 @@ if __name__ == "__main__":
 
     # Shows a description of the CNNLSTM model architecture
     from torchinfo import summary
+
     summary(model, input_size=(1, 205, 3, 224, 224))
