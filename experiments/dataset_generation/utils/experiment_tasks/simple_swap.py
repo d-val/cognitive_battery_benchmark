@@ -85,6 +85,8 @@ class SimpleSwap(Experiment):
         swaps=None,
         pots_to_swap=None,
         reward_position=None,
+        num_receptacles=8,
+        receptacle_position_limits=[-0.7, 0.7],
     ):
 
         self.moveup_magnitude = moveup_magnitude
@@ -135,42 +137,21 @@ class SimpleSwap(Experiment):
                         },
                     }
                 )
-
+            positions = np.linspace(*receptacle_position_limits, num=num_receptacles)
             # Set recetacles location, initialize 3 times on the table at pre-determined positions
             if obj["objectType"] == receptacleType:
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {
-                            "x": -0.4351297914981842,
-                            "y": 1.1031372547149658,
-                            "z": 0.7,
-                        },
-                    }
-                )
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {
-                            "x": -0.4351317286491394,
-                            "y": 1.1031371355056763,
-                            "z": -7.855288276914507e-05,
-                        },
-                    }
-                )
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {
-                            "x": -0.4351297914981842,
-                            "y": 1.1031371355056763,
-                            "z": -0.7,
-                        },
-                    }
-                )
+                for i in range(num_receptacles):
+                    initialPoses.append(
+                        {
+                            "objectName": obj["name"],
+                            "rotation": {"x": -0.0, "y": 0, "z": 0},
+                            "position": {
+                                "x": -0.4351297914981842,
+                                "y": 1.1031372547149658,
+                                "z": positions[i],
+                            },
+                        }
+                    )
             # Ignore reward and receptacles object, they will not be randomized place behind the table
             if obj["objectType"] in [rewardType] + receptacleTypes:
                 pass
@@ -256,7 +237,10 @@ class SimpleSwap(Experiment):
         for pot_swap in pots_to_swap:
             self.swap(pot_swap)
         swap_directions = [
-            [self.determine_reward_loc(-pot1[1]), self.determine_reward_loc(-pot2[1])]
+            [
+                self.determine_reward_loc(-pot1[1], positions),
+                self.determine_reward_loc(-pot2[1], positions),
+            ]
             for pot1, pot2 in pots_to_swap
         ]
         # get reward final z coordinates
@@ -274,24 +258,23 @@ class SimpleSwap(Experiment):
                 "receptacleType": receptacleType,
                 "rewardType": rewardType,
                 "initial_object_location": self.determine_reward_loc(
-                    chosen_receptacle_z
+                    chosen_receptacle_z, positions
                 ),
                 "num_swaps": swaps,
                 "swap_directions": swap_directions,
-                "final_object_location": self.determine_reward_loc(reward_final_z),
+                "final_object_location": self.determine_reward_loc(
+                    reward_final_z, positions
+                ),
             }
         )
 
-        self.label = self.determine_reward_loc(reward_final_z)
+        self.label = self.determine_reward_loc(reward_final_z, positions)
 
     @staticmethod
-    def determine_reward_loc(z_coor):
-        if -1 < z_coor < -0.35:
-            return "right"
-        elif -0.35 <= z_coor <= 0.35:
-            return "middle"
-        elif 0.35 < z_coor < 1:
-            return "left"
+    def determine_reward_loc(z_coor, positions):
+        array = np.asarray(positions)
+        idx = (np.abs(array - z_coor)).argmin()
+        return idx
 
     # Swap 2 receptacles
     def swap(self, swap_receptacles):
