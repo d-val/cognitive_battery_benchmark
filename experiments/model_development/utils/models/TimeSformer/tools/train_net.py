@@ -56,16 +56,16 @@ def train_epoch(
         if cfg.NUM_GPUS:
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
-                    inputs[i] = inputs[i].cuda(non_blocking=True)
+                    inputs[i] = inputs[i].cuda(non_blocking=True).half()
             else:
-                inputs = inputs.cuda(non_blocking=True)
-            labels = labels.cuda()
+                inputs = inputs.cuda(non_blocking=True).half()
+            labels = labels.cuda().half()
             for key, val in meta.items():
                 if isinstance(val, (list,)):
                     for i in range(len(val)):
-                        val[i] = val[i].cuda(non_blocking=True)
+                        val[i] = val[i].cuda(non_blocking=True).half()
                 else:
-                    meta[key] = val.cuda(non_blocking=True)
+                    meta[key] = val.cuda(non_blocking=True).half()
 
         # Update the learning rate.
         lr = optim.get_epoch_lr(cur_epoch + float(cur_iter) / data_size, cfg)
@@ -211,16 +211,16 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
             # Transferthe data to the current GPU device.
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
-                    inputs[i] = inputs[i].cuda(non_blocking=True)
+                    inputs[i] = inputs[i].cuda(non_blocking=True).half()
             else:
-                inputs = inputs.cuda(non_blocking=True)
-            labels = labels.cuda()
+                inputs = inputs.cuda(non_blocking=True).half()
+            labels = labels.cuda().half()
             for key, val in meta.items():
                 if isinstance(val, (list,)):
                     for i in range(len(val)):
-                        val[i] = val[i].cuda(non_blocking=True)
+                        val[i] = val[i].cuda(non_blocking=True).half()
                 else:
-                    meta[key] = val.cuda(non_blocking=True)
+                    meta[key] = val.cuda(non_blocking=True).half()
         val_meter.data_toc()
 
         if cfg.DETECTION.ENABLE:
@@ -323,9 +323,9 @@ def calculate_and_update_precise_bn(loader, model, num_iters=200, use_gpu=True):
             if use_gpu:
                 if isinstance(inputs, (list,)):
                     for i in range(len(inputs)):
-                        inputs[i] = inputs[i].cuda(non_blocking=True)
+                        inputs[i] = inputs[i].cuda(non_blocking=True).half()
                 else:
-                    inputs = inputs.cuda(non_blocking=True)
+                    inputs = inputs.cuda(non_blocking=True).half()
             yield inputs
 
     # Update the bn stats.

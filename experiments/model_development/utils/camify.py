@@ -52,7 +52,7 @@ def camify(dataset, model, indices, cam_fn=GradCAM, outpath="gifs", verbose=True
 
         # Getting CAM visualization
         input_tensor = np.asarray(video_orig, dtype=np.float32).transpose((0, 3, 1, 2))
-        input_tensor = torch.from_numpy(input_tensor).unsqueeze(dim=0).cuda()
+        input_tensor = torch.from_numpy(input_tensor).unsqueeze(dim=0).cuda().half()
 
         rgb_video = np.array(input_tensor[0].cpu())
         rgb_video = normalize(rgb_video)

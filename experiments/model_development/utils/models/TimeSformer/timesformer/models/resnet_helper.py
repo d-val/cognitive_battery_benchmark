@@ -5,8 +5,8 @@
 import torch
 import torch.nn as nn
 
-from timesformer.models.nonlocal_helper import Nonlocal
-from timesformer.models.operators import SE, Swish
+from utils.models.TimeSformer.timesformer.models.nonlocal_helper import Nonlocal
+from utils.models.TimeSformer.timesformer.models.operators import SE, Swish
 
 from torch import einsum
 from einops import rearrange, reduce, repeat

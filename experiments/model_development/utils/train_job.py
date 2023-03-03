@@ -107,7 +107,7 @@ class TrainingJob:
             img_size=self.config.data_loader.image_size,
             patch_size=self.config.data_loader.patch_size,
             num_classes=config.model.num_classes,
-            pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_96x4_224_K400.pyth', # download from https://github.com/facebookresearch/TimeSformer
+            pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_8x32_224_K400.pyth', # download from https://github.com/facebookresearch/TimeSformer
             num_frames=104
         )
         self.model.to(device)
@@ -154,6 +154,7 @@ class TrainingJob:
                 else:
                     targets = targets.to(device=device)
                 data = torch.permute(data, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
+                data = data.narrow(1, 0, 3) # trim channels from 4 to 3
 
                 # forward
                 prediction = self.model(data)
@@ -168,6 +169,8 @@ class TrainingJob:
 
                 # gradient descent/optimizer step
                 self.optimizer.step()
+
+                torch.cuda.empty_cache()
 
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
@@ -252,6 +255,7 @@ class TrainingJob:
                 if self.using_ffcv:
                     y = y.squeeze(1)
                 x = torch.permute(x, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
+                x = x.narrow(1, 0, 3) # cut channels to 3
 
                 # Get model predictions and calculate loss
                 scores = self.model(x)
@@ -271,6 +275,8 @@ class TrainingJob:
 
         # Reset the model to train state
         self.model.train()
+
+        # torch.cuda.empty_cache()
 
         return acc, running_loss / len(loader)
 

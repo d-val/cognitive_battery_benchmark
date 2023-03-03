@@ -2,7 +2,7 @@
 
 """Set up Environment."""
 
-import timesformer.utils.logging as logging
+import utils.models.TimeSformer.timesformer.utils.logging as logging
 
 _ENV_SETUP_DONE = False
 
