@@ -9,7 +9,7 @@ model:
 
 data_loader:
   batch_size: 1
-  data_path: ../../../data/2022-11-02_00_29_37_568902/GravityBias
+  data_path: gravitybias-dataset/train
   train_split: 0.8
   skip_every: 2
   source_type: frames

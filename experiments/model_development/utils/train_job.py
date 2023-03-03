@@ -11,8 +11,13 @@ from datetime import datetime
 import re, yaml, os
 
 from utils.framesdata import FramesDataset, collate_videos
-from utils.model import CNNLSTM
 from utils.translators import expts, label_keys
+
+from utils_motionformer.models.Motionformer.slowfast.config.defaults import get_cfg
+from utils_motionformer.models.Motionformer.slowfast.models import build_model
+from utils_motionformer.models.Motionformer.slowfast.models import vit_helper
+from utils_motionformer.models.Motionformer.slowfast.models.video_model_builder import VisionTransformer
+import math
 
 import matplotlib.pyplot as plt
 
@@ -103,13 +108,19 @@ class TrainingJob:
         if ckpt_path:
             self.model = torch.load(ckpt_path)
         else:
-            self.model = CNNLSTM(
-                config.model.lstm_hidden_size,
-                config.model.lstm_num_layers,
-                config.model.num_classes,
-                cnn_architecture=self.cnn_architecture,
-                pretrained=True,
+            self.defaults_cfg = get_cfg()
+            self.cfg_url_name = 'vit_1k'
+
+            self.model = VisionTransformer(self.defaults_cfg)
+            vit_helper.load_pretrained(
+                                       self.model, cfg=self.defaults_cfg,
+                                       in_chans=self.defaults_cfg.VIT.CHANNELS, filter_fn=vit_helper._conv_filter,
+                                       strict=False, cfg_url_name=self.cfg_url_name
             )
+            if hasattr(self.model, 'st_embed'):
+                self.model.st_embed.data[:, 1:, :] = self.model.pos_embed.data[:, 1:, :].repeat(1, self.defaults_cfg.VIT.TEMPORAL_RESOLUTION, 1)
+                self.model.st_embed.data[:, 0, :] = self.model.pos_embed.data[:, 0, :]
+        
         self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(

@@ -403,6 +403,7 @@ class PatchEmbed(nn.Module):
 
     def forward(self, x):
         B, C, H, W = x.shape
+        x = x.narrow(1,0,3)
         x = self.proj(x).flatten(2).transpose(1, 2)
         return x
 
@@ -430,6 +431,7 @@ class PatchEmbed3D(nn.Module):
         if self.flatten:
             x = x.flatten(2)
             x = x.transpose(1, 2)
+        x = x.narrow(1, 0, 3)
         return x
 
 

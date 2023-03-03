@@ -21,6 +21,7 @@ from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from . import vit_helper
 from .build import MODEL_REGISTRY
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @MODEL_REGISTRY.register()
 class VisionTransformer(nn.Module):
@@ -223,7 +224,7 @@ class VisionTransformer(nn.Module):
                     npatch, 1)
                 total_pos_embed = tile_pos_embed + tile_temporal_embed
                 total_pos_embed = torch.cat([cls_embed, total_pos_embed], dim=1)
-                x = torch.zeros(total_pos_embed.size()[0])
+                x = torch.zeros(total_pos_embed.size()[0]).to(device=device)
                 x[:x.size()[0]] = x.size()[0]
                 x = x + total_pos_embed
             elif self.cfg.VIT.POS_EMBED == "joint":
