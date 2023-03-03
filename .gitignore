@@ -15,6 +15,7 @@ experiments/dataset_generation/output
 .gravitybiasout/
 *data/
 *env/
+*runs/
 *cog-battery-baseline/
 *output/
-/experiments/human_baseline/test_experiment/packaged/
+experiments/human_baseline/img

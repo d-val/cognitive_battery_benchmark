@@ -1,18 +1,20 @@
 job_name: "CodeTesting"
-expt_name: "shape"
+expt_name: "gravity"
 
 model:
-  cnn_architecture: "resnet18"
+  cnn_architecture: "Motionformer"
   lstm_num_layers: 2
   lstm_hidden_size: 512
-  num_classes: 3
+  num_classes: 8
 
 data_loader:
   batch_size: 1
-  data_path: "data/"
+  data_path: ../../../data/2022-11-02_00_29_37_568902/GravityBias
   train_split: 0.8
   skip_every: 2
+  source_type: frames
 
 train_params:
   epochs: 100
   lr: 0.005
+  save_all_epochs: True

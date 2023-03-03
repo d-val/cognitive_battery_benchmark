@@ -6,23 +6,26 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 import re, yaml, os
 
-from utils.framesdata import FramesDataset, collate_videos
-from utils.model import CNNLSTM
-from utils.translators import expts, label_keys
+from utils_motionformer.framesdata import FramesDataset
+from utils_motionformer.translators import expts
 
 import matplotlib.pyplot as plt
 
+from utils_motionformer.models.Motionformer.slowfast.config.defaults import get_cfg
+from utils_motionformer.models.Motionformer.slowfast.models import build_model
+from utils_motionformer.models.Motionformer.slowfast.models import vit_helper
+from utils_motionformer.models.Motionformer.slowfast.models.video_model_builder import VisionTransformer
+import math
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class TrainingConfig:
+class TrainingConfig():
     """
-    An intuitive way of translating config data from memory/disk into an object.
+    An intuitive way of translating config data from memory/disk into an object. 
     """
-
     def __init__(self, data={}):
         """
         Initializes a Training Config from a dictionary of data.
@@ -30,7 +33,7 @@ class TrainingConfig:
         :param dict data: a dictionary describing the config. Nested dictionaries create nested config structures.
         """
         self.data = data
-        for k, v in self.data.items():
+        for k,v in self.data.items():
             if type(v) == dict:
                 # If nested dictionary, convert nested dicrionary into a config.
                 setattr(self, k, TrainingConfig(v))
@@ -60,13 +63,11 @@ class TrainingConfig:
             parsed_yaml = yaml.safe_load(yaml_stream)
         return TrainingConfig(parsed_yaml)
 
-
-class TrainingJob:
+class TrainingJob():
     """
     Trains and evaluates CNN+LSTM model based on a configuration file.
     """
-
-    def __init__(self, config, stdout=True, using_ffcv=False, ckpt_path=None):
+    def __init__(self, config, stdout=True, using_ffcv=False):
         """
         Initialize the job and its parameters.
 
@@ -84,48 +85,41 @@ class TrainingJob:
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
-        
-        out_path = f"output/{self.config.job_name}_{self._start_time}"
-        os.makedirs(out_path)
-        self._log_path = os.path.join(out_path, "training.log")
-        self._debug_path = os.path.join(out_path, "debugging.log")
-        self.config.write_yaml(os.path.join(out_path, "config.yaml"))
-        
-        ckpts_path = os.path.join(out_path, "ckpts")
-        os.makedirs(ckpts_path)
-        self._best_model_path = os.path.join(ckpts_path, "best.ckpt")
-        self._epoch_model_path = os.path.join(ckpts_path, "ep%i.ckpt")
-        
-        self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
+        self._out_path = f"output/{self.config.job_name}_{self._start_time}"
+        os.makedirs(self._out_path)
+        self._log_path = os.path.join(self._out_path, "training.log")
+        self._debug_path = os.path.join(self._out_path, "debugging.log")
+        self._best_model_path = os.path.join(self._out_path, "model.pt")
+        self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        if ckpt_path:
-            self.model = torch.load(ckpt_path)
-        else:
-            self.model = CNNLSTM(
-                config.model.lstm_hidden_size,
-                config.model.lstm_num_layers,
-                config.model.num_classes,
-                cnn_architecture=self.cnn_architecture,
-                pretrained=True,
-            )
-        self.model.to(device)
-        self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=self.config.train_params.lr
+        self.defaults_cfg = get_cfg()
+        self.cfg_url_name = 'vit_1k'
+
+        self.model = VisionTransformer(self.defaults_cfg)
+        vit_helper.load_pretrained(
+            self.model, cfg=self.defaults_cfg,
+            in_chans=self.defaults_cfg.VIT.CHANNELS, filter_fn=vit_helper._conv_filter,
+            strict=False, cfg_url_name=self.cfg_url_name
         )
+        if hasattr(self.model, 'st_embed'):
+            self.model.st_embed.data[:, 1:, :] = self.model.pos_embed.data[:, 1:, :].repeat(
+                1, self.defaults_cfg.VIT.TEMPORAL_RESOLUTION, 1)
+            self.model.st_embed.data[:, 0, :] = self.model.pos_embed.data[:, 0, :]
+
+        self.loss_fn = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.train_params.lr)
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
-
-        # Keep count of samples seen in training
-        self.train_count = 0
+        self._log(f"Starting Log")
+        self.train_losses = []
+        self.test_losses = []
 
     def train(self, evaluate=False):
         """
         Runs the training job by training the model on the training data.
-
+        
         :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -143,7 +137,8 @@ class TrainingJob:
 
                 # Images are in NHWC, torch works in NCHW
                 self._debug(f"Epoch:{epoch}, it:{it}")
-                data = torch.permute(data, (0, 1, 4, 2, 3))
+                self._log("\tCurrent time: " + re.sub(r"[^\w\d-]", "_", str(datetime.now())))
+                data = torch.permute(data, (0,1,4,2,3))
 
                 # get data to cuda if possible
                 data = data.to(device=device).squeeze(1)
@@ -160,36 +155,24 @@ class TrainingJob:
                 self.optimizer.zero_grad()
                 loss.backward()
 
-                self.writer.add_scalar("Loss/train", loss.item(), self.train_count)
-                self.train_count += 1
-
                 # gradient descent/optimizer step
                 self.optimizer.step()
 
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
-
                 train_acc, train_loss = evals["train"]
-                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
-                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
-
                 test_acc, test_loss = evals["test"]
-                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
-                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
+                self._log(f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}")
 
-                self._log(
-                    f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
-                )
-                self.writer.flush()
-
+                # Save train and test loss for later plotability
+                self.train_losses.append(train_loss)
+                self.test_losses.append(test_loss)
+                
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
-
-                if self.config.train_params.save_all_epochs:
-                    torch.save(self.model, self._epoch_model_path % epoch)
 
     def evaluate(self):
         """
@@ -205,7 +188,27 @@ class TrainingJob:
         self._debug("\t Checking accuracy on test data")
         test_acc, test_loss = self._check_accuracy(self.test_loader)
 
-        return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
+        return {"train": (train_acc, train_loss), "test":(test_acc, test_loss)}
+
+    def plot(self, show=True, save=True):
+        """
+        Generates a plot of training and test loss over epochs.
+
+        :param boolean show: whether to show the generated plot
+        :param boolean save: whether to save the generated plot
+        """
+        plt.plot(self.train_losses, label="Training Loss")
+        plt.plot(self.test_losses, label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training and Testing Loss vs. Epoch")
+        plt.legend()
+
+        if save:
+            plt.savefig(os.path.join(self._out_path, "loss.png"))
+
+        if show:
+            plt.show()
 
     def _check_accuracy(self, loader):
         """
@@ -224,7 +227,7 @@ class TrainingJob:
             for x, y in loader:
 
                 # Pre-process data and correct labels
-                x = torch.permute(x, (0, 1, 4, 2, 3))
+                x = torch.permute(x, (0,1,4,2,3))
                 x = x.to(device=device).squeeze(1)
                 y = y.to(device=device)
                 if self.using_ffcv:
@@ -244,12 +247,12 @@ class TrainingJob:
                 f"\t Got {num_correct} / {num_samples} with accuracy  \
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
-            acc = float(num_correct) / float(num_samples) * 100
-
+            acc = float(num_correct)/float(num_samples)*100
+        
         # Reset the model to train state
         self.model.train()
 
-        return acc, running_loss / len(loader)
+        return acc, running_loss / num_samples
 
     def _log(self, statement):
         """
@@ -259,7 +262,7 @@ class TrainingJob:
         """
         if self.stdout:
             print(statement)
-
+            
         # Write statement to log file
         with open(self._log_path, "a+") as logf:
             logf.write(statement)
@@ -301,50 +304,34 @@ class TrainingJob:
             }
 
             # Initialize training and testing data loaders.
-            train_loader = Loader(
-                data_path,
-                batch_size=self.config.data_loader.batch_size,
-                num_workers=1,
-                order=OrderOption.RANDOM,
-                pipelines=pipelines,
-            )
-            test_loader = train_loader  # TODO: add train/test split for FFCV
-
+            train_loader = Loader(data_path, batch_size=self.config.data_loader.batch_size, num_workers=1,
+                            order=OrderOption.RANDOM, pipelines=pipelines)
+            test_loader = train_loader # TODO: add train/test split for FFCV
+            
         else:
             # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(
-                data_path,
-                self.label_translator,
-                fpv=None,
-                skip_every=self.config.data_loader.skip_every,
-                train=True,
-                shuffle=True,
-                source_type=self.config.data_loader.source_type,
-                yaml_label_key=label_keys[self.config.expt_name],
-            )
+            full_dataset = FramesDataset(data_path, self.label_translator, fpv=None, skip_every=self.config.data_loader.skip_every, train=True, shuffle=True)
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
 
             # Construct loaders from datasets
-            train_dataset, test_dataset = torch.utils.data.random_split(
-                full_dataset, [train_size, test_size]
-            )
-            train_loader = DataLoader(
-                dataset=train_dataset,
-                batch_size=self.config.data_loader.batch_size,
-                shuffle=True,
-                collate_fn=collate_videos,
-            )
-            test_loader = DataLoader(
-                dataset=test_dataset,
-                batch_size=self.config.data_loader.batch_size,
-                shuffle=True,
-                collate_fn=collate_videos,
-            )
-
+            train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
+            train_loader = DataLoader(dataset=train_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
+            test_loader = DataLoader(dataset=test_dataset, batch_size=self.config.data_loader.batch_size, shuffle=True)
+        
         return train_loader, test_loader
 
+    def write_defaults(self, path):
+        """
+        Writes contents of Python defaults into Python file.
 
-if __name__ == "__main__":
+        :param str path: path of .py file to which the data is dumped.
+        """
+        with open(self._defaults_path, "r") as og_file:
+            with open(path, "w") as new_file:
+                for line in og_file:
+                    new_file.write(line)
+
+if __name__ == '__main__':
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")
     job = TrainingJob(config=config)
