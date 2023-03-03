@@ -6,17 +6,21 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 import re, yaml, os
 
-from utils.framesdata import FramesDataset
+from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
-from utils.translators import expts
+from utils.translators import expts, label_keys
+
+import matplotlib.pyplot as plt
+
+from utils.models.TimeSformer.timesformer.models.vit import TimeSformer
 
 import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 class TrainingConfig:
     """
@@ -66,7 +70,7 @@ class TrainingJob:
     Trains and evaluates CNN+LSTM model based on a configuration file.
     """
 
-    def __init__(self, config, stdout=True, using_ffcv=False):
+    def __init__(self, config, stdout=True, using_ffcv=False, ckpt_path=None):
         """
         Initialize the job and its parameters.
 
@@ -78,37 +82,47 @@ class TrainingJob:
         # Public training job attributes
         self.config = config
         self.using_ffcv = using_ffcv
-        self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
-        self._out_path = f"output/{self.config.job_name}_{self._start_time}"
-        os.makedirs(self._out_path)
-        self._log_path = os.path.join(self._out_path, "training.log")
-        self._debug_path = os.path.join(self._out_path, "debugging.log")
-        self._best_model_path = os.path.join(self._out_path, "model.pt")
-        self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
+        
+        out_path = f"output/{self.config.job_name}_{self._start_time}"
+        os.makedirs(out_path)
+        self._log_path = os.path.join(out_path, "training.log")
+        self._debug_path = os.path.join(out_path, "debugging.log")
+        self.config.write_yaml(os.path.join(out_path, "config.yaml"))
+        
+        ckpts_path = os.path.join(out_path, "ckpts")
+        os.makedirs(ckpts_path)
+        self._best_model_path = os.path.join(ckpts_path, "best.ckpt")
+        self._epoch_model_path = os.path.join(ckpts_path, "ep%i.ckpt")
+        
+        self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.model = CNNLSTM(
-            config.model.lstm_hidden_size,
-            config.model.lstm_num_layers,
-            config.model.num_classes,
-            cnn_architecture=self.cnn_architecture,
-            pretrained=True,
-        ).to(device)
+        self.model = TimeSformer(
+            img_size=self.config.data_loader.image_size,
+            patch_size=self.config.data_loader.patch_size,
+            num_classes=config.model.num_classes,
+            pretrained_model='./utils/models/TimeSformer/pretrained/TimeSformer_divST_8x32_224_K400.pyth', # download from https://github.com/facebookresearch/TimeSformer
+            num_frames=104
+        )
+        self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(
             self.model.parameters(), lr=self.config.train_params.lr
         )
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log")
         self.train_losses = []
         self.test_losses = []
+
+        # Keep count of samples seen in training
+        self.train_count = 0
 
     def train(self, evaluate=False):
         """
@@ -129,7 +143,7 @@ class TrainingJob:
         for epoch in range(1, self.config.train_params.epochs + 1):
             for it, (data, targets) in enumerate(self.train_loader):
 
-                # Images are in NHWC, torch works in NCHW
+                # Images are in NHWC; torch works in NCHW (batch N, channels C, depth D, height H, width W)
                 self._debug(f"Epoch:{epoch}, it:{it}")
                 data = torch.permute(data, (0, 1, 4, 2, 3))
 
@@ -139,6 +153,8 @@ class TrainingJob:
                     targets = targets.to(device=device).squeeze(1)
                 else:
                     targets = targets.to(device=device)
+                data = torch.permute(data, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
+                data = data.narrow(1, 0, 3) # trim channels from 4 to 3
 
                 # forward
                 prediction = self.model(data)
@@ -148,26 +164,38 @@ class TrainingJob:
                 self.optimizer.zero_grad()
                 loss.backward()
 
+                self.writer.add_scalar("Loss/train", loss.item(), self.train_count)
+                self.train_count += 1
+
                 # gradient descent/optimizer step
                 self.optimizer.step()
+
+                torch.cuda.empty_cache()
 
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
+
                 train_acc, train_loss = evals["train"]
+                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
+                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
+
                 test_acc, test_loss = evals["test"]
+                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
+                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
+
                 self._log(
                     f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
                 )
-
-                # Save train and test loss for later plotability
-                self.train_losses.append(train_loss)
-                self.test_losses.append(test_loss)
+                self.writer.flush()
 
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
+
+                if self.config.train_params.save_all_epochs:
+                    torch.save(self.model, self._epoch_model_path % epoch)
 
     def evaluate(self):
         """
@@ -188,7 +216,6 @@ class TrainingJob:
     def plot(self, show=True, save=True):
         """
         Generates a plot of training and test loss over epochs.
-
         :param boolean show: whether to show the generated plot
         :param boolean save: whether to save the generated plot
         """
@@ -196,7 +223,7 @@ class TrainingJob:
         plt.plot(self.test_losses, label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("Training and Testing Loss vs. Epoch")
+        plt.title("Training and Testing Loss vs. Epoch for Model " + self.config.model.name)
         plt.legend()
 
         if save:
@@ -227,6 +254,8 @@ class TrainingJob:
                 y = y.to(device=device)
                 if self.using_ffcv:
                     y = y.squeeze(1)
+                x = torch.permute(x, (0,2,1,3,4)) # reformat to CNHW to match TimeSformer
+                x = x.narrow(1, 0, 3) # cut channels to 3
 
                 # Get model predictions and calculate loss
                 scores = self.model(x)
@@ -247,7 +276,9 @@ class TrainingJob:
         # Reset the model to train state
         self.model.train()
 
-        return acc, running_loss / num_samples
+        # torch.cuda.empty_cache()
+
+        return acc, running_loss / len(loader)
 
     def _log(self, statement):
         """
@@ -317,6 +348,8 @@ class TrainingJob:
                 skip_every=self.config.data_loader.skip_every,
                 train=True,
                 shuffle=True,
+                source_type=self.config.data_loader.source_type,
+                yaml_label_key=label_keys[self.config.expt_name],
             )
             train_size = int(self.config.data_loader.train_split * len(full_dataset))
             test_size = len(full_dataset) - train_size
@@ -329,11 +362,13 @@ class TrainingJob:
                 dataset=train_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
+                collate_fn=collate_videos,
             )
             test_loader = DataLoader(
                 dataset=test_dataset,
                 batch_size=self.config.data_loader.batch_size,
                 shuffle=True,
+                collate_fn=collate_videos,
             )
 
         return train_loader, test_loader
