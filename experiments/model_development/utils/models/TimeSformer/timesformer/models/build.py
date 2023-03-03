@@ -42,7 +42,7 @@ def build_model(cfg, gpu_id=None):
         else:
             cur_device = gpu_id
         # Transfer the model to the current GPU device
-        model = model.cuda(device=cur_device)
+        model = model.cuda(device=cur_device).half()
 
 
     # Use multi-process data parallel model in the multi-gpu setting

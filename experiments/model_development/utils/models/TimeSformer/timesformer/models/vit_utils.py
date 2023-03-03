@@ -8,7 +8,7 @@ import math
 import warnings
 import torch.nn.functional as F
 
-from timesformer.models.helpers import load_pretrained
+from utils.models.TimeSformer.timesformer.models.helpers import load_pretrained
 from .build import MODEL_REGISTRY
 from itertools import repeat
 import collections.abc as container_abcs

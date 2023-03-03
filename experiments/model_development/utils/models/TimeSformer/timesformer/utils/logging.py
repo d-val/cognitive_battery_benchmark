@@ -12,7 +12,7 @@ import sys
 import simplejson
 from fvcore.common.file_io import PathManager
 
-import timesformer.utils.distributed as du
+import utils.models.TimeSformer.timesformer.utils.distributed as du
 
 
 def _suppress_print():

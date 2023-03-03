@@ -118,6 +118,7 @@ class CNNLSTM(nn.Module):
         """
         batch_size, timesteps, C, H, W = videos.size()
         c_in = videos.view(batch_size * timesteps, C, H, W)
+        c_in = c_in.narrow(1, 0, 3)
         c_out = self.cnn(c_in)
         r_in = c_out.view(batch_size, timesteps, -1)
         r_out = self.lstm(r_in)
