@@ -194,6 +194,10 @@ class TrainingJob:
                 )
                 self.writer.flush()
 
+                # Save train and test loss for later plotability
+                self.train_losses.append(train_loss)
+                self.test_losses.append(test_loss)
+
                 # Update best model file if a better model is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
@@ -217,6 +221,26 @@ class TrainingJob:
         test_acc, test_loss = self._check_accuracy(self.test_loader)
 
         return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
+
+    def plot(self, show=True, save=True):
+
+        """
+        Generates a plot of training and test loss over epochs.
+        :param boolean show: whether to show the generated plot
+        :param boolean save: whether to save the generated plot
+        """
+        plt.plot(self.train_losses, label="Training Loss")
+        plt.plot(self.test_losses, label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training and Testing Loss vs. Epoch")
+        plt.legend()
+
+        if save:
+            plt.savefig(os.path.join(self._out_path, "loss.png"))
+
+        if show:
+            plt.show()
 
     def _check_accuracy(self, loader):
         """
