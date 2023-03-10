@@ -16,7 +16,7 @@ class SimpleSwap(Experiment):
     def __init__(
         self,
         controller_args={
-            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
             "agentMode": "default",
             "scene": "FloorPlan1",
             "gridSize": 0.25,
@@ -55,8 +55,8 @@ class SimpleSwap(Experiment):
 
         self.step(
             action="AddThirdPartyCamera",
-            position=dict(x=-1.5, y=1, z=0),
-            rotation=dict(x=0, y=90, z=0),
+            position=dict(x=-1, y=0.5, z=0.7),
+            rotation=dict(x=90, y=90, z=0),
             fieldOfView=90,
         )
 
@@ -78,7 +78,7 @@ class SimpleSwap(Experiment):
         moveup_magnitude=0.45,
         move_recep_ahead_mag=0.45,
         receptacleType=None,
-        receptacleTypes=["Pot", "Mug", "Cup"],
+        receptacleTypes=["Mug", "Pot", "Cup"],
         reward_pot=None,
         rewardType=None,
         rewardTypes=["Egg", "Potato", "Tomato", "Apple"],
@@ -159,7 +159,7 @@ class SimpleSwap(Experiment):
                 pass
             else:
                 initialPoses.append(initialPose)
-
+        print("initialPoses", initialPoses)
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(action="SetObjectPoses", objectPoses=initialPoses)
 
@@ -196,6 +196,7 @@ class SimpleSwap(Experiment):
 
         # get the z coordinates of the rewardId (Egg) and receptacles (Pot) and also get the receptacle ids
         for obj in self.last_event.metadata["objects"]:
+            print(obj["name"], obj["position"])
             if obj["objectType"] == rewardType:
                 rewardId = obj["objectId"]
                 reward_z = obj["position"]["z"]
@@ -216,7 +217,7 @@ class SimpleSwap(Experiment):
         reward_move_left_mag = chosen_receptacle_z - reward_z
 
         # Move agent to fit the screen
-        self.step("MoveRight")
+        # self.step("MoveLeft")
 
         # move the reward to the pre-selected receptacle then drop it
         _, self.frame_list, self.third_party_camera_frames = move_object(
@@ -262,7 +263,7 @@ class SimpleSwap(Experiment):
                 "initial_object_location": self.determine_reward_loc(
                     chosen_receptacle_z, positions
                 ),
-                "num_swaps": swaps,
+                "num_swaps": self.swaps,
                 "swap_directions": swap_directions,
                 "final_object_location": self.determine_reward_loc(
                     reward_final_z, positions

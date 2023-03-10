@@ -15,7 +15,7 @@ class RelativeNumbers(Experiment):
     def __init__(
         self,
         controller_args={
-            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
             "agentMode": "default",
             "scene": "FloorPlan1",
             "gridSize": 0.25,
@@ -51,12 +51,13 @@ class RelativeNumbers(Experiment):
         )
         self.step(
             action="Teleport",
+            # position=dict(x=-1.5, y=0.9, z=0),
             position=dict(x=-1.5, y=0.9, z=0),
             rotation=dict(x=0, y=90, z=0),
             horizon=0,
             standing=True,
         )
-
+        print(self.last_event.metadata["agent"]["position"])
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -69,6 +70,7 @@ class RelativeNumbers(Experiment):
             saturation=(0.5, 1),
             synchronized=False,
         )
+        print("init complete")
 
     def run(
         self,
@@ -79,6 +81,7 @@ class RelativeNumbers(Experiment):
         num_receptacles=4,
         receptacle_position_limits=[-0.9, 0.9],
     ):
+        print("Running")
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
         # A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
@@ -92,6 +95,7 @@ class RelativeNumbers(Experiment):
         )
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
+        print(self.last_event.metadata["objects"])
         for object in self.last_event.metadata["objects"]:
 
             # current Pose of the object
@@ -195,6 +199,7 @@ class RelativeNumbers(Experiment):
         )
 
         self.label = out
+        print("Finished")
 
 
 if __name__ == "__main__":

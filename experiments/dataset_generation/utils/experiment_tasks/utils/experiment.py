@@ -15,7 +15,6 @@ logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
 class Experiment(Controller):
     def __init__(self, controller_args, fov="front"):
         config_dict = {  # local build
-            "local_executable_path": f"{BASE_DIR}/utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
             "agentMode": "default",
             "scene": "FloorPlan1",
             # step sizes

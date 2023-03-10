@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import yaml
+import itertools
 
 from tqdm import tqdm
 
@@ -11,12 +12,13 @@ from .experiment_tasks.addition_numbers import AdditionNumbers
 from .experiment_tasks.object_permanence import ObjectPermanence
 from .experiment_tasks.relative_numbers import RelativeNumbers
 from .experiment_tasks.rotation import Rotation
+from .experiment_tasks.rotationchain import RotationChain
 from .experiment_tasks.shape import Shape
 from .experiment_tasks.simple_swap import SimpleSwap
 from .experiment_tasks.gravity_bias import GravityBias
 from ai2thor.platform import CloudRendering
 
-
+yaml.Dumper.ignore_aliases = lambda *args : True
 class ExperimentJob:
     def __init__(
         self, renderer_file, experiment_files: list, test_init=False, test_run=False
@@ -35,7 +37,7 @@ class ExperimentJob:
 
         for experiment, parameters in self.experiment_data.items():
             if not all(
-                x in ["init", "run", "iterations", "controllerArgs"] for x in parameters
+                x in ["init", "run", "iterations", "controllerArgs", "testing_parameters"] for x in parameters
             ):
                 raise AssertionError(
                     f"Unknown field found for {experiment} in YAML file."
@@ -47,7 +49,11 @@ class ExperimentJob:
                     **{**parameters["init"], **self.renderer_data}
                 )
                 if test_run:
-                    experimentClass.run(**parameters["run"])
+                    if parameters.get("testing_parameters", False):
+                        experimentClass.run(**parameters["run"], **parameters["testing_parameters"])
+                    else:
+                        experimentClass.run(**parameters["run"])
+
 
     def run(self, name=None, folder_name="output", seed_pattern="iterative"):
         self.jobName = (
@@ -63,23 +69,32 @@ class ExperimentJob:
         with open(f"{folder_name}/{self.jobName}/experiments.yaml", "w") as yaml_file:
             yaml.dump(self.experiment_data, yaml_file, default_flow_style=False)
 
+        def combinations(d):
+            keys = d.keys()
+            values = [d[key] for key in keys]
+
+            for combination in itertools.product(*values):
+                yield dict(zip(keys, combination))
+
         for experiment, parameters in self.experiment_data.items():
             print(
                 f'Running Experiment: {experiment} | {parameters["iterations"]} Iterations'
             )
-            for iteration in tqdm(range(parameters["iterations"])):
-                if seed_pattern == "iterative":
-                    seed = iteration
-                experimentClass = self.str_to_class(experiment)(
-                    {**self.renderer_data, **parameters.get("controllerArgs", {})},
-                    **parameters.get("init", {}),
-                    seed=seed,
-                )
-                experimentClass.run(**parameters["run"])
-                experimentClass.stop()
-                experimentClass.save_frames_to_folder(
-                    f"{folder_name}/{self.jobName}/{experiment}/{iteration}"
-                )
+            testing_combinations = combinations(parameters["testing_parameters"]) if parameters.get("testing_parameters", False) else [{}]
+            for testing_combination in testing_combinations:
+                for iteration in tqdm(range(parameters["iterations"])):
+                    if seed_pattern == "iterative":
+                        seed = iteration
+                    experimentClass = self.str_to_class(experiment)(
+                        {**self.renderer_data, **parameters.get("controllerArgs", {})},
+                        **parameters.get("init", {}),
+                        seed=seed,
+                    )
+                    experimentClass.run(**parameters["run"], **testing_combination)
+                    experimentClass.stop()
+                    experimentClass.save_frames_to_folder(
+                        f"{folder_name}/{self.jobName}/{experiment}_{testing_combination}/{iteration}"
+                    )
 
     @staticmethod
     def make_folder(name):

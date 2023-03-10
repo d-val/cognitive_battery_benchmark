@@ -1,5 +1,7 @@
-Rotation:
+RotationChain:
   iterations: 100
+  testing_parameters:
+    num_rotations: [0, 1, 2, 3, 4, 5, 6, 7]
   run:
     angle: null
     reward_loc: null
@@ -8,4 +10,4 @@ Rotation:
     rewardType: null
     degree_rotation_per_frame: 9
     moveup_magnitude: 0.4
-    num_receptacles: 2
+    num_receptacles: 6

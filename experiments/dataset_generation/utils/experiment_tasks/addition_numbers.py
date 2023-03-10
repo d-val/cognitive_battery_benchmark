@@ -18,7 +18,7 @@ class AdditionNumbers(Experiment):
     def __init__(
         self,
         controller_args={
-            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
             "agentMode": "default",
             "scene": "FloorPlan1",
             "gridSize": 0.25,
