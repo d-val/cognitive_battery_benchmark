@@ -1,5 +1,7 @@
 SimpleSwap:
   iterations: 100
+  testing_parameters:
+    swaps: [5, 6, 7]
   run:
     moveup_magnitude: 0.45
     move_recep_ahead_mag: 0.45
@@ -8,7 +10,6 @@ SimpleSwap:
     reward_pot: null
     rewardType: null
     rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
-    swaps: null
     pots_to_swap: null
     reward_position: null
-    num_receptacles: 7
+    num_receptacles: 6

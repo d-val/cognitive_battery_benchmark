@@ -1,4 +1,4 @@
-name: cognitive-battery-benchmark
+name: cognitive-battery-benchmark2
 channels:
   - conda-forge
 dependencies:
