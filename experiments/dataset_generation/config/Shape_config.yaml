@@ -1,0 +1,6 @@
+Shape:
+  iterations: 100
+  testing_parameters:
+    num_receptacles: [1, 2, 3, 4 ]
+  run:
+    coveringTypes: ["0.75xPlate"]

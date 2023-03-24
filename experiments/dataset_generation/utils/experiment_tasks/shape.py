@@ -16,7 +16,7 @@ class Shape(Experiment):
     def __init__(
         self,
         controller_args={
-            "local_executable_path": "utils/thor-OSXIntel64-local.app/Contents/MacOS/AI2-THOR",
+            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
             "agentMode": "default",
             "scene": "FloorPlan1",
             "gridSize": 0.25,
@@ -50,8 +50,7 @@ class Shape(Experiment):
                     "fieldOfView": self.stats["fov"],
                 },
                 **controller_args,
-            },
-            fov="back",
+            }
         )
 
         self.step(
@@ -78,9 +77,10 @@ class Shape(Experiment):
         self,
         rewardTypes=["Potato", "Tomato", "Apple"],
         rewardType=None,
-        coveringTypes=["Plate"],
+        coveringTypes=["0.75xPlate"],
         coveringType=None,
-        max_reward=6,
+        receptacle_position_limits=[-0.9, 0.9],
+        num_receptacles=4
     ):
         # TODO: add ability to specify number of items in each plate
         self.rewardType, self.coveringType = (
@@ -89,6 +89,8 @@ class Shape(Experiment):
             if coveringType is None
             else coveringType,
         )
+
+
 
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -110,122 +112,49 @@ class Shape(Experiment):
                 "rotation": obj["rotation"],
             }
 
+            positions = np.linspace(
+                *receptacle_position_limits[::-1], num=num_receptacles
+            )
+            # randomly sample between 0 and 1 for each position
+            defined_rewards = np.random.random(len(positions)) # TODO: implement defined_rewards
+            occ_positions = [0.4, -0.4]
             # Set the Plates location (pre-determined)
-            if obj["objectType"] == self.coveringType:
-                cardboard1 = obj["objectId"]
+            if self.coveringType in obj["name"]:
                 # right Cardboard1 (z > 0)
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.15, "y": 1.105, "z": 0.45},
-                    }
-                )
+                for position in positions:
+                    initialPoses.append(
+                        {
+                            "objectName": obj["name"],
+                            "rotation": {"x": -0.0, "y": 0, "z": 180},
+                            "position": {"x": 0, "y": 1.305, "z": position},
+                        }
+                    )
 
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.15, "y": 1.105, "z": -0.45},
-                    }
-                )
+            if obj["name"] == "Occluder":
 
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.15, "y": 1.205, "z": 0.45},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.15, "y": 1.205, "z": -0.45},
-                    }
-                )
-
-            elif obj["name"] == "Occluder":
-                # right CausualityOccluder1
-                occluder1 = obj["objectId"]
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": 0.6},
-                    }
-                )
-
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": 0.2},
-                    }
-                )
-
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": -0.2},
-                    }
-                )
-
-                initialPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": -0.55, "y": 1.3587, "z": -0.6},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": 0.6},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": 0.2},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": -0.2},
-                    }
-                )
-
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 180},
-                        "position": {"x": 0.4, "y": 1.3587, "z": -0.6},
-                    }
-                )
+                # left plate (z < 0)
+                for position in occ_positions:
+                    initialPoses.append(
+                        {
+                            "objectName": obj["name"],
+                            "rotation": {"x": -0.0, "y": 0, "z": 0},
+                            "position": {"x": -0.6, "y": 1.2, "z": position},
+                        }
+                    )
 
             elif obj["objectType"] == self.rewardType:
-                initialPoses.append(initialPose)
-                self.out = random.choice([1, -1])
-                afterPoses.append(
-                    {
-                        "objectName": obj["name"],
-                        "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {"x": -0.172, "y": 1.15, "z": self.out * 0.45},
-                    }
-                )
+                for position, valid in zip(positions, defined_rewards):
+                    if valid > 0.5:
+                        initialPoses.append(
+                            {
+                                "objectName": obj["name"],
+                                "rotation": {"x": -0.0, "y": 0, "z": 0},
+                                "position": {"x": 0.012, "y": 1.15, "z": position},
+                            }
+                        )
+
             else:
                 initialPoses.append(initialPose)
-                afterPoses.append(afterPose)
 
         # set initial Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
@@ -241,6 +170,7 @@ class Shape(Experiment):
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
+                break
             elif "Occluder" in obj["name"]:
                 _, self.frame_list, self.third_party_camera_frames = move_object(
                     self,
@@ -249,33 +179,13 @@ class Shape(Experiment):
                     self.frame_list,
                     self.third_party_camera_frames,
                 )
+                break
 
-        self.step(
-            action="SetObjectPoses", objectPoses=afterPoses, placeStationary=False
-        )
-
-        for obj in self.last_event.metadata["objects"]:
-            if obj["name"] == "Occluder":
-                _, self.frame_list, self.third_party_camera_frames = move_object(
-                    self,
-                    obj["objectId"],
-                    [(0, 0, 0.1), (0, -1, 0)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
-                )
-            elif "Occluder" in obj["name"]:
-                _, self.frame_list, self.third_party_camera_frames = move_object(
-                    self,
-                    obj["objectId"],
-                    [(0, 0, 0.1), (0, 1, 0)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
-                )
 
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
-        self.label = self.out
+        self.label = defined_rewards.tolist()
 
 
 if __name__ == "__main__":

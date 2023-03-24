@@ -1,0 +1,6 @@
+AdditionNumbers:
+  iterations: 100
+  run:
+    rewardType: null
+    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
+    num_receptacles: 4
