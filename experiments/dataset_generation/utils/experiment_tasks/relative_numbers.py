@@ -57,7 +57,7 @@ class RelativeNumbers(Experiment):
             horizon=0,
             standing=True,
         )
-        print(self.last_event.metadata["agent"]["position"])
+        # print(self.last_event.metadata["agent"]["position"])
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -70,7 +70,6 @@ class RelativeNumbers(Experiment):
             saturation=(0.5, 1),
             synchronized=False,
         )
-        print("init complete")
 
     def run(
         self,
@@ -80,8 +79,8 @@ class RelativeNumbers(Experiment):
         defined_rewards=None,
         num_receptacles=4,
         receptacle_position_limits=[-0.9, 0.9],
+            plate="0.75xPlate"
     ):
-        print("Running")
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
         # A list of receptacle object types to exclude from valid receptacles that can be randomly chosen as a spawn location.
@@ -95,7 +94,6 @@ class RelativeNumbers(Experiment):
         )
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
-        print(self.last_event.metadata["objects"])
         for object in self.last_event.metadata["objects"]:
 
             # current Pose of the object
@@ -109,7 +107,7 @@ class RelativeNumbers(Experiment):
             positions = np.linspace(
                 *receptacle_position_limits[::-1], num=num_receptacles
             )
-            if object["objectType"] == "Plate":
+            if plate in object["name"]:
                 # left plate (z < 0)
                 for position in positions:
                     initialPoses.append(
@@ -199,7 +197,6 @@ class RelativeNumbers(Experiment):
         )
 
         self.label = out
-        print("Finished")
 
 
 if __name__ == "__main__":
