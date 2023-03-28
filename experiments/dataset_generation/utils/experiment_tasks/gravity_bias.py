@@ -137,43 +137,43 @@ class GravityBias(Experiment):
 
     def save_frames_to_folder(
         self,
-        SAVE_DIR,
+        save_dir,
         first_person=None,
         save_stats=True,
         db_mode=True,
         save_video=True,
     ):
         """
-        Redirects the experiment output from the temp path to SAVE_DIR.
+        Redirects the experiment output from the temp path to save_dir.
         Also can produce a video and experiment stats pickle.
         save_stats: whether to save the experiment stats
         save_video: whether to save the frames as a video
         """
-        if os.path.isdir(SAVE_DIR):
-            shutil.rmtree(SAVE_DIR)
+        if os.path.isdir(save_dir):
+            shutil.rmtree(save_dir)
 
         try:
-            new_path = os.path.abspath(SAVE_DIR)
+            new_path = os.path.abspath(save_dir)
             shutil.move(self.outpath, new_path)
             self.outpath = new_path
         except OSError:
             raise ValueError(
-                f"The directory {SAVE_DIR} is not empty. Output remain in {self.outpath}"
+                f"The directory {save_dir} is not empty. Output remain in {self.outpath}"
             )
         except Exception:
             raise ValueError(
-                f"Could not save in {SAVE_DIR}. Output remain in {self.outpath}"
+                f"Could not save in {save_dir}. Output remain in {self.outpath}"
             )
 
         db_SAVE_DIRS = {
-            "human": f"{SAVE_DIR}/human_readable",
-            "machine": f"{SAVE_DIR}/machine_readable",
+            "human": f"{save_dir}/human_readable",
+            "machine": f"{save_dir}/machine_readable",
         }
 
         if save_video or save_stats:
             frames = self.get_frames(os.path.join(db_SAVE_DIRS["human"], "frames"))
             if save_video:
-                self.save_video(frames, os.path.join(SAVE_DIR, "experiment_video.mp4"))
+                self.save_video(frames, os.path.join(save_dir, "experiment_video.mp4"))
             if save_stats:
                 self.save_pickle(db_SAVE_DIRS["machine"], db_SAVE_DIRS["human"], frames)
         return

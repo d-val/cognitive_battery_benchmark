@@ -1,6 +1,7 @@
 Shape:
-  iterations: 100
+  iterations: 5
   testing_parameters:
-    num_receptacles: [1, 2, 3, 4 ]
+    engaged_receptacles: [1, 2, 3]
   run:
     coveringTypes: ["0.75xPlate"]
+    num_receptacles: 4

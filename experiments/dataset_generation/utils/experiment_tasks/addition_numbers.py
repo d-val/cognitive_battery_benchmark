@@ -14,25 +14,64 @@ from .utils.util import move_object
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def assign_numbers(engaged_receptacles, max_rewards, addition_reward, num_receptacles):
+    # Generate initial values for receptacles
+    initial_values = [
+        random.randint(0, max_rewards) for _ in range(num_receptacles)
+    ]
+
+    receptacles_to_add = np.random.choice(
+        num_receptacles, engaged_receptacles, replace=False
+    )
+    # Generate a set of numbers that sum up to addition_reward
+    adding_numbers = generate_random_numbers(addition_reward, engaged_receptacles)
+
+    # Assign adding_numbers to initial_values using receptacles_to_add
+    intermediate_initial_values = initial_values.copy()
+    for i, num in enumerate(adding_numbers):
+        intermediate_initial_values[receptacles_to_add[i]] += num
+
+    max_after_add = np.max(intermediate_initial_values)
+    max_idx = np.where(intermediate_initial_values == max_after_add)[0]
+    idx_to_add = np.random.choice(max_idx, 1)[0]
+    initial_values[idx_to_add] += 1
+
+    return initial_values, adding_numbers, receptacles_to_add
+
+
+def generate_random_numbers(addition_reward, engaged_receptacles):
+    if addition_reward < engaged_receptacles:
+        raise ValueError(
+            "addition_reward must be greater than or equal to engaged_receptacles"
+        )
+    elif addition_reward == engaged_receptacles:
+        return [1] * engaged_receptacles
+
+    # Generate random partitions of addition_reward - engaged_receptacles, as we ensure each number is at least 1.
+    partitions = [0] + sorted(np.random.choice(np.arange(1,addition_reward), engaged_receptacles - 1, replace=False)) + [addition_reward]
+    random_numbers = [partitions[i + 1] - partitions[i] for i in range(engaged_receptacles)]
+    return random_numbers
+
+
 class AdditionNumbers(Experiment):
     def __init__(
-        self,
-        controller_args={
-            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
-            "agentMode": "default",
-            "scene": "FloorPlan1",
-            "gridSize": 0.25,
-            "snapToGrid": False,
-            "rotateStepDegrees": 90,
-            "renderDepthImage": False,
-            "renderInstanceSegmentation": False,
-            "width": 300,
-            "height": 300,
-            "makeAgentsVisible": False,
-        },
-        fov=[110,120], # TODO: figure out why 90 FOV bug results in no boxes appearing
-        visibilityDistance=5,
-        seed=0,
+            self,
+            controller_args={
+                "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
+                "agentMode": "default",
+                "scene": "FloorPlan1",
+                "gridSize": 0.25,
+                "snapToGrid": False,
+                "rotateStepDegrees": 90,
+                "renderDepthImage": False,
+                "renderInstanceSegmentation": False,
+                "width": 300,
+                "height": 300,
+                "makeAgentsVisible": False,
+            },
+            fov=[110, 120],  # TODO: figure out why 90 FOV bug results in no boxes appearing
+            visibilityDistance=5,
+            seed=0,
     ):
 
         random.seed(seed)
@@ -41,7 +80,7 @@ class AdditionNumbers(Experiment):
             "visibility_distance": visibilityDistance
             if type(visibilityDistance) != list
             else random.randint(*visibilityDistance),
-            "fov": fov if type(fov) != list else random.randint(*fov),
+            "fov": fov if type(fov) != list else random.randint(),
         }
         super().__init__(
             {
@@ -54,14 +93,6 @@ class AdditionNumbers(Experiment):
                 **controller_args,
             }
         )
-
-        self.step(
-            action="AddThirdPartyCamera",
-            position=dict(x=1.5, y=1.8, z=0),
-            rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90,
-        )
-
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -90,15 +121,17 @@ class AdditionNumbers(Experiment):
         # )
 
     def run(
-        self,
-        rewardTypes=["Potato", "Tomato", "Apple"],
-        rewardType=None,
-        max_rewards=3,
-        defined_rewards=None,
-        num_receptacles=4,
-        receptacle_position_limits=[-0.9, 0.9],
+            self,
+            rewardTypes=["Potato", "Tomato", "Apple"],
+            rewardType=None,
+            max_rewards=3,
+            defined_rewards=None,
+            num_receptacles=4,
+            receptacle_position_limits=[-0.9, 0.9],
             bigPlate="1xPlate",
             smallPlate="0.75xPlate",
+            engaged_receptacles=None,
+            max_added_reward = 8
     ):
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
@@ -110,34 +143,26 @@ class AdditionNumbers(Experiment):
 
         excludeList = []  # Egg and Pot exclude from randomization
         randomObjects = []  # store all other Pickupable objects
-
         assert num_receptacles % 2 == 0, "num_receptacles must be even"
         all_positions = np.linspace(
             *receptacle_position_limits[::-1], num=num_receptacles + 1
         )
         positions = np.delete(all_positions, len(all_positions) // 2)
         occ_positions = [0.6, -0.6]
-        defined_rewards = (
-            [np.random.randint(0, max_rewards) if position != 0 else np.random.randint(1, max_rewards) for position
-             in positions]
-            if defined_rewards is None
-            else np.array(defined_rewards)
-        )
-        addition_reward = np.random.randint(1, max_rewards)
-        max_reward = np.max(defined_rewards)
-        max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[
-            0
-        ]
 
-        if len(max_defined_rewards) != 1:
-            selected_max = np.random.choice(max_defined_rewards, 1)
-            for selected_reward in max_defined_rewards:
-                if selected_reward == selected_max:
-                    if max_reward == 0:
-                        defined_rewards[selected_reward] = 1
-                else:
-                    if max_reward != 0:
-                        defined_rewards[selected_reward] -= 1
+        if engaged_receptacles is not None:
+            addition_reward = np.random.randint(
+                engaged_receptacles, min(engaged_receptacles * (max_rewards - 1) + 1, max_added_reward + 1)
+            )
+        else:
+            engaged_receptacles = 1
+            addition_reward = [np.random.randint(1, max_rewards + 1)]
+
+        defined_rewards, adding_numbers, receptacles_to_add = assign_numbers(
+            engaged_receptacles, max_rewards, addition_reward, num_receptacles
+        )
+
+        max_reward = np.max(defined_rewards)
 
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
@@ -149,18 +174,23 @@ class AdditionNumbers(Experiment):
                 "rotation": obj["rotation"],
             }
 
-
             # Set the Plates location (pre-determined)
             if smallPlate in obj["name"]:
                 # left plate (z < 0)
-                for position in all_positions:
-                    if position == 0:
-                        continue
+                for position in positions:
                     initialPoses.append(
                         {
                             "objectName": obj["name"],
-                            "rotation": {"x": 0.0, "y": 0, "z": 0},
-                            "position": {"x": -0.2, "y": 1.12, "z": position},
+                            "rotation": {
+                                "x": 0.0,
+                                "y": 0,
+                                "z": 0,
+                            },
+                            "position": {
+                                "x": -0.2,
+                                "y": 1.12,
+                                "z": position,
+                            },
                         }
                     )
 
@@ -171,12 +201,18 @@ class AdditionNumbers(Experiment):
                     initialPoses.append(
                         {
                             "objectName": obj["name"],
-                            "rotation": {"x": -0.0, "y": 0, "z": 0},
-                            "position": {"x": -0.65, "y": 0.1, "z": position},
+                            "rotation": {
+                                "x": -0.0,
+                                "y": 0,
+                                "z": 0,
+                            },
+                            "position": {
+                                "x": -0.65,
+                                "y": 0.1,
+                                "z": position,
+                            },
                         }
                     )
-
-
 
             # Set the rewards'locations randomly around the plate
             if obj["objectType"] == rewardType:
@@ -185,9 +221,13 @@ class AdditionNumbers(Experiment):
                     initialPoses.append(
                         {
                             "objectName": obj["name"],
-                            "rotation": {"x": 0.0, "y": 0, "z": 0},
+                            "rotation": {
+                                "x": 0.0,
+                                "y": 0,
+                                "z": 0,
+                            },
                             "position": {
-                                "x": 0.25 + random.uniform(-0.06, 0.06),
+                                "x": 0.35 + random.uniform(-0.06, 0.06),
                                 "y": 1.2 + 0.001 * i,
                                 "z": random.uniform(-0.13, 0.13),
                             },
@@ -199,11 +239,15 @@ class AdditionNumbers(Experiment):
                         initialPoses.append(
                             {
                                 "objectName": obj["name"],
-                                "rotation": {"x": 0.0, "y": 0, "z": 0},
+                                "rotation": {
+                                    "x": 0.0,
+                                    "y": 0,
+                                    "z": 0,
+                                },
                                 "position": {
                                     "x": -0.2 + random.uniform(-0.06, 0.06),
                                     "y": 1.15 + 0.001 * i,
-                                    "z": position + random.uniform(-0.13, 0.13),
+                                    "z": position + random.uniform(-0.1, 0.1),
                                 },
                             }
                         )
@@ -214,18 +258,33 @@ class AdditionNumbers(Experiment):
                 initialPoses.append(
                     {
                         "objectName": bigPlate,
-                        "rotation": {"x": 0, "y": 0, "z": 0},
-                        "position": {"x": 0.35, "y": 1.11, "z": 0},
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                        },
+                        "position": {
+                            "x": 0.35,
+                            "y": 1.11,
+                            "z": 0,
+                        },
                     }
                 )
                 initialPoses.append(
                     {
                         "objectName": obj["name"],
-                        "rotation": {"x": 0.25, "y": 0, "z": 180},
-                        "position": {"x": 0.2, "y": 1.505, "z": 0},
+                        "rotation": {
+                            "x": 0.25,
+                            "y": 0,
+                            "z": 180,
+                        },
+                        "position": {
+                            "x": 0.2,
+                            "y": 1.505,
+                            "z": 0,
+                        },
                     }
                 )
-
 
             initialPoses.append(initialPose)
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
@@ -233,66 +292,76 @@ class AdditionNumbers(Experiment):
             action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
         )
 
+        self.frame_list.append(self.last_event.frame)
+        if self.depth_list is not None:
+            self.depth_list.append(self.last_event.depth_frame)
+        if self.segmentation_list is not None:
+            self.segmentation_list.append(self.last_event.instance_segmentation_frame)
+
         current_objects = self.last_event.metadata["objects"].copy()
         # set aside all occluders
 
         for obj in current_objects:
             if "Occluder" in obj["name"]:
-
                 # left and right stay on table
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 4), (0.05, 0, 0), (0, 0, -2)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
 
         current_objects = self.last_event.metadata["objects"]
         # remove all bowls
         for obj in current_objects:
             if obj["name"][:7] == "BigBowl" and abs(obj["position"]["z"]):
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.4), (0.9, 0, 0), (0, 0, -0.5)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
 
         # transfer food
         current_objects = self.last_event.metadata["objects"]
+
         # TODO: weird double movement of a single apple, point out
         # randomly choose left or right plate, pick random multiplier associates to the direction to move food
         # right, multiplier = -1; left, multiplier = 1
-        move_side = np.random.randint(0, len(positions)-1)
+        def yield_positions(adding_numbers, receptacles_to_add):
+            for (idx, val) in zip(receptacles_to_add, adding_numbers):
+                for _ in range(val):
+                    yield idx
 
-
+        position_generator = yield_positions(adding_numbers, receptacles_to_add)
         for obj in current_objects:
-            if obj["name"].startswith(rewardType) and obj["position"]["x"] >= 0:
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+            if obj["name"].startswith(rewardType) and 1 >= obj["position"]["x"] >= 0 and obj["position"]["y"] >= 1.0:
+
+                try:
+                    move_side = next(position_generator)
+                except StopIteration:
+                    raise Exception("Not enough receptacles to add all rewards")
+                move_object(
                     self,
                     obj["objectId"],
                     [
                         (0, 0, 0.4),
-                        (-0.45, 0, 0),
-                        (0, -1 * positions[move_side], 0),
+                        (-0.55, 0, 0),
+                        (0, -1 * (positions[move_side] - obj["position"]["z"]), 0),
                         (0, 0, -0.4),
                     ],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
 
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
-        defined_rewards[move_side] += addition_reward
+        for (idx, val) in zip(receptacles_to_add, adding_numbers):
+            defined_rewards[idx] += val
         out = np.argmax(defined_rewards)
         self.stats.update(
             {
                 "reward_type": rewardType,
-                "defined_rewards": defined_rewards,
-                "move_plate": move_side,
+                "final_label": defined_rewards,
+                "adding_numbers": adding_numbers,
+                "receptacles_to_add": receptacles_to_add,
                 "final_greater_plate": int(out),
             }
         )

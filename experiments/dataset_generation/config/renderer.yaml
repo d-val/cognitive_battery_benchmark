@@ -9,8 +9,8 @@ snapToGrid: Off
 rotateStepDegrees: 90
 
 # image modalities
-renderDepthImage: Off
-renderInstanceSegmentation: Off
+renderDepthImage: On
+renderInstanceSegmentation: On
 
 # camera properties
 width: 300

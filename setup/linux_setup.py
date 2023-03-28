@@ -4,6 +4,8 @@ import sys
 import numpy as np
 import os
 import ai2thor.server
+
+
 def start_xserver() -> None:
     """Provide the ability to render AI2-THOR using Google Colab."""
 
@@ -70,6 +72,7 @@ def start_xserver() -> None:
 
         os.environ["DISPLAY"] = ":1"
         pbar.update(10)
+
 
 if __name__ == "__main__":
     start_xserver()

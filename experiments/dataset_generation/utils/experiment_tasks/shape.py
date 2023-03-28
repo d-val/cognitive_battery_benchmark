@@ -53,13 +53,6 @@ class Shape(Experiment):
             }
         )
 
-        self.step(
-            action="AddThirdPartyCamera",
-            position=dict(x=1.5, y=1.5, z=0),
-            rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90,
-        )
-
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -80,7 +73,8 @@ class Shape(Experiment):
         coveringTypes=["0.75xPlate"],
         coveringType=None,
         receptacle_position_limits=[-0.9, 0.9],
-        num_receptacles=4
+        num_receptacles=4,
+        engaged_receptacles=2
     ):
         # TODO: add ability to specify number of items in each plate
         self.rewardType, self.coveringType = (
@@ -116,7 +110,13 @@ class Shape(Experiment):
                 *receptacle_position_limits[::-1], num=num_receptacles
             )
             # randomly sample between 0 and 1 for each position
-            defined_rewards = np.random.random(len(positions)) # TODO: implement defined_rewards
+            if engaged_receptacles is None:
+                defined_rewards = np.random.random(len(positions)) # TODO: implement defined_rewards
+            else:
+                defined_rewards = np.zeros(len(positions))
+                defined_rewards[:engaged_receptacles] = 1
+                np.random.shuffle(defined_rewards)
+
             occ_positions = [0.4, -0.4]
             # Set the Plates location (pre-determined)
             if self.coveringType in obj["name"]:
@@ -163,21 +163,17 @@ class Shape(Experiment):
 
         for obj in self.last_event.metadata["objects"]:
             if obj["name"] == "Occluder":
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
                 break
             elif "Occluder" in obj["name"]:
-                _, self.frame_list, self.third_party_camera_frames = move_object(
+                move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, 0.5), (0.95, 0, 0), (0, 0, -0.5)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
                 break
 

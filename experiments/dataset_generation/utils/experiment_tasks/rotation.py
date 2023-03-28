@@ -56,13 +56,6 @@ class Rotation(Experiment):
             }
         )
 
-        self.step(
-            action="AddThirdPartyCamera",
-            position=dict(x=1.5, y=1.8, z=0),
-            rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90,
-        )
-
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -108,10 +101,9 @@ class Rotation(Experiment):
 
         # set number of rotation, 11 for 360 degree and 6 for 180 degree
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times
-        degrees_to_rotate = 0
         degrees_to_rotate, reward_loc = np.random.choice(
             [180, 360], 1
-        ), np.random.randint(0, num_receptacles - 1)
+        )[0], np.random.randint(0, num_receptacles - 1)
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         assert (
