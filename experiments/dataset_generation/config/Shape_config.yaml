@@ -1,5 +1,7 @@
 Shape:
   iterations: 500
+  init:
+    fov: 90
   testing_parameters:
     engaged_receptacles: [1, 2, 3]
   run:
