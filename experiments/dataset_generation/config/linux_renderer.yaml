@@ -1,5 +1,5 @@
 # local build
-local_executable_path: "utils/test.app/Contents/MacOS/AI2-THOR"
+local_executable_path: "utils/linux_build"
 agentMode: "default"
 scene: "FloorPlan1"
 platform: "CloudRendering"

@@ -1,5 +1,5 @@
 SimpleSwap:
-  iterations: 2
+  iterations: 250
   testing_parameters:
     swaps: [1, 2, 3, 4, 5, 6, 7, 8]
   run:

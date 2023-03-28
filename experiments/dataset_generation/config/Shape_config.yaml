@@ -1,5 +1,5 @@
 Shape:
-  iterations: 5
+  iterations: 500
   testing_parameters:
     engaged_receptacles: [1, 2, 3]
   run:
