@@ -29,6 +29,7 @@ dependencies:
     - python-xlib
     - PyYAML
     - requests
+    - scikit-image
     - six
     - tqdm
     - urllib3

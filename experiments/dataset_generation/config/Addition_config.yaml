@@ -1,9 +1,8 @@
 AdditionNumbers:
-  iterations: 2
+  iterations: 500
   init:
     fov: 120
   testing_parameters:
-
     engaged_receptacles: [ 2, 3, 4 ]
   run:
     rewardType: null
