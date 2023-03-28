@@ -32,6 +32,7 @@ def pickup(controller, object_ID):
     """
 
     # controller.step("PausePhysicsAutoSim")
+    controller.update_frames()
     controller.step(
         action="PickupObject",
         objectId=object_ID,
@@ -55,7 +56,7 @@ def pickup(controller, object_ID):
     return controller.last_event
 
 
-def drop_object(controller, frame_list, third_party_camera_frames):
+def drop_object(controller):
     """
     controller: current controller
 
@@ -77,10 +78,10 @@ def drop_object(controller, frame_list, third_party_camera_frames):
 
     # controller.step("UnpausePhysicsAutoSim")
     checkError(controller)
-    return controller.last_event, frame_list, third_party_camera_frames
+    return controller.last_event
 
 
-def move_hand(controller, directions, frame_list, third_party_camera_frames):
+def move_hand(controller, directions):
     """
     controller: current controller
 
@@ -104,21 +105,16 @@ def move_hand(controller, directions, frame_list, third_party_camera_frames):
             action="MoveHeldObject", ahead=ahead, right=right, up=up, forceVisible=False
         )
         last_image = controller.last_event.frame
-        frame_list.append(last_image)
-        third_party_camera_frames.append(
-            controller.last_event.third_party_camera_frames[0]
-        )
+        controller.update_frames()
         checkError(controller)
-    return controller.last_event, frame_list, third_party_camera_frames
+    return controller.last_event
 
 
-def move_object(
-    controller, objectId, directions, frame_list, third_party_camera_frames
-):
+def move_object(controller, objectId, directions):
     """u
     controller: current controller
     object_ID: unique objectId of the object to be moved
-    directions: list of (ahead, right, up) directions to move
+    directions: frame_list of (ahead, right, up) directions to move
 
     1. pickup the object
     2. move the agent hand according to the directions (ahead, right, up) one at a time
@@ -126,17 +122,19 @@ def move_object(
     return: the event after drop the object
     """
     last_event = pickup(controller, objectId)
-    frame_list.append(last_event.frame)
-    third_party_camera_frames.append(last_event.third_party_camera_frames[0])
+    controller.update_frames()
+    # third_party_camera_frames.append(last_event.third_party_camera_frames[0])
     directions = interpolate_between_2points(directions, num_interpolations=10)
-    _, frame_list, third_party_camera_frames = move_hand(
-        controller, directions, frame_list, third_party_camera_frames
+    move_hand(
+        controller, directions
     )
 
-    last_event, framelist, third_party_camera_frames = drop_object(
-        controller, frame_list, third_party_camera_frames
+    last_event = drop_object(
+        controller
     )
-    return last_event, framelist, third_party_camera_frames
+    controller.update_frames()
+
+    return last_event
 
 
 def checkError(controller):

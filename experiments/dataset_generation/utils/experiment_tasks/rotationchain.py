@@ -56,13 +56,6 @@ class RotationChain(Experiment):
             }
         )
 
-        self.step(
-            action="AddThirdPartyCamera",
-            position=dict(x=1.5, y=1.8, z=0),
-            rotation=dict(x=0, y=270, z=0),
-            fieldOfView=90,
-        )
-
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -109,7 +102,6 @@ class RotationChain(Experiment):
 
         # set number of rotation, 11 for 360 degree and 6 for 180 degree
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times
-        degrees_to_rotate = 0
         degrees_to_rotate, reward_loc = 180, np.random.randint(0, num_receptacles - 1)
         init_reward_loc = reward_loc
         rotations = [random.sample(list(zip(range(num_receptacles), range(num_receptacles)[1:])), 1)[0] for _ in range(num_rotations)]
@@ -120,7 +112,6 @@ class RotationChain(Experiment):
         ), "Degrees to rotate must be divisible by degree_rotation_per_frame"
 
         for obj in self.last_event.metadata["objects"]:
-            print(f'initial: {obj["name"]}')
             initialPose = {
                 "objectName": obj["name"],
                 "position": obj["position"],
@@ -140,26 +131,28 @@ class RotationChain(Experiment):
                         },
                     }
                 )
+            if obj["objectType"] == "Cup":
+                for ix, position in enumerate(distances):
+                    initialPoses.append(
+                        {
+                            "objectName": obj["name"],
+                            "rotation": {"x": 0.0, "y": 0, "z": 180},
+                            "position": {
+                                "x": 0,
+                                "y": 1.505,
+                                "z": position,
+                            },
+                        }
+                    )
 
-        initialPoses.append(
-            {
-                "objectName": "Tray",
-                "rotation": {"x": -0.0, "y": 0, "z": 0},
-                "position": {"x": 0, "y": 1.105, "z": 0},
-            }
-        )
-        for ix, position in enumerate(distances):
-            initialPoses.append(
-                {
-                    "objectName": "Cup",
-                    "rotation": {"x": -0.0, "y": 0, "z": 180},
-                    "position": {
-                        "x": 0,
-                        "y": 1.505,
-                        "z": position,
-                    },
-                }
-            )
+        # initialPoses.append(
+        #     {
+        #         "objectName": "Tray",
+        #         "rotation": {"x": -0.0, "y": 0, "z": 0},
+        #         "position": {"x": 0, "y": 1.105, "z": 0},
+        #     }
+        # )
+
 
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
@@ -167,23 +160,20 @@ class RotationChain(Experiment):
         )
 
         # add frame to corresponding frame list
-        self.frame_list.append(self.last_event.frame)
-        self.third_party_camera_frames.append(
-            self.last_event.third_party_camera_frames[0]
-        )
+        self.update_frames()
         # initial state, lift up cup to show food
 
         for obj in self.last_event.metadata["objects"]:
-            print(obj["name"])
-            if obj["name"][:3] == "Cup":
+            if "Cup" in obj["name"]:
                 move_object(
                     self,
                     obj["objectId"],
                     [(0, 0, moveup_magnitude), (0, 0, -moveup_magnitude)],
-                    self.frame_list,
-                    self.third_party_camera_frames,
                 )
-
+        for obj in self.last_event.metadata["objects"]:
+            if "Cup" in obj["name"]:
+                lowest_position = obj["position"]["y"]
+                break
         for ix_rot, (obj1, obj2) in enumerate(rotations):
             mid_point = (distances[obj1] + distances[obj2]) / 2
             for i in range(0, int(degrees_to_rotate / degree_rotation_per_frame) + 1):
@@ -192,67 +182,9 @@ class RotationChain(Experiment):
                 angle = i * degree_rotation_per_frame
                 # print(angle, i, degrees_to_rotate)
                 angle_radian = 2 * math.pi * angle / 360
-                for obj in self.last_event.metadata["objects"]:
 
-                    # current Pose of the object
-                    initialPose = {
-                        "objectName": obj["name"],
-                        "position": obj["position"],
-                        "rotation": obj["rotation"],
-                    }
 
-                    # if obj["name"] == "Tray":
-                    #     #mid occluder
-                    #     initialPoses.append(
-                    #                 {"objectName": obj["name"],
-                    #                 "rotation": {'x': -0.0, 'y': angle, 'z': 0},
-                    #                 "position": {'x': 0, 'y': 1.105, 'z': 0}
-                    #                 }
-                    #                 )
-                    # if obj["objectType"] == "Potato":
-                    #     initialPoses.append(
-                    #                 {"objectName": obj["name"],
-                    #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    #                 "position": {'x': 0 + 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': 0.4*math.cos(angle_radian)}
-                    #                 }
-                    #                 )
-                    #     initialPoses.append(
-                    #                 {"objectName": obj["name"],
-                    #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    #                 "position": {'x': 0 + 0 * math.sin(angle_radian), 'y': 1.205, 'z': 0*math.cos(angle_radian)}
-                    #                 }
-                    #                 )
-                    #     initialPoses.append(
-                    #                 {"objectName": obj["name"],
-                    #                 "rotation": {'x': -0.0, 'y': 0, 'z': 0},
-                    #                 "position": {'x': 0 - 0.4 * math.sin(angle_radian), 'y': 1.205, 'z': -0.4*math.cos(angle_radian)}
-                    #                 }
-                    #                 )
-                    if obj["objectType"] == rewardType:
-                        if reward_loc in [obj1, obj2]:
-                            pos_x, pos_z = (distances[reward_loc] - mid_point) * math.sin(angle_radian), (distances[reward_loc] - mid_point) * math.cos(angle_radian) + mid_point
-                            reward_loc = ({obj1, obj2} - {reward_loc}).pop()
-                        else:
-                            pos_x, pos_z = 0, distances[reward_loc]
-                        initialPoses.append(
-                            {
-                                "objectName": obj["name"],
-                                "rotation": {"x": -0.0, "y": angle, "z": 0},
-                                "position": {
-                                    "x": pos_x,
-                                    "y": 1.205,
-                                    "z": pos_z
-                                },
-                            }
-                        )
 
-                initialPoses.append(
-                    {
-                        "objectName": "Tray",
-                        "rotation": {"x": -0.0, "y": angle, "z": 0},
-                        "position": {"x": 0, "y": 1.105, "z": 0},
-                    }
-                )
                 for ix, position in enumerate(distances):
                     if ix in {obj1, obj2}:
                         initialPoses.append(
@@ -261,7 +193,7 @@ class RotationChain(Experiment):
                                 "rotation": {"x": -0.0, "y": angle, "z": 180},
                                 "position": {
                                     "x": (position - mid_point) * math.sin(angle_radian),
-                                    "y": 1.505,
+                                    "y": lowest_position,
                                     "z": ((position - mid_point) * math.cos(angle_radian)) + mid_point,
                                 },
                             }
@@ -273,11 +205,12 @@ class RotationChain(Experiment):
                                 "rotation": {"x": -0.0, "y": angle, "z": 180},
                                 "position": {
                                     "x": 0,
-                                    "y": 1.505,
+                                    "y": lowest_position,
                                     "z": position,
                                 },
                             }
                         )
+
 
                 # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
                 self.step(
@@ -285,16 +218,28 @@ class RotationChain(Experiment):
                 )
 
                 # add frame to corresponding frame list
-                self.frame_list.append(self.last_event.frame)
-                self.third_party_camera_frames.append(
-                    self.last_event.third_party_camera_frames[0]
+                self.update_frames()
+
+            initialPoses = []
+            for ix, position in enumerate(distances):
+                initialPoses.append(
+                    {
+                        "objectName": "Cup",
+                        "rotation": {"x": 0.0, "y": 0, "z": 180},
+                        "position": {
+                            "x": 0,
+                            "y": lowest_position,
+                            "z": position,
+                        },
+                    }
                 )
-        for obj in self.last_event.metadata["objects"]:
-            if obj["objectType"] == rewardType:
-                reward_final_z = obj["position"]["z"]
+            self.step(
+                action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
+            )
 
-        out = self.determine_reward_loc(reward_final_z, distances)
+            self.update_frames()
 
+        out = determine_final_loc(rotations, init_reward_loc, len(distances))
         # for loc, val in distances.items():
         #     if val == food_dist:
         #         initialLoc = loc
@@ -306,16 +251,19 @@ class RotationChain(Experiment):
                 "rotations": {f'rotation_{ix}': value for ix, value in enumerate(rotations)},
                 "reward_type": rewardType,
                 "initial_object_location": init_reward_loc,
-                "final_object_location": out,
+                "final_label": int(out),
             }
         )
         self.label = out
 
-    @staticmethod
-    def determine_reward_loc(z_coor, positions):
-        array = np.asarray(positions)
-        idx = (np.abs(array - z_coor)).argmin()
-        return int(idx)
+
+def determine_final_loc(rotations, rewardLoc, numReceptacles):
+    reward_arr = np.zeros(numReceptacles)
+    reward_arr[rewardLoc] = 1
+    for obj1, obj2 in rotations:
+        reward_arr[[obj2, obj1]] = reward_arr[[obj1, obj2]]
+
+    return np.where(reward_arr == 1)[0][0]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Rotation from file")

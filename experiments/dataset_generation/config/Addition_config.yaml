@@ -1,6 +1,12 @@
 AdditionNumbers:
-  iterations: 100
+  iterations: 2
+  init:
+    fov: 120
+  testing_parameters:
+
+    engaged_receptacles: [ 2, 3, 4 ]
   run:
     rewardType: null
-    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
     num_receptacles: 4
+    rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
+    max_rewards: 3

@@ -1,7 +1,11 @@
 RelativeNumbers:
-  iterations: 100
+  iterations: 2
+  init:
+    fov: 90
   testing_parameters:
-    num_receptacles: [ 1, 2, 3, 4, 5, 6,]
+    num_receptacles: [6]
+    engaged_receptacles: [1,2,3,4,5,6]
   run:
     rewardType: null
     rewardTypes: ["Egg", "Potato", "Tomato", "Apple"]
+    max_rewards: 3

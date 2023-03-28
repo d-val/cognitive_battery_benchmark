@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import random
 from collections import namedtuple
@@ -79,7 +80,8 @@ class RelativeNumbers(Experiment):
         defined_rewards=None,
         num_receptacles=4,
         receptacle_position_limits=[-0.9, 0.9],
-            plate="0.75xPlate"
+        plate="0.5xPlate",
+        engaged_receptacles=None,
     ):
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -92,6 +94,40 @@ class RelativeNumbers(Experiment):
         rewardType = (
             rewardType if rewardType is not None else random.sample(rewardTypes, 1)[0]
         )
+
+        # Set the Plates location (pre-determined)
+        positions = np.linspace(*receptacle_position_limits[::-1], num=num_receptacles)
+        if engaged_receptacles is None:
+            defined_rewards = (
+                [np.random.randint(0, max_rewards + 1) for _ in range(num_receptacles)]
+                if defined_rewards is None
+                else np.array(defined_rewards)
+            )
+        else:
+            engaged_receptacles_ix = np.random.choice(
+                num_receptacles, engaged_receptacles, replace=False
+            )
+            defined_rewards = [
+                np.random.randint(1, max_rewards + 1)
+                if ix in engaged_receptacles_ix
+                else 0
+                for ix in range(num_receptacles)
+            ]
+        max_reward = np.max(defined_rewards)
+        max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[0]
+        if len(max_defined_rewards) != 1:
+            selected_max = np.random.choice(max_defined_rewards, 1)[0]
+            for selected_reward in max_defined_rewards:
+                if selected_reward == selected_max:
+                    if max_reward == 0:
+                        defined_rewards[selected_reward] = 1
+                else:
+                    if max_reward != 0:
+                        if engaged_receptacles is None:
+                            defined_rewards[selected_reward] -= 1
+                        else:
+                            defined_rewards[selected_max] += 1
+        defined_rewards = np.array(defined_rewards)
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for object in self.last_event.metadata["objects"]:
@@ -103,39 +139,24 @@ class RelativeNumbers(Experiment):
                 "rotation": object["rotation"],
             }
 
-            # Set the Plates location (pre-determined)
-            positions = np.linspace(
-                *receptacle_position_limits[::-1], num=num_receptacles
-            )
             if plate in object["name"]:
                 # left plate (z < 0)
                 for position in positions:
                     initialPoses.append(
                         {
                             "objectName": object["name"],
-                            "rotation": {"x": -0.0, "y": 0, "z": 0},
-                            "position": {"x": -0.34, "y": 1.105, "z": position},
+                            "rotation": {
+                                "x": -0.0,
+                                "y": 0,
+                                "z": 0,
+                            },
+                            "position": {
+                                "x": -0.34,
+                                "y": 1.105,
+                                "z": position,
+                            },
                         }
                     )
-
-            defined_rewards = (
-                [np.random.randint(0, max_rewards) for _ in range(num_receptacles)]
-                if defined_rewards is None
-                else np.array(defined_rewards)
-            )
-            max_reward = np.max(defined_rewards)
-            max_defined_rewards = np.where(defined_rewards == np.max(defined_rewards))[
-                0
-            ]
-            if len(max_defined_rewards) != 1:
-                selected_max = np.random.choice(max_defined_rewards, 1)
-                for selected_reward in max_defined_rewards:
-                    if selected_reward == selected_max:
-                        if max_reward == 0:
-                            defined_rewards[selected_reward] = 1
-                    else:
-                        if max_reward != 0:
-                            defined_rewards[selected_reward] -= 1
 
             # Set the rewards'locations randomly around the plate
             if object["objectType"] == rewardType:
@@ -146,9 +167,14 @@ class RelativeNumbers(Experiment):
                         initialPoses.append(
                             {
                                 "objectName": object["name"],
-                                "rotation": {"x": 0.0, "y": 0, "z": 0},
+                                "rotation": {
+                                    "x": 0.0,
+                                    "y": 0,
+                                    "z": 0,
+                                },
                                 "position": {
-                                    "x": -0.34 + random.uniform(-0.13, 0.13),
+                                    "x": -0.34
+                                    + random.uniform(-0.13, 0.13),
                                     "y": 1.15 + 0.001 * i,
                                     "z": position + random.uniform(-0.13, 0.13),
                                 },
@@ -187,12 +213,16 @@ class RelativeNumbers(Experiment):
         )
 
         self.frame_list = [self.last_event.frame]
+        if self.depth_list is not None:
+            self.depth_list = [self.last_event.depth_frame]
+        if self.segmentation_list is not None:
+            self.segmentation_list = [self.last_event.instance_segmentation_frame]
         out = np.argmax(defined_rewards)
         self.stats.update(
             {
                 "reward_type": rewardType,
-                "defined_left_reward": defined_rewards,
-                "final_greater_side": out,
+                "final_label": defined_rewards.tolist(),
+                "final_greater_side": int(out),
             }
         )
 

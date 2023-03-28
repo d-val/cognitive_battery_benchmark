@@ -1,9 +1,8 @@
 # local build
-local_executable_path:
-platform: "CloudRendering"
-
+local_executable_path: "utils/test.app/Contents/MacOS/AI2-THOR"
 agentMode: "default"
 scene: "FloorPlan1"
+platform: "CloudRendering"
 
 # step sizes
 gridSize: 0.25
@@ -11,8 +10,8 @@ snapToGrid: Off
 rotateStepDegrees: 90
 
 # image modalities
-renderDepthImage: Off
-renderInstanceSegmentation: Off
+renderDepthImage: On
+renderInstanceSegmentation: On
 
 # camera properties
 width: 300

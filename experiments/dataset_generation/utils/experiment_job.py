@@ -18,7 +18,9 @@ from .experiment_tasks.simple_swap import SimpleSwap
 from .experiment_tasks.gravity_bias import GravityBias
 from ai2thor.platform import CloudRendering
 
-yaml.Dumper.ignore_aliases = lambda *args : True
+yaml.Dumper.ignore_aliases = lambda *args: True
+
+
 class ExperimentJob:
     def __init__(
         self, renderer_file, experiment_files: list, test_init=False, test_run=False
@@ -37,7 +39,9 @@ class ExperimentJob:
 
         for experiment, parameters in self.experiment_data.items():
             if not all(
-                x in ["init", "run", "iterations", "controllerArgs", "testing_parameters"] for x in parameters
+                x
+                in ["init", "run", "iterations", "controllerArgs", "testing_parameters"]
+                for x in parameters
             ):
                 raise AssertionError(
                     f"Unknown field found for {experiment} in YAML file."
@@ -50,10 +54,11 @@ class ExperimentJob:
                 )
                 if test_run:
                     if parameters.get("testing_parameters", False):
-                        experimentClass.run(**parameters["run"], **parameters["testing_parameters"])
+                        experimentClass.run(
+                            **parameters["run"], **parameters["testing_parameters"]
+                        )
                     else:
                         experimentClass.run(**parameters["run"])
-
 
     def run(self, name=None, folder_name="output", seed_pattern="iterative"):
         self.jobName = (
@@ -80,7 +85,11 @@ class ExperimentJob:
             print(
                 f'Running Experiment: {experiment} | {parameters["iterations"]} Iterations'
             )
-            testing_combinations = combinations(parameters["testing_parameters"]) if parameters.get("testing_parameters", False) else [{}]
+            testing_combinations = (
+                combinations(parameters["testing_parameters"])
+                if parameters.get("testing_parameters", False)
+                else [{}]
+            )
             for testing_combination in testing_combinations:
                 for iteration in tqdm(range(parameters["iterations"])):
                     if seed_pattern == "iterative":
