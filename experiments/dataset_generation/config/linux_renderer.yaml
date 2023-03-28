@@ -1,8 +1,8 @@
 # local build
-local_executable_path: "utils/linux_build"
+local_executable_path: "utils/linux_build/linux_build.x86_64"
 agentMode: "default"
 scene: "FloorPlan1"
-platform: "CloudRendering"
+#platform: "CloudRendering"
 
 # step sizes
 gridSize: 0.25
