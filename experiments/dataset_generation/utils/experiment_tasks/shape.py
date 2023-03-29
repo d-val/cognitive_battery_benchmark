@@ -181,6 +181,13 @@ class Shape(Experiment):
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
+
+        self.stats.update(
+            {
+                "final_label": np.where(defined_rewards > 0.5)[0].tolist(),
+                "reward_locs": np.where(defined_rewards > 0.5, 1, 0).tolist()
+            }
+        )
         self.label = defined_rewards.tolist()
 
 

@@ -248,7 +248,7 @@ class RotationChain(Experiment):
             {
                 "degrees_to_rotate": int(degrees_to_rotate),
                 "distances": distances.tolist(),
-                "rotations": {f'rotation_{ix}': value for ix, value in enumerate(rotations)},
+                "rotations": {f'rotation_{ix}': list(value) for ix, value in enumerate(rotations)},
                 "reward_type": rewardType,
                 "initial_object_location": init_reward_loc,
                 "final_label": int(out),

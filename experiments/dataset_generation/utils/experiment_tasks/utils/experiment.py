@@ -122,7 +122,7 @@ class Experiment(Controller):
                     if len(self.segmentation_list) > 0:
                         list_to_folder(
                             f"{folder}/segmentation_frames",
-                            self.segmentation_list,
+                            self.segmentation_list, npy=True
                         )
 
                     if save_raw_data:
