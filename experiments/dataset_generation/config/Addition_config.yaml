@@ -3,7 +3,7 @@ AdditionNumbers:
   init:
     fov: 120
   testing_parameters:
-    engaged_receptacles: [ 2, 3, 4 ]
+    engaged_receptacles: [ 1, 2, 3, 4 ]
   run:
     rewardType: null
     num_receptacles: 4

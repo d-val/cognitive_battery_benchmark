@@ -361,7 +361,7 @@ class AdditionNumbers(Experiment):
                 "reward_type": rewardType,
                 "final_label": defined_rewards,
                 "adding_numbers": adding_numbers,
-                "receptacles_to_add": receptacles_to_add,
+                "receptacles_to_add": receptacles_to_add.tolist(),
                 "final_greater_plate": int(out),
             }
         )
