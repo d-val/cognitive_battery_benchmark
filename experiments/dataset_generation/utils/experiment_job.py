@@ -1,7 +1,10 @@
 import argparse
 import datetime
+import json
+import multiprocessing
 import os
 import re
+import subprocess
 import sys
 import yaml
 import itertools
@@ -81,6 +84,7 @@ class ExperimentJob:
             for combination in itertools.product(*values):
                 yield dict(zip(keys, combination))
 
+
         for experiment, parameters in self.experiment_data.items():
             print(
                 f'Running Experiment: {experiment} | {parameters["iterations"]} Iterations'
@@ -94,17 +98,14 @@ class ExperimentJob:
                 for iteration in tqdm(range(parameters["iterations"])):
                     if seed_pattern == "iterative":
                         seed = iteration
-                    experimentClass = self.str_to_class(experiment)(
-                        {**self.renderer_data, **parameters.get("controllerArgs", {})},
-                        **parameters.get("init", {}),
-                        seed=seed,
-                    )
-                    experimentClass.run(**parameters["run"], **testing_combination)
-                    experimentClass.stop()
-                    experimentClass.save_frames_to_folder(
-                        f"{folder_name}/{self.jobName}/{experiment}_{testing_combination}/{iteration}"
-                    )
-                    del experimentClass
+                    experiment_class = self.str_to_class(experiment)
+                    process = multiprocessing.Process(target=run_experiment, args=(
+                        experiment_class, testing_combination, iteration, seed, parameters, self.renderer_data, folder_name,
+                        self.jobName
+                    ))
+                    process.start()
+                    process.join()
+                    process.terminate()
 
     @staticmethod
     def make_folder(name):
@@ -117,6 +118,19 @@ class ExperimentJob:
     def str_to_class(classname):
         return getattr(sys.modules[__name__], classname)
 
+
+def run_experiment(experiment, testing_combination, iteration, seed, parameters, renderer_data, folder_name, jobName):
+    experimentClass = experiment(
+        {**renderer_data, **parameters.get("controllerArgs", {})},
+        **parameters.get("init", {}),
+        seed=seed,
+    )
+    experimentClass.run(**parameters["run"], **testing_combination)
+    experimentClass.stop()
+    experimentClass.save_frames_to_folder(
+        f"{folder_name}/{jobName}/{str(experiment)}_{testing_combination}/{iteration}"
+    )
+    del experimentClass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SimpleSwap from file")
