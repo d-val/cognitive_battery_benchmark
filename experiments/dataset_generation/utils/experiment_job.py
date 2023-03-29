@@ -104,6 +104,7 @@ class ExperimentJob:
                     experimentClass.save_frames_to_folder(
                         f"{folder_name}/{self.jobName}/{experiment}_{testing_combination}/{iteration}"
                     )
+                    del experimentClass
 
     @staticmethod
     def make_folder(name):
