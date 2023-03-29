@@ -75,7 +75,7 @@ class Experiment(Controller):
         first_person=None,
         save_stats=True,
         db_mode=True,
-        save_video=False,
+        save_video=True,
         save_raw_data=False,
     ):
         fov_frames = (
