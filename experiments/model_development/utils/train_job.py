@@ -16,7 +16,10 @@ from utils.translators import expts, label_keys
 
 import matplotlib.pyplot as plt
 
+from transformers import VideoMAEForPreTraining, AutoImageProcessor
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+torch.manual_seed(1234)
 
 class TrainingConfig:
     """
@@ -78,7 +81,6 @@ class TrainingJob:
         # Public training job attributes
         self.config = config
         self.using_ffcv = using_ffcv
-        self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
 
@@ -100,24 +102,15 @@ class TrainingJob:
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        if ckpt_path:
-            self.model = torch.load(ckpt_path)
-        else:
-            self.model = CNNLSTM(
-                config.model.lstm_hidden_size,
-                config.model.lstm_num_layers,
-                config.model.num_classes,
-                cnn_architecture=self.cnn_architecture,
-                pretrained=True,
-            )
-        self.model.to(device)
+        self.image_processor = AutoImageProcessor.from_pretrained("MCG-NJU/videomae-base")
+        self.model = VideoMAEForPreTraining.from_pretrained("MCG-NJU/videomae-base").to(device)
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(
             self.model.parameters(), lr=self.config.train_params.lr
         )
 
         # Initializing log and log metadata
-        self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
+        self._log(f"Starting Log, {self.config.job_name} + {self.config.expt_name}")
 
         # Keep count of samples seen in training
         self.train_count = 0
@@ -137,6 +130,10 @@ class TrainingJob:
         self._debug("Started training")
         self._log("TRAINING")
 
+        num_patches_per_frame = (self.model.config.image_size // self.model.config.patch_size) ** 2
+        seq_length = (self.config.data_loader.num_frames // self.model.config.tubelet_size) * num_patches_per_frame
+        bool_masked_pos = torch.randint(0, 2, (1, seq_length)).bool()
+
         best_loss = float("inf")
         for epoch in range(1, self.config.train_params.epochs + 1):
             for it, (data, targets) in enumerate(self.train_loader):
@@ -153,7 +150,7 @@ class TrainingJob:
                     targets = targets.to(device=device)
 
                 # forward
-                prediction = self.model(data)
+                prediction = self.model(data, bool_masked_pos=bool_masked_pos)
                 loss = self.loss_fn(prediction, targets)
 
                 # backward
