@@ -6,6 +6,8 @@ import os
 import re
 import subprocess
 import sys
+from random import random
+
 import yaml
 import itertools
 
@@ -63,11 +65,11 @@ class ExperimentJob:
                     else:
                         experimentClass.run(**parameters["run"])
 
-    def run(self, name=None, folder_name="output", seed_pattern="iterative"):
+    def run(self, folder_name="output", run_name=None, seed_pattern="iterative"):
         self.jobName = (
             re.sub(r"[^\w\d-]", "_", str(datetime.datetime.now()))
-            if name is None
-            else name
+            if run_name is None
+            else run_name
         )
         self.make_folder(f"{folder_name}/{self.jobName}")
 
@@ -98,6 +100,14 @@ class ExperimentJob:
                 for iteration in tqdm(range(parameters["iterations"])):
                     if seed_pattern == "iterative":
                         seed = iteration
+                    elif seed_pattern == "random":
+                        seed = random.randint(0, 1e10)
+                    # if seed is int
+                    elif isinstance(seed_pattern, tuple):
+                        if seed[0] == "fixed":
+                            seed = seed[1]
+                    else:
+                        raise Exception("Unknown seed pattern.")
                     experiment_class = self.str_to_class(experiment)
                     process = multiprocessing.Process(target=run_experiment, args=(
                         experiment_class, testing_combination, iteration, seed, parameters, self.renderer_data, folder_name,
