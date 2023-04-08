@@ -86,7 +86,6 @@ class ExperimentJob:
             for combination in itertools.product(*values):
                 yield dict(zip(keys, combination))
 
-
         for experiment, parameters in self.experiment_data.items():
             print(
                 f'Running Experiment: {experiment} | {parameters["iterations"]} Iterations'
@@ -109,10 +108,19 @@ class ExperimentJob:
                     else:
                         raise Exception("Unknown seed pattern.")
                     experiment_class = self.str_to_class(experiment)
-                    process = multiprocessing.Process(target=run_experiment, args=(
-                        experiment_class, testing_combination, iteration, seed, parameters, self.renderer_data, folder_name,
-                        self.jobName
-                    ))
+                    process = multiprocessing.Process(
+                        target=run_experiment,
+                        args=(
+                            experiment_class,
+                            testing_combination,
+                            iteration,
+                            seed,
+                            parameters,
+                            self.renderer_data,
+                            folder_name,
+                            self.jobName,
+                        ),
+                    )
                     process.start()
                     process.join()
                     process.terminate()
@@ -129,7 +137,16 @@ class ExperimentJob:
         return getattr(sys.modules[__name__], classname)
 
 
-def run_experiment(experiment, testing_combination, iteration, seed, parameters, renderer_data, folder_name, jobName):
+def run_experiment(
+    experiment,
+    testing_combination,
+    iteration,
+    seed,
+    parameters,
+    renderer_data,
+    folder_name,
+    jobName,
+):
     experimentClass = experiment(
         {**renderer_data, **parameters.get("controllerArgs", {})},
         **parameters.get("init", {}),
@@ -141,6 +158,7 @@ def run_experiment(experiment, testing_combination, iteration, seed, parameters,
         f"{folder_name}/{jobName}/{str(experiment)}_{testing_combination}/{iteration}"
     )
     del experimentClass
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SimpleSwap from file")

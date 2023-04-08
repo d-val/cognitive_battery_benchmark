@@ -125,13 +125,9 @@ def move_object(controller, objectId, directions):
     controller.update_frames()
     # third_party_camera_frames.append(last_event.third_party_camera_frames[0])
     directions = interpolate_between_2points(directions, num_interpolations=10)
-    move_hand(
-        controller, directions
-    )
+    move_hand(controller, directions)
 
-    last_event = drop_object(
-        controller
-    )
+    last_event = drop_object(controller)
     controller.update_frames()
 
     return last_event

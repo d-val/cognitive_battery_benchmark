@@ -16,9 +16,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 def assign_numbers(engaged_receptacles, max_rewards, addition_reward, num_receptacles):
     # Generate initial values for receptacles
-    initial_values = [
-        random.randint(0, max_rewards) for _ in range(num_receptacles)
-    ]
+    initial_values = [random.randint(0, max_rewards) for _ in range(num_receptacles)]
 
     receptacles_to_add = np.random.choice(
         num_receptacles, engaged_receptacles, replace=False
@@ -48,30 +46,40 @@ def generate_random_numbers(addition_reward, engaged_receptacles):
         return [1] * engaged_receptacles
 
     # Generate random partitions of addition_reward - engaged_receptacles, as we ensure each number is at least 1.
-    partitions = [0] + sorted(np.random.choice(np.arange(1,addition_reward), engaged_receptacles - 1, replace=False)) + [addition_reward]
-    random_numbers = [partitions[i + 1] - partitions[i] for i in range(engaged_receptacles)]
+    partitions = (
+        [0]
+        + sorted(
+            np.random.choice(
+                np.arange(1, addition_reward), engaged_receptacles - 1, replace=False
+            )
+        )
+        + [addition_reward]
+    )
+    random_numbers = [
+        partitions[i + 1] - partitions[i] for i in range(engaged_receptacles)
+    ]
     return random_numbers
 
 
 class AdditionNumbers(Experiment):
     def __init__(
-            self,
-            controller_args={
-                "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
-                "agentMode": "default",
-                "scene": "FloorPlan1",
-                "gridSize": 0.25,
-                "snapToGrid": False,
-                "rotateStepDegrees": 90,
-                "renderDepthImage": False,
-                "renderInstanceSegmentation": False,
-                "width": 300,
-                "height": 300,
-                "makeAgentsVisible": False,
-            },
-            fov=[110, 120],  # TODO: figure out why 90 FOV bug results in no boxes appearing
-            visibilityDistance=5,
-            seed=0,
+        self,
+        controller_args={
+            "local_executable_path": "utils/test.app/Contents/MacOS/AI2-THOR",
+            "agentMode": "default",
+            "scene": "FloorPlan1",
+            "gridSize": 0.25,
+            "snapToGrid": False,
+            "rotateStepDegrees": 90,
+            "renderDepthImage": False,
+            "renderInstanceSegmentation": False,
+            "width": 300,
+            "height": 300,
+            "makeAgentsVisible": False,
+        },
+        fov=[110, 120],  # TODO: figure out why 90 FOV bug results in no boxes appearing
+        visibilityDistance=5,
+        seed=0,
     ):
 
         random.seed(seed)
@@ -121,17 +129,17 @@ class AdditionNumbers(Experiment):
         # )
 
     def run(
-            self,
-            rewardTypes=["Potato", "Tomato", "Apple"],
-            rewardType=None,
-            max_rewards=3,
-            defined_rewards=None,
-            num_receptacles=4,
-            receptacle_position_limits=[-0.9, 0.9],
-            bigPlate="1xPlate",
-            smallPlate="0.75xPlate",
-            engaged_receptacles=None,
-            max_added_reward = 8
+        self,
+        rewardTypes=["Potato", "Tomato", "Apple"],
+        rewardType=None,
+        max_rewards=3,
+        defined_rewards=None,
+        num_receptacles=4,
+        receptacle_position_limits=[-0.9, 0.9],
+        bigPlate="1xPlate",
+        smallPlate="0.75xPlate",
+        engaged_receptacles=None,
+        max_added_reward=8,
     ):
         rewardType = (
             random.sample(rewardTypes, 1)[0] if rewardType is None else rewardType
@@ -152,7 +160,8 @@ class AdditionNumbers(Experiment):
 
         if engaged_receptacles is not None:
             addition_reward = np.random.randint(
-                engaged_receptacles, min(engaged_receptacles * (max_rewards - 1) + 1, max_added_reward + 1)
+                engaged_receptacles,
+                min(engaged_receptacles * (max_rewards - 1) + 1, max_added_reward + 1),
             )
         else:
             engaged_receptacles = 1
@@ -333,7 +342,11 @@ class AdditionNumbers(Experiment):
 
         position_generator = yield_positions(adding_numbers, receptacles_to_add)
         for obj in current_objects:
-            if obj["name"].startswith(rewardType) and 1 >= obj["position"]["x"] >= 0 and obj["position"]["y"] >= 1.0:
+            if (
+                obj["name"].startswith(rewardType)
+                and 1 >= obj["position"]["x"] >= 0
+                and obj["position"]["y"] >= 1.0
+            ):
 
                 try:
                     move_side = next(position_generator)

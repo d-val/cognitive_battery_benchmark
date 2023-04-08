@@ -32,7 +32,9 @@ class RelativeNumbers(Experiment):
         visibilityDistance=2,
         seed=0,
     ):
-        self.seed = seed
+        random.seed(seed)
+        np.random.seed(seed)
+
         self.stats = {
             "visibility_distance": visibilityDistance
             if type(visibilityDistance) != list
@@ -173,8 +175,7 @@ class RelativeNumbers(Experiment):
                                     "z": 0,
                                 },
                                 "position": {
-                                    "x": -0.34
-                                    + random.uniform(-0.13, 0.13),
+                                    "x": -0.34 + random.uniform(-0.13, 0.13),
                                     "y": 1.15 + 0.001 * i,
                                     "z": position + random.uniform(-0.13, 0.13),
                                 },

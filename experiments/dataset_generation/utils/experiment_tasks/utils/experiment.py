@@ -122,7 +122,8 @@ class Experiment(Controller):
                     if len(self.segmentation_list) > 0:
                         list_to_folder(
                             f"{folder}/segmentation_frames",
-                            self.segmentation_list, npy=True
+                            self.segmentation_list,
+                            npy=True,
                         )
 
                     if save_raw_data:
@@ -149,5 +150,6 @@ class Experiment(Controller):
             self.depth_list.append(self.last_event.depth_frame)
         if self.segmentation_list is not None:
             self.segmentation_list.append(self.last_event.instance_segmentation_frame)
+
     def run(self):
         raise NotImplementedError
