@@ -74,7 +74,7 @@ class Shape(Experiment):
         coveringType=None,
         receptacle_position_limits=[-0.9, 0.9],
         num_receptacles=4,
-        engaged_receptacles=2
+        engaged_receptacles=2,
     ):
         # TODO: add ability to specify number of items in each plate
         self.rewardType, self.coveringType = (
@@ -83,8 +83,6 @@ class Shape(Experiment):
             if coveringType is None
             else coveringType,
         )
-
-
 
         # List of initial poses (receptacle_names' poses)
         initialPoses = []
@@ -111,7 +109,9 @@ class Shape(Experiment):
             )
             # randomly sample between 0 and 1 for each position
             if engaged_receptacles is None:
-                defined_rewards = np.random.random(len(positions)) # TODO: implement defined_rewards
+                defined_rewards = np.random.random(
+                    len(positions)
+                )  # TODO: implement defined_rewards
             else:
                 defined_rewards = np.zeros(len(positions))
                 defined_rewards[:engaged_receptacles] = 1
@@ -177,7 +177,6 @@ class Shape(Experiment):
                 )
                 break
 
-
         if self.last_event.metadata["errorMessage"]:
             print(f'ERROR1:{self.last_event.metadata["errorMessage"]}')
         # count rewards to get output
@@ -185,7 +184,7 @@ class Shape(Experiment):
         self.stats.update(
             {
                 "final_label": np.where(defined_rewards > 0.5)[0].tolist(),
-                "reward_locs": np.where(defined_rewards > 0.5, 1, 0).tolist()
+                "reward_locs": np.where(defined_rewards > 0.5, 1, 0).tolist(),
             }
         )
         self.label = defined_rewards.tolist()

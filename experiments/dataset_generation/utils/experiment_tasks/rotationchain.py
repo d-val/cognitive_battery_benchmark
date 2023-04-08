@@ -104,7 +104,12 @@ class RotationChain(Experiment):
         # 11 means rotate 10 times 36 degree each and 6 means rotate 5 times
         degrees_to_rotate, reward_loc = 180, np.random.randint(0, num_receptacles - 1)
         init_reward_loc = reward_loc
-        rotations = [random.sample(list(zip(range(num_receptacles), range(num_receptacles)[1:])), 1)[0] for _ in range(num_rotations)]
+        rotations = [
+            random.sample(
+                list(zip(range(num_receptacles), range(num_receptacles)[1:])), 1
+            )[0]
+            for _ in range(num_rotations)
+        ]
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         assert (
@@ -124,11 +129,7 @@ class RotationChain(Experiment):
                     {
                         "objectName": obj["name"],
                         "rotation": {"x": -0.0, "y": 0, "z": 0},
-                        "position": {
-                            "x": pos_x,
-                            "y": 1.205,
-                            "z": pos_z
-                        },
+                        "position": {"x": pos_x, "y": 1.205, "z": pos_z},
                     }
                 )
             if obj["objectType"] == "Cup":
@@ -152,7 +153,6 @@ class RotationChain(Experiment):
         #         "position": {"x": 0, "y": 1.105, "z": 0},
         #     }
         # )
-
 
         # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
         self.step(
@@ -183,8 +183,6 @@ class RotationChain(Experiment):
                 # print(angle, i, degrees_to_rotate)
                 angle_radian = 2 * math.pi * angle / 360
 
-
-
                 for ix, position in enumerate(distances):
                     if ix in {obj1, obj2}:
                         initialPoses.append(
@@ -192,9 +190,13 @@ class RotationChain(Experiment):
                                 "objectName": "Cup",
                                 "rotation": {"x": -0.0, "y": angle, "z": 180},
                                 "position": {
-                                    "x": (position - mid_point) * math.sin(angle_radian),
+                                    "x": (position - mid_point)
+                                    * math.sin(angle_radian),
                                     "y": lowest_position,
-                                    "z": ((position - mid_point) * math.cos(angle_radian)) + mid_point,
+                                    "z": (
+                                        (position - mid_point) * math.cos(angle_radian)
+                                    )
+                                    + mid_point,
                                 },
                             }
                         )
@@ -211,10 +213,11 @@ class RotationChain(Experiment):
                             }
                         )
 
-
                 # set inital Poses of all objects, random objects stay in the same place, chosen receptacle spawn 3 times horizontally on the table
                 self.step(
-                    action="SetObjectPoses", objectPoses=initialPoses, placeStationary=False
+                    action="SetObjectPoses",
+                    objectPoses=initialPoses,
+                    placeStationary=False,
                 )
 
                 # add frame to corresponding frame list
@@ -248,7 +251,9 @@ class RotationChain(Experiment):
             {
                 "degrees_to_rotate": int(degrees_to_rotate),
                 "distances": distances.tolist(),
-                "rotations": {f'rotation_{ix}': list(value) for ix, value in enumerate(rotations)},
+                "rotations": {
+                    f"rotation_{ix}": list(value) for ix, value in enumerate(rotations)
+                },
                 "reward_type": rewardType,
                 "initial_object_location": init_reward_loc,
                 "final_label": int(out),
@@ -264,6 +269,7 @@ def determine_final_loc(rotations, rewardLoc, numReceptacles):
         reward_arr[[obj2, obj1]] = reward_arr[[obj1, obj2]]
 
     return np.where(reward_arr == 1)[0][0]
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Rotation from file")

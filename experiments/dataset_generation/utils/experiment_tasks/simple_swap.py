@@ -53,7 +53,6 @@ class SimpleSwap(Experiment):
             }
         )
 
-
         # Randomize Materials in the scene
         self.step(action="RandomizeMaterials")
 
@@ -326,7 +325,6 @@ class SimpleSwap(Experiment):
             ],
         )
         self.update_frames()
-
 
         # self.frame_list.append(self.last_event.frame)
 
