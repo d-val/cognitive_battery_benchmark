@@ -12,4 +12,4 @@ job = TrainingJob(config=config)
 job.train(evaluate=True)
 
 # Generate and save a plot of training and test losses
-job.plot(show=True, save=True)
+# job.plot(show=True, save=True)

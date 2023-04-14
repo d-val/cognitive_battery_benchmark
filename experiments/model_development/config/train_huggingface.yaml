@@ -2,9 +2,11 @@ job_name: "HuggingFace-VideoMAE"
 expt_name: "gravity"
 
 model:
+  model_checkpoint: "MCG-NJU/videomae-base"
   lstm_num_layers: 2
   lstm_hidden_size: 512
   num_classes: 3
+  learning_rate: 5e-5
 
 data_loader:
   batch_size: 1
