@@ -71,9 +71,7 @@ class LSTMBlock(nn.Module):
         :return: predictions of shape [batch_size, num_classes].
         :rtype: Tensor
         """
-        h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm(x, (h0, c0))
+        out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         return out
 
@@ -120,6 +118,7 @@ class CNNLSTM(nn.Module):
         """
         batch_size, timesteps, C, H, W = videos.size()
         c_in = videos.view(batch_size * timesteps, C, H, W)
+        c_in = c_in.narrow(1, 0, 3)
         c_out = self.cnn(c_in)
         r_in = c_out.view(batch_size, timesteps, -1)
         r_out = self.lstm(r_in)
