@@ -28,11 +28,11 @@ from pytorchvideo.transforms import (
 
 
 class TrainModelPipeline:
-    def __init__(self, preprocessor, model, datasets, postprocessor=None):
+    def __init__(self, preprocessor, model, video_dataset, postprocessor=None):
         self.preprocessor = preprocessor
         self.model = model
         self.postprocessor = postprocessor
-        self.datasets = datasets
+        self.datasets = video_dataset.datasets
 
     def train(
         self,
@@ -98,12 +98,12 @@ class VideoDatasetPipeline:
         dataset_split=[["1", "2", "3", "4"], ["5", "6"]],
         split_type="class",
     ):
-        sub_folders = glob.glob(path + "/*")
+        sub_folders = glob.glob(path + "/*/")
         videos_w_labels = {}
 
-        classes = set()
+        classes = []
         assert sub_folders != [], "No subfolders found in path"
-        for training_var, folder in enumerate(sub_folders):
+        for _, folder in enumerate(sub_folders):
             sub_videos_w_labels = []
             runs = glob.glob(folder + "/*")
             for run in runs:
@@ -115,10 +115,11 @@ class VideoDatasetPipeline:
                 with open(exp_file, "r") as f:
                     exp = yaml.safe_load(f)
                     label = str(exp[label_arg])
-                    classes.add(label)
+                    if label not in classes:
+                        classes.append(label)
 
-                sub_videos_w_labels.append((video, label))
-            videos_w_labels[training_var] = sub_videos_w_labels
+                sub_videos_w_labels.append((video, {"label": classes.index(label)}))
+            videos_w_labels[folder.split('/')[-2]] = sub_videos_w_labels
         if split_type == "all":
             # unroll dict and torch.utils.data.random_split
             # assert that all items in dataset_split are floats
@@ -136,7 +137,6 @@ class VideoDatasetPipeline:
                 [isinstance(x, list) for x in dataset_split]
             ), "dataset_split must be a list of lists"
             self.ds_splits = []
-            print(videos_w_labels)
             for split in dataset_split:
                 split_videos = []
                 for label in split:
@@ -174,6 +174,7 @@ class VideoDatasetPipeline:
                             UniformTemporalSubsample(num_frames_to_sample),
                             Lambda(lambda x: x / 255.0),
                             Normalize(self.mean, self.std),
+                            Resize(self.resize_to),
                         ]
                     ),
                 ),
