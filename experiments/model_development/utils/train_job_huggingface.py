@@ -18,6 +18,11 @@ import matplotlib.pyplot as plt
 
 from transformers import VideoMAEForPreTraining, AutoImageProcessor, TrainingArguments, Trainer
 
+import pytorchvideo.data
+
+from pytorchvideo.transforms import ApplyTransformToKey, Normalize, RandomShortSideScale, RemoveKey, ShortSideScale, UniformTemporalSubsample
+
+from torchvision.transforms import Compose, Lambda, RandomCrop, RandomHorizontalFlip, Resize
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.manual_seed(1234)
@@ -102,12 +107,24 @@ class TrainingJob:
         self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
-        self.train_loader, self.test_loader = self._get_loaders()
         self.model_ckpt = self.config.model.model_checkpoint
-        self.image_processor = AutoImageProcessor.from_pretrained(self.model_ckpt) # image_processor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
         self.model = VideoMAEForPreTraining.from_pretrained(
             self.model_ckpt
         ).to(device)
+        self.args = TrainingArguments(
+            self.config.job_name,
+            remove_unused_columns=False,
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            learning_rate=self.config.train_params.lr,
+            per_device_train_batch_size=self.config.data_loader.batch_size,
+            per_device_eval_batch_size=self.config.data_loader.batch_size,
+            logging_steps=1,
+            metric_for_best_model="accuracy"
+        )
+
+        self.image_processor = AutoImageProcessor.from_pretrained(self.model_ckpt) # image_processor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
+        self.train_dataset, self.val_dataset = self.get_datasets()
         # self.loss_fn = nn.CrossEntropyLoss()
         # self.optimizer = optim.SGD(
         #     self.model.parameters(), lr=self.config.train_params.lr
@@ -128,26 +145,83 @@ class TrainingJob:
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        args = TrainingArguments(
-            self.config.job_name,
-            remove_unused_columns=False,
-            evaluation_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=self.config.model.learning_rate,
-            per_device_train_batch_size=self.config.data_loader.batch_size,
-            per_device_eval_batch_size=self.config.data_loader.batch_size,
-            logging_steps=1,
-            metric_for_best_model="accuracy"
-        )
-
         self.trainer = Trainer(
             self.model,
             self.args,
-            train_dataset=self.train_loader,
-            eval_dataset=self.test_loader
+            train_dataset=self.train_dataset,
+            eval_dataset=self.val_dataset
         )
 
-        train_results = trainer.train()
+        train_results = self.trainer.train()
+
+    def get_datasets(self):
+        mean = self.image_processor.image_mean
+        std = self.image_processor.image_std
+        if "shortest_edge" in self.image_processor.size:
+            height = width = self.image_processor.size["shortest_edge"]
+        else:
+            height = self.image_processor.size["height"]
+            width = self.image_processor.size["width"]
+        resize_to = (height, width)
+
+        num_frames_to_sample = self.model.config.num_frames
+        sample_rate = 4
+        fps = 30
+        clip_duration = num_frames_to_sample * sample_rate / fps
+
+        train_transform = Compose([
+            ApplyTransformToKey(
+                key="video",
+                transform=Compose(
+                    [
+                        UniformTemporalSubsample(num_frames_to_sample),
+                        Lambda(lambda x: x / 255.0),
+                        Normalize(mean, std),
+                        RandomShortSideScale(min_size=256, max_size=320),
+                        RandomCrop(resize_to),
+                        RandomHorizontalFlip(p=0.5),
+                    ]
+                ),
+            )
+        ])
+
+        val_transform = Compose([
+            ApplyTransformToKey(
+                key="video",
+                transform=Compose(
+                    [
+                        UniformTemporalSubsample(num_frames_to_sample),
+                        Lambda(lambda x: x / 255.0),
+                        Normalize(mean, std),
+                        Resize(resize_to),
+                    ]
+                ),
+            ),
+        ])
+
+        train_dataset = FramesDataset(
+            self.config.data_loader.train_data_path,
+            self.label_translator,
+            fpv=None,
+            skip_every=self.config.data_loader.skip_every,
+            train=True,
+            shuffle=True,
+            source_type=self.config.data_loader.source_type,
+            yaml_label_key=label_keys[self.config.expt_name],
+        )
+
+        val_dataset = FramesDataset(
+            self.config.data_loader.val_data_path,
+            self.label_translator,
+            fpv=None,
+            skip_every=self.config.data_loader.skip_every,
+            train=True,
+            shuffle=True,
+            source_type=self.config.data_loader.source_type,
+            yaml_label_key=label_keys[self.config.expt_name],
+        )
+
+        return train_dataset, val_dataset
 
     def _log(self, statement):
         """
