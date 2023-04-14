@@ -2,3 +2,4 @@ torchvision==0.15.1
 pytorchvideo==0.1.5
 transformers==4.27.4
 evaluate==0.4.0
+scikit-learn==1.2.2
