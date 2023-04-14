@@ -16,7 +16,8 @@ from utils.translators import expts, label_keys
 
 import matplotlib.pyplot as plt
 
-from transformers import VideoMAEForPreTraining, AutoImageProcessor
+from transformers import VideoMAEForPreTraining, AutoImageProcessor, TrainingArguments, Trainer
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.manual_seed(1234)
@@ -102,12 +103,15 @@ class TrainingJob:
 
         # Setting up data loaders, the model, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
-        self.image_processor = AutoImageProcessor.from_pretrained("MCG-NJU/videomae-base")
-        self.model = VideoMAEForPreTraining.from_pretrained("MCG-NJU/videomae-base").to(device)
-        self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=self.config.train_params.lr
-        )
+        self.model_ckpt = self.config.model.model_checkpoint
+        self.image_processor = AutoImageProcessor.from_pretrained(self.model_ckpt) # image_processor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
+        self.model = VideoMAEForPreTraining.from_pretrained(
+            self.model_ckpt
+        ).to(device)
+        # self.loss_fn = nn.CrossEntropyLoss()
+        # self.optimizer = optim.SGD(
+        #     self.model.parameters(), lr=self.config.train_params.lr
+        # )
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.config.job_name} + {self.config.expt_name}")
@@ -124,129 +128,26 @@ class TrainingJob:
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        # Set the model in training state
-        self.model.train()
+        args = TrainingArguments(
+            self.config.job_name,
+            remove_unused_columns=False,
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            learning_rate=self.config.model.learning_rate,
+            per_device_train_batch_size=self.config.data_loader.batch_size,
+            per_device_eval_batch_size=self.config.data_loader.batch_size,
+            logging_steps=1,
+            metric_for_best_model="accuracy"
+        )
 
-        self._debug("Started training")
-        self._log("TRAINING")
+        self.trainer = Trainer(
+            self.model,
+            self.args,
+            train_dataset=self.train_loader,
+            eval_dataset=self.test_loader
+        )
 
-        num_patches_per_frame = (self.model.config.image_size // self.model.config.patch_size) ** 2
-        seq_length = (self.config.data_loader.num_frames // self.model.config.tubelet_size) * num_patches_per_frame
-        bool_masked_pos = torch.randint(0, 2, (1, seq_length)).bool()
-
-        best_loss = float("inf")
-        for epoch in range(1, self.config.train_params.epochs + 1):
-            for it, (data, targets) in enumerate(self.train_loader):
-
-                # Images are in NHWC, torch works in NCHW
-                self._debug(f"Epoch:{epoch}, it:{it}")
-                data = torch.permute(data, (0, 1, 4, 2, 3))
-
-                # get data to cuda if possible
-                data = data.to(device=device).squeeze(1)
-                if self.using_ffcv:
-                    targets = targets.to(device=device).squeeze(1)
-                else:
-                    targets = targets.to(device=device)
-
-                # forward
-                prediction = self.model(data, bool_masked_pos=bool_masked_pos)
-                loss = self.loss_fn(prediction, targets)
-
-                # backward
-                self.optimizer.zero_grad()
-                loss.backward()
-
-                self.writer.add_scalar("Loss/train", loss.item(), self.train_count)
-                self.train_count += 1
-
-                # gradient descent/optimizer step
-                self.optimizer.step()
-
-            if evaluate:
-                # Calculate training and testing accuracies and losses for this epoch
-                evals = self.evaluate()
-
-                train_acc, train_loss = evals["train"]
-                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
-                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
-
-                test_acc, test_loss = evals["test"]
-                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
-                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
-
-                self._log(
-                    f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
-                )
-                self.writer.flush()
-
-                # Update best model file if a better model is found.
-                if test_loss < best_loss:
-                    best_loss = test_loss
-                    torch.save(self.model, self._best_model_path)
-
-                if self.config.train_params.save_all_epochs:
-                    torch.save(self.model, self._epoch_model_path % epoch)
-
-    def evaluate(self):
-        """
-        Evaluates the model on the training and testing datasets.
-
-        :return: training and testing accuracies and losses.
-        :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
-        """
-
-        self._debug("\t Checking accuracy on training data")
-        train_acc, train_loss = self._check_accuracy(self.train_loader)
-
-        self._debug("\t Checking accuracy on test data")
-        test_acc, test_loss = self._check_accuracy(self.test_loader)
-
-        return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
-
-    def _check_accuracy(self, loader):
-        """
-        Checks the accuracy and loss of a model on a data loader.
-
-        :param DataLoader loader: a loader of data samples to check the accuracy against.
-        :return: the training accuracy and the per-batch loss.
-        :rtype: tuple(float, float)
-        """
-        num_correct, num_samples, running_loss = 0, 0, 0
-
-        # Set the model to evaluation state
-        self.model.eval()
-
-        with torch.no_grad():
-            for x, y in loader:
-
-                # Pre-process data and correct labels
-                x = torch.permute(x, (0, 1, 4, 2, 3))
-                x = x.to(device=device).squeeze(1)
-                y = y.to(device=device)
-                if self.using_ffcv:
-                    y = y.squeeze(1)
-
-                # Get model predictions and calculate loss
-                scores = self.model(x)
-                _, prediction = scores.max(1)
-                loss = self.loss_fn(scores, y)
-
-                # Compute accuracy and loss so far
-                num_correct += (prediction == y).sum()
-                num_samples += prediction.size(0)
-                running_loss += loss.item()
-
-            self._debug(
-                f"\t Got {num_correct} / {num_samples} with accuracy  \
-                {float(num_correct)/float(num_samples)*100:.2f}"
-            )
-            acc = float(num_correct) / float(num_samples) * 100
-
-        # Reset the model to train state
-        self.model.train()
-
-        return acc, running_loss / len(loader)
+        train_results = trainer.train()
 
     def _log(self, statement):
         """
@@ -276,67 +177,3 @@ class TrainingJob:
         with open(self._debug_path, "a+") as logf:
             logf.write(statement)
             logf.write("\n")
-
-    def _get_loaders(self):
-        """
-        Creates datasets and data loaders from the current data directory.
-
-        :return: two data loader containing the training data and testing data, respectively.
-        :rtype: tuple(DataLoader, DataLoader)
-        """
-        data_path = self.config.data_loader.data_path
-        if self.using_ffcv:
-            # Import necessary FFCV defs
-            from ffcv.loader import Loader, OrderOption
-            from ffcv.transforms import ToTensor
-            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
-
-            # Preprocessing pipeline
-            pipelines = {
-                "video": [NDArrayDecoder(), ToTensor()],
-                "label": [IntDecoder(), ToTensor()],
-            }
-
-            # Initialize training and testing data loaders.
-            train_loader = Loader(
-                data_path,
-                batch_size=self.config.data_loader.batch_size,
-                num_workers=1,
-                order=OrderOption.RANDOM,
-                pipelines=pipelines,
-            )
-            test_loader = train_loader  # TODO: add train/test split for FFCV
-
-        else:
-            # Initializing datasets and data-loaders.
-            full_dataset = FramesDataset(
-                data_path,
-                self.label_translator,
-                fpv=None,
-                skip_every=self.config.data_loader.skip_every,
-                train=True,
-                shuffle=True,
-                source_type=self.config.data_loader.source_type,
-                yaml_label_key=label_keys[self.config.expt_name],
-            )
-            train_size = int(self.config.data_loader.train_split * len(full_dataset))
-            test_size = len(full_dataset) - train_size
-
-            # Construct loaders from datasets
-            train_dataset, test_dataset = torch.utils.data.random_split(
-                full_dataset, [train_size, test_size]
-            )
-            train_loader = DataLoader(
-                dataset=train_dataset,
-                batch_size=self.config.data_loader.batch_size,
-                shuffle=True,
-                collate_fn=collate_videos,
-            )
-            test_loader = DataLoader(
-                dataset=test_dataset,
-                batch_size=self.config.data_loader.batch_size,
-                shuffle=True,
-                collate_fn=collate_videos,
-            )
-
-        return train_loader, test_loader
