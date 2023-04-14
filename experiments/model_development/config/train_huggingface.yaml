@@ -1,0 +1,19 @@
+job_name: "HuggingFace-VideoMAE"
+expt_name: "gravity"
+
+model:
+  lstm_num_layers: 2
+  lstm_hidden_size: 512
+  num_classes: 3
+
+data_loader:
+  batch_size: 1
+  data_path: gravitybias_dataset/1_tubes/train
+  train_split: 0.8
+  skip_every: 2
+  num_frames: 16
+  source_type: frames
+
+train_params:
+  epochs: 100
+  lr: 0.005
