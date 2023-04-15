@@ -32,6 +32,7 @@ class RelativeNumbers(Experiment):
         visibilityDistance=2,
         seed=0,
     ):
+        self.seed = seed
         random.seed(seed)
         np.random.seed(seed)
 
