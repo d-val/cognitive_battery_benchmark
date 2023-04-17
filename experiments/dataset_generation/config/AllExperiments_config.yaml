@@ -51,3 +51,18 @@ SimpleSwap:
     swaps: null
     pots_to_swap: null
     reward_position: null
+
+GravityBias:
+  iterations: 1
+  controllerArgs:
+    width: 300
+    height: 300
+    show: True
+    unity_build: "utils/GravityBias.app"
+  init:
+    fov: [ 50, 65 ]
+  run:
+    rewardTypes: ["Pear", "Tomato", "Apple"]
+    play_speed: 10
+    num_receptacles: 8
+    num_tubes: [2, 3, 4, 5, 6, 7, 8]

@@ -13,6 +13,7 @@ from .experiment_tasks.relative_numbers import RelativeNumbers
 from .experiment_tasks.rotation import Rotation
 from .experiment_tasks.shape import Shape
 from .experiment_tasks.simple_swap import SimpleSwap
+from .experiment_tasks.gravity_bias import GravityBias
 
 
 class ExperimentJob:
@@ -74,7 +75,8 @@ class ExperimentJob:
                 experimentClass.run(**parameters["run"])
                 experimentClass.stop()
                 experimentClass.save_frames_to_folder(
-                    f"{folder_name}/{self.jobName}/{experiment}/{iteration}"
+                    base_task_dir=f'{folder_name}/{self.jobName}/{experiment}',
+                    iteration=iteration
                 )
 
     @staticmethod
