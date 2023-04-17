@@ -12,3 +12,10 @@ __pycache__/*
 frames/
 resources/
 experiments/dataset_generation/output
+experiments/dataset_generation/output
+.gravitybiasout/
+*data/
+*env/
+*cog-battery-baseline/
+*output/
+/experiments/human_baseline/test_experiment/packaged/
