@@ -19,3 +19,8 @@ experiments/dataset_generation/output
 *output/
 /experiments/human_baseline/test_experiment/packaged/
 videos/
+addition_numbers_agent/
+experiments/human_baseline/jsPsych/
+experiments/human_baseline/test_experiment/assets/relativeNumbers_dataset/
+experiments/human_baseline/img/relativeNumbers_dataset/
+experiments/human_baseline/test_experiment/
