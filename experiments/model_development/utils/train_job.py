@@ -2,21 +2,28 @@
 train_job.py: contains the implementation of a model training job and its interface with the config file.
 """
 
+import os
+import random
+import re
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torchmetrics.functional as mf
+import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from datetime import datetime
-import re, yaml, os
+from tqdm import tqdm
 
 from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
 from utils.translators import expts, label_keys
 
-import matplotlib.pyplot as plt
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class TrainingConfig:
     """
@@ -81,21 +88,26 @@ class TrainingJob:
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
+        self.metrics = self._get_metrics()
+
+        # Set the random seed, if provided
+        if hasattr(self.config, "seed"):
+            self._seed_everything(self.config.seed)
 
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
-        
+
         out_path = f"output/{self.config.job_name}_{self._start_time}"
         os.makedirs(out_path)
         self._log_path = os.path.join(out_path, "training.log")
         self._debug_path = os.path.join(out_path, "debugging.log")
         self.config.write_yaml(os.path.join(out_path, "config.yaml"))
-        
+
         ckpts_path = os.path.join(out_path, "ckpts")
         os.makedirs(ckpts_path)
         self._best_model_path = os.path.join(ckpts_path, "best.ckpt")
         self._epoch_model_path = os.path.join(ckpts_path, "ep%i.ckpt")
-        
+
         self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
@@ -139,10 +151,10 @@ class TrainingJob:
 
         best_loss = float("inf")
         for epoch in range(1, self.config.train_params.epochs + 1):
-            for it, (data, targets) in enumerate(self.train_loader):
-
+            pbar = tqdm(self.train_loader, desc=f"Epoch [{epoch}]")
+            for data, targets in pbar:
                 # Images are in NHWC, torch works in NCHW
-                self._debug(f"Epoch:{epoch}, it:{it}")
+                # self._debug(f"Epoch:{epoch}, it:{it}")
                 data = torch.permute(data, (0, 1, 4, 2, 3))
 
                 # get data to cuda if possible
@@ -164,28 +176,30 @@ class TrainingJob:
                 self.train_count += 1
 
                 # gradient descent/optimizer step
+                nn.utils.clip_grad_norm_(self.model.parameters(), 2)
                 self.optimizer.step()
 
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
+                log_statement = f"epoch={epoch}"
+                
+                train_metrics = evals["train"]
+                for m in train_metrics:
+                    self.writer.add_scalar(f"{m}/train_epoch", train_metrics[m], epoch)
+                    log_statement += f",train_{m}={train_metrics[m]:.4f}"
 
-                train_acc, train_loss = evals["train"]
-                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
-                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
-
-                test_acc, test_loss = evals["test"]
-                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
-                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
-
-                self._log(
-                    f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
-                )
+                test_metrics = evals["test"]
+                for m in test_metrics:
+                    self.writer.add_scalar(f"{m}/test_epoch", test_metrics[m], epoch)
+                    log_statement += f",test_{m}={test_metrics[m]:.4f}"
+                
+                self._log(log_statement)
                 self.writer.flush()
 
                 # Update best model file if a better model is found.
-                if test_loss < best_loss:
-                    best_loss = test_loss
+                if test_metrics["loss"] < best_loss:
+                    best_loss = test_metrics["loss"]
                     torch.save(self.model, self._best_model_path)
 
                 if self.config.train_params.save_all_epochs:
@@ -199,15 +213,15 @@ class TrainingJob:
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        self._debug("\t Checking accuracy on training data")
-        train_acc, train_loss = self._check_accuracy(self.train_loader)
+        self._debug("\t Checking metrics on training data")
+        train_metrics = self._compute_metrics(self.train_loader)
 
-        self._debug("\t Checking accuracy on test data")
-        test_acc, test_loss = self._check_accuracy(self.test_loader)
+        self._debug("\t Checking metrics on test data")
+        test_metrics = self._compute_metrics(self.test_loader)
 
-        return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
+        return {"train": train_metrics, "test": test_metrics}
 
-    def _check_accuracy(self, loader):
+    def _compute_metrics(self, loader):
         """
         Checks the accuracy and loss of a model on a data loader.
 
@@ -220,9 +234,10 @@ class TrainingJob:
         # Set the model to evaluation state
         self.model.eval()
 
+        outputs, targets = [], []
+        
         with torch.no_grad():
-            for x, y in loader:
-
+            for x, y in tqdm(loader):
                 # Pre-process data and correct labels
                 x = torch.permute(x, (0, 1, 4, 2, 3))
                 x = x.to(device=device).squeeze(1)
@@ -234,6 +249,9 @@ class TrainingJob:
                 scores = self.model(x)
                 _, prediction = scores.max(1)
                 loss = self.loss_fn(scores, y)
+                
+                outputs.append(scores.cpu())
+                targets.append(y.cpu())
 
                 # Compute accuracy and loss so far
                 num_correct += (prediction == y).sum()
@@ -245,11 +263,19 @@ class TrainingJob:
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct) / float(num_samples) * 100
-
+            eval_metrics = {"acc": acc, "loss": running_loss / len(loader)}
+            outputs = torch.cat(outputs)
+            targets = torch.cat(targets)
+            for m in self.metrics:
+                eval_metrics[m] = self.metrics[m](outputs, targets).item()
+            
+            for m in eval_metrics:
+                self._debug(f"\t {m}: \t {eval_metrics[m]:.4}")
+                
         # Reset the model to train state
         self.model.train()
 
-        return acc, running_loss / len(loader)
+        return eval_metrics
 
     def _log(self, statement):
         """
@@ -290,9 +316,9 @@ class TrainingJob:
         data_path = self.config.data_loader.data_path
         if self.using_ffcv:
             # Import necessary FFCV defs
+            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
             from ffcv.loader import Loader, OrderOption
             from ffcv.transforms import ToTensor
-            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
 
             # Preprocessing pipeline
             pipelines = {
@@ -343,6 +369,35 @@ class TrainingJob:
             )
 
         return train_loader, test_loader
+
+    def _get_metrics(self):
+        metrics = {}
+        
+        for k in {1, 3, 5}:
+            metrics[f"top{k}_acc"] = lambda prediction, targets, k=k: mf.accuracy(
+                prediction, targets, task="multiclass", num_classes=8, top_k=k
+            )
+
+        for m in {mf.precision, mf.f1_score, mf.recall, mf.auroc}:
+            metrics[m.__name__] = lambda prediction, targets: m(
+            prediction, targets, task="multiclass", num_classes=8
+        )
+        metrics["mae"] = lambda prediction, targets: mf.mean_absolute_error(prediction.max(1)[1], targets)
+        return metrics
+
+    def _seed_everything(self, seed: int):
+        """
+        Sets the RNG seed for numpy, pytorch, and Python's random library.
+
+        :param: int seed: the RNG seed to use
+        """
+        random.seed(seed)
+        os.environ["PYTHONHASHSEED"] = str(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = True
 
 
 if __name__ == "__main__":

@@ -101,6 +101,7 @@ class CNNLSTM(nn.Module):
         super(CNNLSTM, self).__init__()
         self.cnn = CNN_MODELS[cnn_architecture](pretrained=pretrained)
         set_last_identity(self.cnn, cnn_architecture)
+        self.norm = nn.LayerNorm(CNN_OUTPUT_SIZES[cnn_architecture])
         self.lstm = LSTMBlock(
             CNN_OUTPUT_SIZES[cnn_architecture],
             lstm_hidden_size,
@@ -119,7 +120,7 @@ class CNNLSTM(nn.Module):
         batch_size, timesteps, C, H, W = videos.size()
         c_in = videos.view(batch_size * timesteps, C, H, W)
         c_out = self.cnn(c_in)
-        r_in = c_out.view(batch_size, timesteps, -1)
+        r_in = self.norm(c_out.view(batch_size, timesteps, -1))
         r_out = self.lstm(r_in)
         return r_out
 
