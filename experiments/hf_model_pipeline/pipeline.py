@@ -9,8 +9,6 @@ from torch.utils.data import random_split
 from torchvision.transforms import (
     Compose,
     Lambda,
-    RandomCrop,
-    RandomHorizontalFlip,
     Resize,
 )
 from pytorchvideo.data import LabeledVideoDataset
@@ -20,11 +18,22 @@ from transformers import TrainingArguments, Trainer
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
     Normalize,
-    RandomShortSideScale,
-    RemoveKey,
-    ShortSideScale,
     UniformTemporalSubsample,
 )
+
+
+def split_list_by_percentages(input_list, percentages):
+    np.random.shuffle(input_list)
+    total_len = len(input_list)
+    sublists = []
+    start = 0
+
+    for percentage in percentages:
+        end = start + int(total_len * percentage)
+        sublists.append(input_list[start:end])
+        start = end
+
+    return sublists
 
 
 class TrainModelPipeline:
@@ -35,19 +44,20 @@ class TrainModelPipeline:
         self.datasets = video_dataset.datasets
 
     def train(
-        self,
-        num_epochs,
-        batch_size,
-        learning_rate=5e-5,
-        optimized_metric="accuracy",
-        new_model_name="fine_tuned_model",
+            self,
+            num_epochs,
+            batch_size,
+            learning_rate=5e-5,
+            optimized_metric="accuracy",
+            new_model_name="fine_tuned_model",
     ):
         train_dataset = self.datasets[0]
-        metric = evaluate.load(optimized_metric)
+        accuracy = evaluate.load(optimized_metric)
+
 
         def compute_metrics(eval_pred):
             predictions = np.argmax(eval_pred.predictions, axis=1)
-            return metric.compute(
+            return accuracy.compute(
                 predictions=predictions, references=eval_pred.label_ids
             )
 
@@ -88,16 +98,69 @@ class TrainModelPipeline:
         train_results = trainer.train()
         return train_results
 
+    def test(
+            self,
+            batch_size,
+            optimized_metric="accuracy",
+    ):
+        test_dataset = self.datasets[2]
+        accuracy = evaluate.load(optimized_metric)
+
+        def compute_metrics(eval_pred):
+            predictions = np.argmax(eval_pred.predictions, axis=1)
+            return accuracy.compute(
+                predictions=predictions, references=eval_pred.label_ids
+            )
+
+        def collate_fn(examples):
+            # permute to (num_frames, num_channels, height, width)
+            pixel_values = torch.stack(
+                [example["video"].permute(1, 0, 2, 3) for example in examples]
+            )
+            labels = torch.tensor([example["label"] for example in examples])
+            return {"pixel_values": pixel_values, "labels": labels}
+
+        args = TrainingArguments(
+            "testing_model",
+            remove_unused_columns=False,
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            per_device_eval_batch_size=batch_size,
+            logging_steps=10,
+            load_best_model_at_end=True,
+            metric_for_best_model=optimized_metric,
+            push_to_hub=False,
+        )
+
+        trainer = Trainer(
+            self.model,
+            args,
+            eval_dataset=test_dataset,
+            tokenizer=self.preprocessor,
+            compute_metrics=compute_metrics,
+            data_collator=collate_fn,
+        )
+
+        test_results = trainer.evaluate()
+        return test_results
+
+
 
 class VideoDatasetPipeline:
     def __init__(
-        self,
-        path,
-        label_arg,
-        video_ext="mp4",
-        dataset_split=[["1", "2", "3", "4"], ["5", "6"]],
-        split_type="class",
+            self,
+            path,
+            label_arg,
+            video_ext="mp4",
+            dataset_class_split=None,
+            dataset_percentage_split=None,
     ):
+        if dataset_percentage_split is None:
+            dataset_percentage_split = [[0.75, 0, 25], []]
+        if dataset_class_split is None:
+            dataset_class_split = [["1", "2", "3", "4"], ["5", "6"]]
+        self.datasets = None
+        self.resize_to = None
         sub_folders = glob.glob(path + "/*/")
         videos_w_labels = {}
 
@@ -120,37 +183,45 @@ class VideoDatasetPipeline:
 
                 sub_videos_w_labels.append((video, {"label": classes.index(label)}))
             videos_w_labels[folder.split('/')[-2]] = sub_videos_w_labels
-        if split_type == "all":
-            # unroll dict and torch.utils.data.random_split
-            # assert that all items in dataset_split are floats
-            assert all(
-                [isinstance(x, float) for x in dataset_split]
-            ), "dataset_split must be a list of floats"
-            all_videos = []
-            for label in videos_w_labels:
-                all_videos.extend(videos_w_labels[label])
-            self.ds_splits = random_split(all_videos, dataset_split)
-        elif split_type == "class":
-            # unroll dict and torch.utils.data.random_split
-            # assert that all items in dataset_split are lists
-            assert all(
-                [isinstance(x, list) for x in dataset_split]
-            ), "dataset_split must be a list of lists"
-            self.ds_splits = []
-            for split in dataset_split:
-                split_videos = []
-                for label in split:
-                    split_videos.extend(videos_w_labels[label])
-                self.ds_splits.append(split_videos)
+
+        # unroll dict and torch.utils.data.random_split
+        # assert that all items in dataset_split are floats
+
+        # unroll dict and torch.utils.data.random_split
+
+        # assert that all items in dataset_split are lists of float
+        assert all(
+            [isinstance(x, list) for x in dataset_percentage_split]
+        ), "dataset_split must be a list of lists"
+        assert all(
+            [all([isinstance(y, float) for y in x]) for x in dataset_percentage_split]
+        ), "dataset_split must be a list of lists of floats"
+
+        # assert that all items in dataset_class_splits are lists of strings
+        assert all(
+            [isinstance(x, list) for x in dataset_class_split]
+        ), "dataset_split must be a list of lists"
+        assert all(
+            [all([isinstance(y, str) for y in x]) for x in dataset_class_split]
+        ), "dataset_split must be a list of lists of strings"
+
+        self.ds_splits = []
+        for percentage_split, class_split in zip(dataset_percentage_split, dataset_class_split):
+            split_videos = []
+            for label in class_split:
+                split_videos.extend(videos_w_labels[label])
+            partitioned_videos = split_list_by_percentages(split_videos,
+                                                           percentage_split)
+            self.ds_splits.append(partitioned_videos)
 
         self.label2id = {label: i for i, label in enumerate(classes)}
         self.id2label = {i: label for i, label in enumerate(classes)}
         print("Loaded dataset")
 
     def preprocess(
-        self,
-        preprocessor,
-        model
+            self,
+            preprocessor,
+            model
     ):
         self.mean = preprocessor.image_mean
         self.std = preprocessor.image_std
