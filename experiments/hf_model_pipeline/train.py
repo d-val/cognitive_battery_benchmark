@@ -15,5 +15,5 @@ model = VideoMAEForVideoClassification.from_pretrained(
 dataset.preprocess(preprocessor, model)
 train_pipeline = TrainModelPipeline(preprocessor, model, dataset)
 
-train_pipeline.train(3, 6)
-train_pipeline.test(6)
+train_pipeline.train(3, 4)
+train_pipeline.test(4)
