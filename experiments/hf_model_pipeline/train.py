@@ -3,7 +3,7 @@ from pipeline import VideoDatasetPipeline
 from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification
 
 
-dataset = VideoDatasetPipeline("./RelativeNumbers", "final_greater_side", dataset_split=[["1", "2", "3", "4"], ["5", "6"]], split_type="class")
+dataset = VideoDatasetPipeline("./RelativeNumbers", "final_greater_side", dataset_class_split=[["1", "2", "3", "4"], ["5", "6"]], dataset_percentage_split=[0.75, 0, 25])
 model_ckpt = "MCG-NJU/videomae-base"
 preprocessor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
 model = VideoMAEForVideoClassification.from_pretrained(
@@ -14,9 +14,6 @@ model = VideoMAEForVideoClassification.from_pretrained(
 )
 dataset.preprocess(preprocessor, model)
 train_pipeline = TrainModelPipeline(preprocessor, model, dataset)
-<<<<<<< HEAD
+
 train_pipeline.train(3, 12)
 train_pipeline.test(12)
-=======
-train_pipeline.train(3, 1)
->>>>>>> origin/neild-experiment-generalization

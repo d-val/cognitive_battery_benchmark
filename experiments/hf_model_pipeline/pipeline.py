@@ -28,6 +28,9 @@ def split_list_by_percentages(input_list, percentages):
     sublists = []
     start = 0
 
+    if len(percentages) == 0:
+        return [input_list]
+
     for percentage in percentages:
         end = start + int(total_len * percentage)
         sublists.append(input_list[start:end])
