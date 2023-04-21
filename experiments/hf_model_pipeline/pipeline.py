@@ -56,7 +56,7 @@ def gen_compute_metrics(opt_metric="accuracy"):
         TP = np.diag(cm).tolist()
         FP = (np.sum(cm, axis=0) - TP).tolist()
         FN = (np.sum(cm, axis=1) - TP).tolist()
-        TN = (np.sum(cm) - (FP + FN + TP)).tolist()
+        TN = (np.sum(np.diag(cm)) - TP).tolist()
 
         metrics.update({"TP": TP, "FP": FP, "TN": TN, "FN": FN})
 
