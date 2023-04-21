@@ -53,10 +53,10 @@ def gen_compute_metrics(opt_metric="accuracy"):
 
         cm = confusion_matrix(labels, predictions)
 
-        TP = np.diag(cm)
-        FP = np.sum(cm, axis=0) - TP
-        FN = np.sum(cm, axis=1) - TP
-        TN = np.sum(cm) - (FP + FN + TP)
+        TP = np.diag(cm).tolist()
+        FP = (np.sum(cm, axis=0) - TP).tolist()
+        FN = (np.sum(cm, axis=1) - TP).tolist()
+        TN = (np.sum(cm) - (FP + FN + TP)).tolist()
 
         metrics.update({"TP": TP, "FP": FP, "TN": TN, "FN": FN})
 
