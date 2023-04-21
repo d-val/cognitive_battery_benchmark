@@ -21,6 +21,10 @@ from pytorchvideo.transforms import (
     UniformTemporalSubsample,
 )
 
+from sklearn.metrics import confusion_matrix
+
+import wandb
+
 
 def split_list_by_percentages(input_list, percentages):
     np.random.shuffle(input_list)
@@ -39,6 +43,28 @@ def split_list_by_percentages(input_list, percentages):
     return sublists
 
 
+def gen_compute_metrics(opt_metric="accuracy"):
+    def compute_metrics_function(eval_pred):
+        optimized = evaluate.load(opt_metric)
+
+        predictions = np.argmax(eval_pred.predictions, axis=1)
+        labels = eval_pred.label_ids
+        metrics = optimized.compute(predictions=predictions, references=labels)
+
+        cm = confusion_matrix(labels, predictions)
+
+        TP = np.diag(cm)
+        FP = np.sum(cm, axis=0) - TP
+        FN = np.sum(cm, axis=1) - TP
+        TN = np.sum(cm) - (FP + FN + TP)
+
+        metrics.update({"TP": TP, "FP": FP, "TN": TN, "FN": FN})
+
+        return metrics
+
+    return compute_metrics_function
+
+
 class TrainModelPipeline:
     def __init__(self, preprocessor, model, video_dataset, postprocessor=None):
         self.preprocessor = preprocessor
@@ -54,16 +80,8 @@ class TrainModelPipeline:
             optimized_metric="accuracy",
             new_model_name="fine_tuned_model",
     ):
-        accuracy = evaluate.load(optimized_metric)
-
         dataset = self.datasets[0]
         train_dataset, val_dataset = dataset[0], dataset[1]
-
-        def compute_metrics(eval_pred):
-            predictions = np.argmax(eval_pred.predictions, axis=1)
-            return accuracy.compute(
-                predictions=predictions, references=eval_pred.label_ids
-            )
 
         def collate_fn(examples):
             # permute to (num_frames, num_channels, height, width)
@@ -96,7 +114,7 @@ class TrainModelPipeline:
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             tokenizer=self.preprocessor,
-            compute_metrics=compute_metrics,
+            compute_metrics=gen_compute_metrics(optimized_metric)),
             data_collator=collate_fn,
         )
 
@@ -109,14 +127,6 @@ class TrainModelPipeline:
             optimized_metric="accuracy",
     ):
         test_dataset = self.datasets[1][0]
-        accuracy = evaluate.load(optimized_metric)
-
-        def compute_metrics(eval_pred):
-            predictions = np.argmax(eval_pred.predictions, axis=1)
-            return accuracy.compute(
-                predictions=predictions, references=eval_pred.label_ids
-            )
-
         def collate_fn(examples):
             # permute to (num_frames, num_channels, height, width)
             pixel_values = torch.stack(
@@ -124,6 +134,8 @@ class TrainModelPipeline:
             )
             labels = torch.tensor([example["label"] for example in examples])
             return {"pixel_values": pixel_values, "labels": labels}
+
+        current_wandb_run_id = wandb.run.id
 
         args = TrainingArguments(
             "testing_model",
@@ -135,7 +147,8 @@ class TrainModelPipeline:
             load_best_model_at_end=True,
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
-            report_to="wandb"
+            report_to="wandb",
+            run_id=current_wandb_run_id,
         )
 
         trainer = Trainer(
@@ -143,13 +156,12 @@ class TrainModelPipeline:
             args,
             eval_dataset=test_dataset,
             tokenizer=self.preprocessor,
-            compute_metrics=compute_metrics,
+            compute_metrics=gen_compute_metrics(optimized_metric),
             data_collator=collate_fn,
         )
 
         test_results = trainer.evaluate()
         return test_results
-
 
 
 class VideoDatasetPipeline:
