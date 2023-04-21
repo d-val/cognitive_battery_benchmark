@@ -21,7 +21,7 @@ from pytorchvideo.transforms import (
     UniformTemporalSubsample,
 )
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import multilabel_confusion_matrix
 
 import wandb
 
@@ -51,12 +51,12 @@ def gen_compute_metrics(opt_metric="accuracy"):
         labels = eval_pred.label_ids
         metrics = optimized.compute(predictions=predictions, references=labels)
 
-        cm = confusion_matrix(labels, predictions)
+        cm = multilabel_confusion_matrix(labels, predictions)
 
-        TP = float(np.sum(np.diag(cm)))
-        FP = float(np.sum(np.sum(cm, axis=0) - TP))
-        FN = float(np.sum(np.sum(cm, axis=1) - TP))
-        TN = float(np.sum(np.sum(np.diag(cm)) - TP))
+        TN = cm[:, 0, 0].sum()
+        FN = cm[:, 1, 0].sum()
+        TP = cm[:, 1, 1].sum()
+        FP = cm[:, 0, 1].sum()
 
         metrics.update({"TP": TP, "FP": FP, "TN": TN, "FN": FN})
 
@@ -135,6 +135,7 @@ class TrainModelPipeline:
             load_best_model_at_end=True,
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
+            report_to=None
         )
 
         def collate_fn(examples):
