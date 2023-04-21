@@ -1,6 +1,15 @@
 from pipeline import TrainModelPipeline
 from pipeline import VideoDatasetPipeline
 from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification
+import os
+
+os.environ["WANDB_PROJECT"]="MAE-RelativeNumbers"
+
+# save your trained model checkpoint to wandb
+os.environ["WANDB_LOG_MODEL"]="true"
+
+# turn off watch to log faster
+os.environ["WANDB_WATCH"]="false"
 
 
 dataset = VideoDatasetPipeline("./RelativeNumbers", "final_greater_side", dataset_class_split=[["1", "2", "3", "4"], ["5", "6"]], dataset_percentage_split=[[0.75, 0.25], []])

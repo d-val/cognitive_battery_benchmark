@@ -87,6 +87,7 @@ class TrainModelPipeline:
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
             max_steps=(train_dataset.num_videos // batch_size) * num_epochs,
+            report_to = "wandb"
         )
 
         trainer = Trainer(
@@ -134,6 +135,7 @@ class TrainModelPipeline:
             load_best_model_at_end=True,
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
+            report_to="wandb"
         )
 
         trainer = Trainer(
