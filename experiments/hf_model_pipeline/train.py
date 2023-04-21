@@ -3,7 +3,7 @@ from pipeline import VideoDatasetPipeline
 from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification
 
 
-dataset = VideoDatasetPipeline("./RelativeNumbers", "final_greater_side", dataset_class_split=[["1", "2", "3", "4"], ["5", "6"]], dataset_percentage_split=[[0.75, 0, 25], []])
+dataset = VideoDatasetPipeline("./RelativeNumbers", "final_greater_side", dataset_class_split=[["1", "2", "3", "4"], ["5", "6"]], dataset_percentage_split=[[0.75, 0.25], []])
 model_ckpt = "MCG-NJU/videomae-base"
 preprocessor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
 model = VideoMAEForVideoClassification.from_pretrained(
