@@ -197,7 +197,7 @@ class VideoDatasetPipeline:
             [isinstance(x, list) for x in dataset_percentage_split]
         ), "dataset_split must be a list of lists"
         assert all(
-            [all([isinstance(y, float) for y in x]) for x in dataset_percentage_split]
+            [all([isinstance(y, float) for y in x]) or len(x) == 0 for x in dataset_percentage_split]
         ), "dataset_split must be a list of lists of floats"
 
         # assert that all items in dataset_class_splits are lists of strings
