@@ -121,22 +121,10 @@ class TrainModelPipeline:
         train_results = trainer.train()
         return train_results
 
-    def test(
-            self,
-            batch_size,
-            optimized_metric="accuracy",
-    ):
+    def test(self, batch_size, optimized_metric="accuracy"):
         test_dataset = self.datasets[1][0]
-        def collate_fn(examples):
-            # permute to (num_frames, num_channels, height, width)
-            pixel_values = torch.stack(
-                [example["video"].permute(1, 0, 2, 3) for example in examples]
-            )
-            labels = torch.tensor([example["label"] for example in examples])
-            return {"pixel_values": pixel_values, "labels": labels}
 
-        current_wandb_run_id = wandb.run.id
-
+        # Initialize a wandb run
         args = TrainingArguments(
             "testing_model",
             remove_unused_columns=False,
@@ -147,9 +135,14 @@ class TrainModelPipeline:
             load_best_model_at_end=True,
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
-            report_to="wandb",
-            run_id=current_wandb_run_id,
         )
+
+        def collate_fn(examples):
+            pixel_values = torch.stack(
+                [example["video"].permute(1, 0, 2, 3) for example in examples]
+            )
+            labels = torch.tensor([example["label"] for example in examples])
+            return {"pixel_values": pixel_values, "labels": labels}
 
         trainer = Trainer(
             self.model,
@@ -160,8 +153,14 @@ class TrainModelPipeline:
             data_collator=collate_fn,
         )
 
-        test_results = trainer.evaluate()
-        return test_results
+        # Evaluate the test dataset
+        eval_results = trainer.evaluate()
+
+        # Log the evaluation results
+        wandb.log({"test_results": eval_results})
+
+        # End the wandb run
+        wandb.finish()
 
 
 class VideoDatasetPipeline:
