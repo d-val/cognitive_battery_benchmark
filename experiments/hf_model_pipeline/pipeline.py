@@ -107,7 +107,7 @@ class TrainModelPipeline:
             batch_size,
             optimized_metric="accuracy",
     ):
-        test_dataset = self.datasets[2]
+        test_dataset = self.datasets[1][0]
         accuracy = evaluate.load(optimized_metric)
 
         def compute_metrics(eval_pred):
