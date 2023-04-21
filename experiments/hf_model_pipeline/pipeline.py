@@ -54,9 +54,10 @@ class TrainModelPipeline:
             optimized_metric="accuracy",
             new_model_name="fine_tuned_model",
     ):
-        train_dataset = self.datasets[0]
         accuracy = evaluate.load(optimized_metric)
 
+        dataset = self.datasets[0]
+        train_dataset, val_dataset = dataset[0], dataset[1]
 
         def compute_metrics(eval_pred):
             predictions = np.argmax(eval_pred.predictions, axis=1)
@@ -92,7 +93,7 @@ class TrainModelPipeline:
             self.model,
             args,
             train_dataset=train_dataset,
-            eval_dataset=self.datasets[1],
+            eval_dataset=val_dataset,
             tokenizer=self.preprocessor,
             compute_metrics=compute_metrics,
             data_collator=collate_fn,
@@ -256,15 +257,15 @@ class VideoDatasetPipeline:
         )
 
         self.datasets = [
-            LabeledVideoDataset(
-                ds_split,
+            [LabeledVideoDataset(
+                sub_ds_split,
                 clip_sampler=pytorchvideo.data.make_clip_sampler(
                     "uniform", clip_duration
                 ),
                 video_sampler=torch.utils.data.sampler.RandomSampler,
                 transform=transform,
                 decoder="pyav",
-            )
+            ) for sub_ds_split in ds_split]
             for ds_split in self.ds_splits
         ]
 
