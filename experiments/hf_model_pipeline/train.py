@@ -14,5 +14,9 @@ model = VideoMAEForVideoClassification.from_pretrained(
 )
 dataset.preprocess(preprocessor, model)
 train_pipeline = TrainModelPipeline(preprocessor, model, dataset)
+<<<<<<< HEAD
 train_pipeline.train(3, 12)
 train_pipeline.test(12)
+=======
+train_pipeline.train(3, 1)
+>>>>>>> origin/neild-experiment-generalization
