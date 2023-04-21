@@ -114,7 +114,7 @@ class TrainModelPipeline:
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             tokenizer=self.preprocessor,
-            compute_metrics=gen_compute_metrics(optimized_metric)),
+            compute_metrics=gen_compute_metrics(optimized_metric),
             data_collator=collate_fn,
         )
 
