@@ -56,9 +56,8 @@ if __name__ == "__main__":
 
     os.environ["WANDB_PROJECT"] = f"{model_str}-{dataset_name}"
 
-
     dataset = VideoDatasetPipeline(
-        args.dataset_config,
+        f"./datasets/{dataset_name}",
         "final_greater_side",
         dataset_class_split=dataset_class_split,
         dataset_percentage_split=dataset_percentage_split,
