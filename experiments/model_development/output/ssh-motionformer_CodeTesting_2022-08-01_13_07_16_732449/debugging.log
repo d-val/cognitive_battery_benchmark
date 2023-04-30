@@ -1,0 +1,1201 @@
+Started training
+Epoch:1, it:0
+Epoch:1, it:1
+Epoch:1, it:2
+Epoch:1, it:3
+Epoch:1, it:4
+Epoch:1, it:5
+Epoch:1, it:6
+Epoch:1, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:2, it:0
+Epoch:2, it:1
+Epoch:2, it:2
+Epoch:2, it:3
+Epoch:2, it:4
+Epoch:2, it:5
+Epoch:2, it:6
+Epoch:2, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:3, it:0
+Epoch:3, it:1
+Epoch:3, it:2
+Epoch:3, it:3
+Epoch:3, it:4
+Epoch:3, it:5
+Epoch:3, it:6
+Epoch:3, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:4, it:0
+Epoch:4, it:1
+Epoch:4, it:2
+Epoch:4, it:3
+Epoch:4, it:4
+Epoch:4, it:5
+Epoch:4, it:6
+Epoch:4, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:5, it:0
+Epoch:5, it:1
+Epoch:5, it:2
+Epoch:5, it:3
+Epoch:5, it:4
+Epoch:5, it:5
+Epoch:5, it:6
+Epoch:5, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:6, it:0
+Epoch:6, it:1
+Epoch:6, it:2
+Epoch:6, it:3
+Epoch:6, it:4
+Epoch:6, it:5
+Epoch:6, it:6
+Epoch:6, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:7, it:0
+Epoch:7, it:1
+Epoch:7, it:2
+Epoch:7, it:3
+Epoch:7, it:4
+Epoch:7, it:5
+Epoch:7, it:6
+Epoch:7, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:8, it:0
+Epoch:8, it:1
+Epoch:8, it:2
+Epoch:8, it:3
+Epoch:8, it:4
+Epoch:8, it:5
+Epoch:8, it:6
+Epoch:8, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:9, it:0
+Epoch:9, it:1
+Epoch:9, it:2
+Epoch:9, it:3
+Epoch:9, it:4
+Epoch:9, it:5
+Epoch:9, it:6
+Epoch:9, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:10, it:0
+Epoch:10, it:1
+Epoch:10, it:2
+Epoch:10, it:3
+Epoch:10, it:4
+Epoch:10, it:5
+Epoch:10, it:6
+Epoch:10, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:11, it:0
+Epoch:11, it:1
+Epoch:11, it:2
+Epoch:11, it:3
+Epoch:11, it:4
+Epoch:11, it:5
+Epoch:11, it:6
+Epoch:11, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:12, it:0
+Epoch:12, it:1
+Epoch:12, it:2
+Epoch:12, it:3
+Epoch:12, it:4
+Epoch:12, it:5
+Epoch:12, it:6
+Epoch:12, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:13, it:0
+Epoch:13, it:1
+Epoch:13, it:2
+Epoch:13, it:3
+Epoch:13, it:4
+Epoch:13, it:5
+Epoch:13, it:6
+Epoch:13, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:14, it:0
+Epoch:14, it:1
+Epoch:14, it:2
+Epoch:14, it:3
+Epoch:14, it:4
+Epoch:14, it:5
+Epoch:14, it:6
+Epoch:14, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:15, it:0
+Epoch:15, it:1
+Epoch:15, it:2
+Epoch:15, it:3
+Epoch:15, it:4
+Epoch:15, it:5
+Epoch:15, it:6
+Epoch:15, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:16, it:0
+Epoch:16, it:1
+Epoch:16, it:2
+Epoch:16, it:3
+Epoch:16, it:4
+Epoch:16, it:5
+Epoch:16, it:6
+Epoch:16, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:17, it:0
+Epoch:17, it:1
+Epoch:17, it:2
+Epoch:17, it:3
+Epoch:17, it:4
+Epoch:17, it:5
+Epoch:17, it:6
+Epoch:17, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:18, it:0
+Epoch:18, it:1
+Epoch:18, it:2
+Epoch:18, it:3
+Epoch:18, it:4
+Epoch:18, it:5
+Epoch:18, it:6
+Epoch:18, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:19, it:0
+Epoch:19, it:1
+Epoch:19, it:2
+Epoch:19, it:3
+Epoch:19, it:4
+Epoch:19, it:5
+Epoch:19, it:6
+Epoch:19, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:20, it:0
+Epoch:20, it:1
+Epoch:20, it:2
+Epoch:20, it:3
+Epoch:20, it:4
+Epoch:20, it:5
+Epoch:20, it:6
+Epoch:20, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:21, it:0
+Epoch:21, it:1
+Epoch:21, it:2
+Epoch:21, it:3
+Epoch:21, it:4
+Epoch:21, it:5
+Epoch:21, it:6
+Epoch:21, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:22, it:0
+Epoch:22, it:1
+Epoch:22, it:2
+Epoch:22, it:3
+Epoch:22, it:4
+Epoch:22, it:5
+Epoch:22, it:6
+Epoch:22, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:23, it:0
+Epoch:23, it:1
+Epoch:23, it:2
+Epoch:23, it:3
+Epoch:23, it:4
+Epoch:23, it:5
+Epoch:23, it:6
+Epoch:23, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:24, it:0
+Epoch:24, it:1
+Epoch:24, it:2
+Epoch:24, it:3
+Epoch:24, it:4
+Epoch:24, it:5
+Epoch:24, it:6
+Epoch:24, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:25, it:0
+Epoch:25, it:1
+Epoch:25, it:2
+Epoch:25, it:3
+Epoch:25, it:4
+Epoch:25, it:5
+Epoch:25, it:6
+Epoch:25, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:26, it:0
+Epoch:26, it:1
+Epoch:26, it:2
+Epoch:26, it:3
+Epoch:26, it:4
+Epoch:26, it:5
+Epoch:26, it:6
+Epoch:26, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:27, it:0
+Epoch:27, it:1
+Epoch:27, it:2
+Epoch:27, it:3
+Epoch:27, it:4
+Epoch:27, it:5
+Epoch:27, it:6
+Epoch:27, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:28, it:0
+Epoch:28, it:1
+Epoch:28, it:2
+Epoch:28, it:3
+Epoch:28, it:4
+Epoch:28, it:5
+Epoch:28, it:6
+Epoch:28, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:29, it:0
+Epoch:29, it:1
+Epoch:29, it:2
+Epoch:29, it:3
+Epoch:29, it:4
+Epoch:29, it:5
+Epoch:29, it:6
+Epoch:29, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:30, it:0
+Epoch:30, it:1
+Epoch:30, it:2
+Epoch:30, it:3
+Epoch:30, it:4
+Epoch:30, it:5
+Epoch:30, it:6
+Epoch:30, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:31, it:0
+Epoch:31, it:1
+Epoch:31, it:2
+Epoch:31, it:3
+Epoch:31, it:4
+Epoch:31, it:5
+Epoch:31, it:6
+Epoch:31, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:32, it:0
+Epoch:32, it:1
+Epoch:32, it:2
+Epoch:32, it:3
+Epoch:32, it:4
+Epoch:32, it:5
+Epoch:32, it:6
+Epoch:32, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:33, it:0
+Epoch:33, it:1
+Epoch:33, it:2
+Epoch:33, it:3
+Epoch:33, it:4
+Epoch:33, it:5
+Epoch:33, it:6
+Epoch:33, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:34, it:0
+Epoch:34, it:1
+Epoch:34, it:2
+Epoch:34, it:3
+Epoch:34, it:4
+Epoch:34, it:5
+Epoch:34, it:6
+Epoch:34, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:35, it:0
+Epoch:35, it:1
+Epoch:35, it:2
+Epoch:35, it:3
+Epoch:35, it:4
+Epoch:35, it:5
+Epoch:35, it:6
+Epoch:35, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:36, it:0
+Epoch:36, it:1
+Epoch:36, it:2
+Epoch:36, it:3
+Epoch:36, it:4
+Epoch:36, it:5
+Epoch:36, it:6
+Epoch:36, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:37, it:0
+Epoch:37, it:1
+Epoch:37, it:2
+Epoch:37, it:3
+Epoch:37, it:4
+Epoch:37, it:5
+Epoch:37, it:6
+Epoch:37, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:38, it:0
+Epoch:38, it:1
+Epoch:38, it:2
+Epoch:38, it:3
+Epoch:38, it:4
+Epoch:38, it:5
+Epoch:38, it:6
+Epoch:38, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:39, it:0
+Epoch:39, it:1
+Epoch:39, it:2
+Epoch:39, it:3
+Epoch:39, it:4
+Epoch:39, it:5
+Epoch:39, it:6
+Epoch:39, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:40, it:0
+Epoch:40, it:1
+Epoch:40, it:2
+Epoch:40, it:3
+Epoch:40, it:4
+Epoch:40, it:5
+Epoch:40, it:6
+Epoch:40, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:41, it:0
+Epoch:41, it:1
+Epoch:41, it:2
+Epoch:41, it:3
+Epoch:41, it:4
+Epoch:41, it:5
+Epoch:41, it:6
+Epoch:41, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:42, it:0
+Epoch:42, it:1
+Epoch:42, it:2
+Epoch:42, it:3
+Epoch:42, it:4
+Epoch:42, it:5
+Epoch:42, it:6
+Epoch:42, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:43, it:0
+Epoch:43, it:1
+Epoch:43, it:2
+Epoch:43, it:3
+Epoch:43, it:4
+Epoch:43, it:5
+Epoch:43, it:6
+Epoch:43, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:44, it:0
+Epoch:44, it:1
+Epoch:44, it:2
+Epoch:44, it:3
+Epoch:44, it:4
+Epoch:44, it:5
+Epoch:44, it:6
+Epoch:44, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:45, it:0
+Epoch:45, it:1
+Epoch:45, it:2
+Epoch:45, it:3
+Epoch:45, it:4
+Epoch:45, it:5
+Epoch:45, it:6
+Epoch:45, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:46, it:0
+Epoch:46, it:1
+Epoch:46, it:2
+Epoch:46, it:3
+Epoch:46, it:4
+Epoch:46, it:5
+Epoch:46, it:6
+Epoch:46, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:47, it:0
+Epoch:47, it:1
+Epoch:47, it:2
+Epoch:47, it:3
+Epoch:47, it:4
+Epoch:47, it:5
+Epoch:47, it:6
+Epoch:47, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:48, it:0
+Epoch:48, it:1
+Epoch:48, it:2
+Epoch:48, it:3
+Epoch:48, it:4
+Epoch:48, it:5
+Epoch:48, it:6
+Epoch:48, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:49, it:0
+Epoch:49, it:1
+Epoch:49, it:2
+Epoch:49, it:3
+Epoch:49, it:4
+Epoch:49, it:5
+Epoch:49, it:6
+Epoch:49, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:50, it:0
+Epoch:50, it:1
+Epoch:50, it:2
+Epoch:50, it:3
+Epoch:50, it:4
+Epoch:50, it:5
+Epoch:50, it:6
+Epoch:50, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:51, it:0
+Epoch:51, it:1
+Epoch:51, it:2
+Epoch:51, it:3
+Epoch:51, it:4
+Epoch:51, it:5
+Epoch:51, it:6
+Epoch:51, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:52, it:0
+Epoch:52, it:1
+Epoch:52, it:2
+Epoch:52, it:3
+Epoch:52, it:4
+Epoch:52, it:5
+Epoch:52, it:6
+Epoch:52, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:53, it:0
+Epoch:53, it:1
+Epoch:53, it:2
+Epoch:53, it:3
+Epoch:53, it:4
+Epoch:53, it:5
+Epoch:53, it:6
+Epoch:53, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:54, it:0
+Epoch:54, it:1
+Epoch:54, it:2
+Epoch:54, it:3
+Epoch:54, it:4
+Epoch:54, it:5
+Epoch:54, it:6
+Epoch:54, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:55, it:0
+Epoch:55, it:1
+Epoch:55, it:2
+Epoch:55, it:3
+Epoch:55, it:4
+Epoch:55, it:5
+Epoch:55, it:6
+Epoch:55, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:56, it:0
+Epoch:56, it:1
+Epoch:56, it:2
+Epoch:56, it:3
+Epoch:56, it:4
+Epoch:56, it:5
+Epoch:56, it:6
+Epoch:56, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:57, it:0
+Epoch:57, it:1
+Epoch:57, it:2
+Epoch:57, it:3
+Epoch:57, it:4
+Epoch:57, it:5
+Epoch:57, it:6
+Epoch:57, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:58, it:0
+Epoch:58, it:1
+Epoch:58, it:2
+Epoch:58, it:3
+Epoch:58, it:4
+Epoch:58, it:5
+Epoch:58, it:6
+Epoch:58, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:59, it:0
+Epoch:59, it:1
+Epoch:59, it:2
+Epoch:59, it:3
+Epoch:59, it:4
+Epoch:59, it:5
+Epoch:59, it:6
+Epoch:59, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:60, it:0
+Epoch:60, it:1
+Epoch:60, it:2
+Epoch:60, it:3
+Epoch:60, it:4
+Epoch:60, it:5
+Epoch:60, it:6
+Epoch:60, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:61, it:0
+Epoch:61, it:1
+Epoch:61, it:2
+Epoch:61, it:3
+Epoch:61, it:4
+Epoch:61, it:5
+Epoch:61, it:6
+Epoch:61, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:62, it:0
+Epoch:62, it:1
+Epoch:62, it:2
+Epoch:62, it:3
+Epoch:62, it:4
+Epoch:62, it:5
+Epoch:62, it:6
+Epoch:62, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:63, it:0
+Epoch:63, it:1
+Epoch:63, it:2
+Epoch:63, it:3
+Epoch:63, it:4
+Epoch:63, it:5
+Epoch:63, it:6
+Epoch:63, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:64, it:0
+Epoch:64, it:1
+Epoch:64, it:2
+Epoch:64, it:3
+Epoch:64, it:4
+Epoch:64, it:5
+Epoch:64, it:6
+Epoch:64, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:65, it:0
+Epoch:65, it:1
+Epoch:65, it:2
+Epoch:65, it:3
+Epoch:65, it:4
+Epoch:65, it:5
+Epoch:65, it:6
+Epoch:65, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:66, it:0
+Epoch:66, it:1
+Epoch:66, it:2
+Epoch:66, it:3
+Epoch:66, it:4
+Epoch:66, it:5
+Epoch:66, it:6
+Epoch:66, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:67, it:0
+Epoch:67, it:1
+Epoch:67, it:2
+Epoch:67, it:3
+Epoch:67, it:4
+Epoch:67, it:5
+Epoch:67, it:6
+Epoch:67, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:68, it:0
+Epoch:68, it:1
+Epoch:68, it:2
+Epoch:68, it:3
+Epoch:68, it:4
+Epoch:68, it:5
+Epoch:68, it:6
+Epoch:68, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:69, it:0
+Epoch:69, it:1
+Epoch:69, it:2
+Epoch:69, it:3
+Epoch:69, it:4
+Epoch:69, it:5
+Epoch:69, it:6
+Epoch:69, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:70, it:0
+Epoch:70, it:1
+Epoch:70, it:2
+Epoch:70, it:3
+Epoch:70, it:4
+Epoch:70, it:5
+Epoch:70, it:6
+Epoch:70, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:71, it:0
+Epoch:71, it:1
+Epoch:71, it:2
+Epoch:71, it:3
+Epoch:71, it:4
+Epoch:71, it:5
+Epoch:71, it:6
+Epoch:71, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:72, it:0
+Epoch:72, it:1
+Epoch:72, it:2
+Epoch:72, it:3
+Epoch:72, it:4
+Epoch:72, it:5
+Epoch:72, it:6
+Epoch:72, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:73, it:0
+Epoch:73, it:1
+Epoch:73, it:2
+Epoch:73, it:3
+Epoch:73, it:4
+Epoch:73, it:5
+Epoch:73, it:6
+Epoch:73, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:74, it:0
+Epoch:74, it:1
+Epoch:74, it:2
+Epoch:74, it:3
+Epoch:74, it:4
+Epoch:74, it:5
+Epoch:74, it:6
+Epoch:74, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:75, it:0
+Epoch:75, it:1
+Epoch:75, it:2
+Epoch:75, it:3
+Epoch:75, it:4
+Epoch:75, it:5
+Epoch:75, it:6
+Epoch:75, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:76, it:0
+Epoch:76, it:1
+Epoch:76, it:2
+Epoch:76, it:3
+Epoch:76, it:4
+Epoch:76, it:5
+Epoch:76, it:6
+Epoch:76, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:77, it:0
+Epoch:77, it:1
+Epoch:77, it:2
+Epoch:77, it:3
+Epoch:77, it:4
+Epoch:77, it:5
+Epoch:77, it:6
+Epoch:77, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:78, it:0
+Epoch:78, it:1
+Epoch:78, it:2
+Epoch:78, it:3
+Epoch:78, it:4
+Epoch:78, it:5
+Epoch:78, it:6
+Epoch:78, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:79, it:0
+Epoch:79, it:1
+Epoch:79, it:2
+Epoch:79, it:3
+Epoch:79, it:4
+Epoch:79, it:5
+Epoch:79, it:6
+Epoch:79, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:80, it:0
+Epoch:80, it:1
+Epoch:80, it:2
+Epoch:80, it:3
+Epoch:80, it:4
+Epoch:80, it:5
+Epoch:80, it:6
+Epoch:80, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:81, it:0
+Epoch:81, it:1
+Epoch:81, it:2
+Epoch:81, it:3
+Epoch:81, it:4
+Epoch:81, it:5
+Epoch:81, it:6
+Epoch:81, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:82, it:0
+Epoch:82, it:1
+Epoch:82, it:2
+Epoch:82, it:3
+Epoch:82, it:4
+Epoch:82, it:5
+Epoch:82, it:6
+Epoch:82, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:83, it:0
+Epoch:83, it:1
+Epoch:83, it:2
+Epoch:83, it:3
+Epoch:83, it:4
+Epoch:83, it:5
+Epoch:83, it:6
+Epoch:83, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:84, it:0
+Epoch:84, it:1
+Epoch:84, it:2
+Epoch:84, it:3
+Epoch:84, it:4
+Epoch:84, it:5
+Epoch:84, it:6
+Epoch:84, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:85, it:0
+Epoch:85, it:1
+Epoch:85, it:2
+Epoch:85, it:3
+Epoch:85, it:4
+Epoch:85, it:5
+Epoch:85, it:6
+Epoch:85, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:86, it:0
+Epoch:86, it:1
+Epoch:86, it:2
+Epoch:86, it:3
+Epoch:86, it:4
+Epoch:86, it:5
+Epoch:86, it:6
+Epoch:86, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:87, it:0
+Epoch:87, it:1
+Epoch:87, it:2
+Epoch:87, it:3
+Epoch:87, it:4
+Epoch:87, it:5
+Epoch:87, it:6
+Epoch:87, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:88, it:0
+Epoch:88, it:1
+Epoch:88, it:2
+Epoch:88, it:3
+Epoch:88, it:4
+Epoch:88, it:5
+Epoch:88, it:6
+Epoch:88, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:89, it:0
+Epoch:89, it:1
+Epoch:89, it:2
+Epoch:89, it:3
+Epoch:89, it:4
+Epoch:89, it:5
+Epoch:89, it:6
+Epoch:89, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:90, it:0
+Epoch:90, it:1
+Epoch:90, it:2
+Epoch:90, it:3
+Epoch:90, it:4
+Epoch:90, it:5
+Epoch:90, it:6
+Epoch:90, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:91, it:0
+Epoch:91, it:1
+Epoch:91, it:2
+Epoch:91, it:3
+Epoch:91, it:4
+Epoch:91, it:5
+Epoch:91, it:6
+Epoch:91, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:92, it:0
+Epoch:92, it:1
+Epoch:92, it:2
+Epoch:92, it:3
+Epoch:92, it:4
+Epoch:92, it:5
+Epoch:92, it:6
+Epoch:92, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:93, it:0
+Epoch:93, it:1
+Epoch:93, it:2
+Epoch:93, it:3
+Epoch:93, it:4
+Epoch:93, it:5
+Epoch:93, it:6
+Epoch:93, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:94, it:0
+Epoch:94, it:1
+Epoch:94, it:2
+Epoch:94, it:3
+Epoch:94, it:4
+Epoch:94, it:5
+Epoch:94, it:6
+Epoch:94, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:95, it:0
+Epoch:95, it:1
+Epoch:95, it:2
+Epoch:95, it:3
+Epoch:95, it:4
+Epoch:95, it:5
+Epoch:95, it:6
+Epoch:95, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:96, it:0
+Epoch:96, it:1
+Epoch:96, it:2
+Epoch:96, it:3
+Epoch:96, it:4
+Epoch:96, it:5
+Epoch:96, it:6
+Epoch:96, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:97, it:0
+Epoch:97, it:1
+Epoch:97, it:2
+Epoch:97, it:3
+Epoch:97, it:4
+Epoch:97, it:5
+Epoch:97, it:6
+Epoch:97, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:98, it:0
+Epoch:98, it:1
+Epoch:98, it:2
+Epoch:98, it:3
+Epoch:98, it:4
+Epoch:98, it:5
+Epoch:98, it:6
+Epoch:98, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:99, it:0
+Epoch:99, it:1
+Epoch:99, it:2
+Epoch:99, it:3
+Epoch:99, it:4
+Epoch:99, it:5
+Epoch:99, it:6
+Epoch:99, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00
+Epoch:100, it:0
+Epoch:100, it:1
+Epoch:100, it:2
+Epoch:100, it:3
+Epoch:100, it:4
+Epoch:100, it:5
+Epoch:100, it:6
+Epoch:100, it:7
+	 Checking accuracy on training data
+	 Got 4 / 8 with accuracy                  50.00
+	 Checking accuracy on test data
+	 Got 1 / 2 with accuracy                  50.00

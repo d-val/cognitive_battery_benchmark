@@ -1,0 +1,14 @@
+data_loader:
+  batch_size: 1
+  data_path: data/
+  train_split: 0.8
+expt_name: shape
+job_name: CodeTesting
+model:
+  cnn_architecture: resnet18
+  lstm_hidden_size: 512
+  lstm_num_layers: 2
+  num_classes: 3
+train_params:
+  epochs: 25
+  lr: 0.005

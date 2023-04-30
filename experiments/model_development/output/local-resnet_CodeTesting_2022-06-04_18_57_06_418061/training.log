@@ -1,0 +1,27 @@
+Starting Log, resnet18 + LSTM
+TRAINING
+epoch=1,train_acc=62.50,test_acc=50.00,train_loss=1.01,test_loss=1.01
+epoch=2,train_acc=68.75,test_acc=100.00,train_loss=0.93,test_loss=0.92
+epoch=3,train_acc=81.25,test_acc=100.00,train_loss=0.88,test_loss=0.87
+epoch=4,train_acc=50.00,test_acc=75.00,train_loss=0.84,test_loss=0.82
+epoch=5,train_acc=50.00,test_acc=75.00,train_loss=0.80,test_loss=0.78
+epoch=6,train_acc=50.00,test_acc=75.00,train_loss=0.78,test_loss=0.75
+epoch=7,train_acc=75.00,test_acc=75.00,train_loss=0.76,test_loss=0.74
+epoch=8,train_acc=93.75,test_acc=100.00,train_loss=0.74,test_loss=0.72
+epoch=9,train_acc=87.50,test_acc=100.00,train_loss=0.71,test_loss=0.68
+epoch=10,train_acc=81.25,test_acc=100.00,train_loss=0.69,test_loss=0.65
+epoch=11,train_acc=93.75,test_acc=100.00,train_loss=0.65,test_loss=0.60
+epoch=12,train_acc=93.75,test_acc=100.00,train_loss=0.59,test_loss=0.56
+epoch=13,train_acc=100.00,test_acc=100.00,train_loss=0.52,test_loss=0.49
+epoch=14,train_acc=100.00,test_acc=100.00,train_loss=0.47,test_loss=0.40
+epoch=15,train_acc=100.00,test_acc=100.00,train_loss=0.38,test_loss=0.32
+epoch=16,train_acc=100.00,test_acc=100.00,train_loss=0.30,test_loss=0.25
+epoch=17,train_acc=100.00,test_acc=100.00,train_loss=0.25,test_loss=0.19
+epoch=18,train_acc=93.75,test_acc=100.00,train_loss=0.21,test_loss=0.16
+epoch=19,train_acc=100.00,test_acc=100.00,train_loss=0.17,test_loss=0.14
+epoch=20,train_acc=100.00,test_acc=100.00,train_loss=0.15,test_loss=0.11
+epoch=21,train_acc=100.00,test_acc=100.00,train_loss=0.13,test_loss=0.09
+epoch=22,train_acc=100.00,test_acc=100.00,train_loss=0.12,test_loss=0.08
+epoch=23,train_acc=100.00,test_acc=100.00,train_loss=0.12,test_loss=0.08
+epoch=24,train_acc=100.00,test_acc=100.00,train_loss=0.10,test_loss=0.07
+epoch=25,train_acc=100.00,test_acc=100.00,train_loss=0.09,test_loss=0.06
