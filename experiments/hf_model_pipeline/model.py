@@ -1,5 +1,5 @@
 from transformers import AutoFeatureExtractor, AutoModelForVideoClassification
-from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification, AutoProcessor, AutoModel
+from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification, AutoModel
 
 
 class VideoMAE():
@@ -29,7 +29,7 @@ class Timesformer():
 class XClip():
     def __init__(self, dataset):
         model_ckpt = "microsoft/xclip-base-patch32"
-        self.preprocessor = AutoProcessor.from_pretrained(model_ckpt)
+        self.preprocessor = AutoFeatureExtractor.from_pretrained(model_ckpt)
         self.model = AutoModel.from_pretrained(
             model_ckpt,
             label2id=dataset.label2id,
