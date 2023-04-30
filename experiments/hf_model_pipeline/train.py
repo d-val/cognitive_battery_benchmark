@@ -68,5 +68,5 @@ if __name__ == "__main__":
     dataset.preprocess(model)
     train_pipeline = TrainModelPipeline(model, dataset)
 
-    train_pipeline.train(60, 3)
-    train_pipeline.test(3)
+    train_pipeline.train(epochs, batch_size)
+    train_pipeline.test(batch_size)

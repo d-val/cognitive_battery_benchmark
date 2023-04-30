@@ -1,4 +1,4 @@
-model: "VideoMAE"
+model: "Timesformer"
 
 epochs: 100
 batch_size: 3

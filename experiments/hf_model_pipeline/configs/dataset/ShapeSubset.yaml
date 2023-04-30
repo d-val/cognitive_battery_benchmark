@@ -1,4 +1,4 @@
-dataset_name: "Shape"
+dataset_name: "ShapeSubset"
 
 dataset_class_split: [["1", "2", "3", "4"], ["5", "6"]]
 dataset_percentage_split: [[0.75, 0.25], []]
