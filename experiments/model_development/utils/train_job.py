@@ -1,5 +1,5 @@
 """
-train_job.py: contains the implementation of a model training job and its interface with the config file.
+train_job.py: contains the implementation of a model.py training job and its interface with the config file.
 """
 
 import torch
@@ -63,14 +63,14 @@ class TrainingConfig:
 
 class TrainingJob:
     """
-    Trains and evaluates CNN+LSTM model based on a configuration file.
+    Trains and evaluates CNN+LSTM model.py based on a configuration file.
     """
 
     def __init__(self, config, stdout=True, using_ffcv=False):
         """
         Initialize the job and its parameters.
 
-        :param TrainignConfig config: configuration for model training.
+        :param TrainignConfig config: configuration for model.py training.
         :param function label_to_int: a function that translates labels from the dataset output into 0-indexed integers.
         :param bool using_ffcv: whether data is stored in FFCV format.
         :param bool stdout: whether to show training progress in stdout.
@@ -88,10 +88,10 @@ class TrainingJob:
         os.makedirs(self._out_path)
         self._log_path = os.path.join(self._out_path, "training.log")
         self._debug_path = os.path.join(self._out_path, "debugging.log")
-        self._best_model_path = os.path.join(self._out_path, "model.pt")
+        self._best_model_path = os.path.join(self._out_path, "model.py.pt")
         self.config.write_yaml(os.path.join(self._out_path, "config.yaml"))
 
-        # Setting up data loaders, the model, and the optimizer & loss function
+        # Setting up data loaders, the model.py, and the optimizer & loss function
         self.train_loader, self.test_loader = self._get_loaders()
         self.model = CNNLSTM(
             config.model.lstm_hidden_size,
@@ -112,14 +112,14 @@ class TrainingJob:
 
     def train(self, evaluate=False):
         """
-        Runs the training job by training the model on the training data.
+        Runs the training job by training the model.py on the training data.
 
-        :param bool evaluate: whether to evaluate the model at each epoch and save the best model.
+        :param bool evaluate: whether to evaluate the model.py at each epoch and save the best model.py.
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
-        # Set the model in training state
+        # Set the model.py in training state
         self.model.train()
 
         self._debug("Started training")
@@ -164,14 +164,14 @@ class TrainingJob:
                 self.train_losses.append(train_loss)
                 self.test_losses.append(test_loss)
 
-                # Update best model file if a better model is found.
+                # Update best model.py file if a better model.py is found.
                 if test_loss < best_loss:
                     best_loss = test_loss
                     torch.save(self.model, self._best_model_path)
 
     def evaluate(self):
         """
-        Evaluates the model on the training and testing datasets.
+        Evaluates the model.py on the training and testing datasets.
 
         :return: training and testing accuracies and losses.
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
@@ -207,7 +207,7 @@ class TrainingJob:
 
     def _check_accuracy(self, loader):
         """
-        Checks the accuracy and loss of a model on a data loader.
+        Checks the accuracy and loss of a model.py on a data loader.
 
         :param DataLoader loader: a loader of data samples to check the accuracy against.
         :return: the training accuracy and the per-batch loss.
@@ -215,7 +215,7 @@ class TrainingJob:
         """
         num_correct, num_samples, running_loss = 0, 0, 0
 
-        # Set the model to evaluation state
+        # Set the model.py to evaluation state
         self.model.eval()
 
         with torch.no_grad():
@@ -228,7 +228,7 @@ class TrainingJob:
                 if self.using_ffcv:
                     y = y.squeeze(1)
 
-                # Get model predictions and calculate loss
+                # Get model.py predictions and calculate loss
                 scores = self.model(x)
                 _, prediction = scores.max(1)
                 loss = self.loss_fn(scores, y)
@@ -244,7 +244,7 @@ class TrainingJob:
             )
             acc = float(num_correct) / float(num_samples) * 100
 
-        # Reset the model to train state
+        # Reset the model.py to train state
         self.model.train()
 
         return acc, running_loss / num_samples

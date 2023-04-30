@@ -1,5 +1,5 @@
 """
-model.py: contains the main CNNLSTM custom model.
+model.py.py: contains the main CNNLSTM custom model.py.
 """
 import torch
 import torch.nn as nn
@@ -12,7 +12,7 @@ CNN_MODELS = {
     "alexnet": models.alexnet,
 }
 
-# Output sizes of each supported CNN model
+# Output sizes of each supported CNN model.py
 CNN_OUTPUT_SIZES = {
     "resnet18": 512,
     "resnet34": 512,
@@ -92,7 +92,7 @@ class CNNLSTM(nn.Module):
         pretrained=True,
     ):
         """
-        Loads the appropriate CNN model, disables the output layer, and adds an LSTM block.
+        Loads the appropriate CNN model.py, disables the output layer, and adds an LSTM block.
 
         :param int lstm_hidden_size: the hidden size of an LSTM layer.
         :param int lstm_num_layers: the number of layers in the outptu LSTM.
@@ -112,7 +112,7 @@ class CNNLSTM(nn.Module):
 
     def forward(self, videos: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass of the CNN model and the LSTM block.
+        Forward pass of the CNN model.py and the LSTM block.
 
         :param Tensor videos: Input videos, should be of shape [batch_size, frames_per_video, num_channels, width, height].
         :return: predictions of shape [batch_size, num_classes].
@@ -128,10 +128,10 @@ class CNNLSTM(nn.Module):
 
 def set_last_identity(model, cnn_architecture):
     """
-    Updates a CNN model's last layer with an Identity layer.
+    Updates a CNN model.py's last layer with an Identity layer.
 
-    :param nn.Module cnn_model: an instantiated CNN model whose last layer is to be replaced.
-    :param string cnn_architecture: the name of the model, must one of the CNN_MODELS.
+    :param nn.Module cnn_model: an instantiated CNN model.py whose last layer is to be replaced.
+    :param string cnn_architecture: the name of the model.py, must one of the CNN_MODELS.
     """
 
     if "resnet" in cnn_architecture:
@@ -143,11 +143,11 @@ def set_last_identity(model, cnn_architecture):
 
 
 if __name__ == "__main__":
-    # Loads a Resnet18 + LSTM model
+    # Loads a Resnet18 + LSTM model.py
     cnn_architecture = "resnet18"
     model = CNNLSTM(512, 2, 3, cnn_architecture=cnn_architecture)
 
-    # Shows a description of the CNNLSTM model architecture
+    # Shows a description of the CNNLSTM model.py architecture
     from torchinfo import summary
 
     summary(model, input_size=(1, 205, 3, 224, 224))

@@ -66,19 +66,19 @@ def gen_compute_metrics(opt_metric="accuracy"):
 
 
 class TrainModelPipeline:
-    def __init__(self, preprocessor, model, video_dataset, postprocessor=None):
-        self.preprocessor = preprocessor
-        self.model = model
+    def __init__(self, model_class, video_dataset, postprocessor=None):
+        self.preprocessor = model_class.preprocessor
+        self.model = model_class.model
         self.postprocessor = postprocessor
         self.datasets = video_dataset.datasets
 
     def train(
-            self,
-            num_epochs,
-            batch_size,
-            learning_rate=5e-5,
-            optimized_metric="accuracy",
-            new_model_name="fine_tuned_model",
+        self,
+        num_epochs,
+        batch_size,
+        learning_rate=5e-5,
+        optimized_metric="accuracy",
+        new_model_name="fine_tuned_model",
     ):
         dataset = self.datasets[0]
         train_dataset, val_dataset = dataset[0], dataset[1]
@@ -105,7 +105,7 @@ class TrainModelPipeline:
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
             max_steps=(train_dataset.num_videos // batch_size) * num_epochs,
-            report_to = "wandb"
+            report_to="wandb",
         )
 
         trainer = Trainer(
@@ -135,7 +135,7 @@ class TrainModelPipeline:
             load_best_model_at_end=True,
             metric_for_best_model=optimized_metric,
             push_to_hub=False,
-            report_to=None
+            report_to=None,
         )
 
         def collate_fn(examples):
@@ -166,13 +166,15 @@ class TrainModelPipeline:
 
 class VideoDatasetPipeline:
     def __init__(
-            self,
-            path,
-            label_arg,
-            video_ext="mp4",
-            dataset_class_split=None,
-            dataset_percentage_split=None,
+        self,
+        path,
+        label_arg,
+        video_ext="mp4",
+        dataset_class_split=None,
+        dataset_percentage_split=None,
     ):
+        self.std = None
+        self.mean = None
         if dataset_percentage_split is None:
             dataset_percentage_split = [[0.75, 0, 25], []]
         if dataset_class_split is None:
@@ -200,7 +202,7 @@ class VideoDatasetPipeline:
                         classes.append(label)
 
                 sub_videos_w_labels.append((video, {"label": classes.index(label)}))
-            videos_w_labels[folder.split('/')[-2]] = sub_videos_w_labels
+            videos_w_labels[folder.split("/")[-2]] = sub_videos_w_labels
 
         # unroll dict and torch.utils.data.random_split
         # assert that all items in dataset_split are floats
@@ -224,23 +226,24 @@ class VideoDatasetPipeline:
         ), "dataset_split must be a list of lists of strings"
 
         self.ds_splits = []
-        for percentage_split, class_split in zip(dataset_percentage_split, dataset_class_split):
+        for percentage_split, class_split in zip(
+            dataset_percentage_split, dataset_class_split
+        ):
             split_videos = []
             for label in class_split:
                 split_videos.extend(videos_w_labels[label])
-            partitioned_videos = split_list_by_percentages(split_videos,
-                                                           percentage_split)
+            partitioned_videos = split_list_by_percentages(
+                split_videos, percentage_split
+            )
             self.ds_splits.append(partitioned_videos)
 
         self.label2id = {label: i for i, label in enumerate(classes)}
         self.id2label = {i: label for i, label in enumerate(classes)}
         print("Loaded dataset")
 
-    def preprocess(
-            self,
-            preprocessor,
-            model
-    ):
+    def preprocess(self, model_class):
+        preprocessor = model_class.preprocessor
+        model = model_class.model
         self.mean = preprocessor.image_mean
         self.std = preprocessor.image_std
         if "shortest_edge" in preprocessor.size:
@@ -271,15 +274,18 @@ class VideoDatasetPipeline:
         )
 
         self.datasets = [
-            [LabeledVideoDataset(
-                sub_ds_split,
-                clip_sampler=pytorchvideo.data.make_clip_sampler(
-                    "uniform", clip_duration
-                ),
-                video_sampler=torch.utils.data.sampler.RandomSampler,
-                transform=transform,
-                decoder="pyav",
-            ) for sub_ds_split in ds_split]
+            [
+                LabeledVideoDataset(
+                    sub_ds_split,
+                    clip_sampler=pytorchvideo.data.make_clip_sampler(
+                        "uniform", clip_duration
+                    ),
+                    video_sampler=torch.utils.data.sampler.RandomSampler,
+                    transform=transform,
+                    decoder="pyav",
+                )
+                for sub_ds_split in ds_split
+            ]
             for ds_split in self.ds_splits
         ]
 
