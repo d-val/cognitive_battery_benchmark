@@ -56,7 +56,6 @@ if __name__ == "__main__":
 
     os.environ["WANDB_PROJECT"] = f"{model_str}-{dataset_name}"
 
-    model = eval(model_str)(args.dataset_config)
 
     dataset = VideoDatasetPipeline(
         args.dataset_config,
@@ -64,6 +63,8 @@ if __name__ == "__main__":
         dataset_class_split=dataset_class_split,
         dataset_percentage_split=dataset_percentage_split,
     )
+    model = eval(model_str)(dataset)
+
 
     dataset.preprocess(model)
     train_pipeline = TrainModelPipeline(model, dataset)
