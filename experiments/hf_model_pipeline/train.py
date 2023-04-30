@@ -4,7 +4,7 @@ import os
 import argparse
 import yaml
 
-from model import VideoMAEModel, TimesformerModel, XClipModel
+from model import VideoMAE, Timesformer, XClip
 
 
 # save your trained model.py checkpoint to wandb

@@ -2,7 +2,7 @@ from transformers import AutoFeatureExtractor, AutoModelForVideoClassification
 from transformers import VideoMAEImageProcessor, VideoMAEForVideoClassification
 
 
-def VideoMAEModel():
+def VideoMAE():
     def __init__(self, dataset):
         model_ckpt = "MCG-NJU/videomae-base"
         self.preprocessor = VideoMAEImageProcessor.from_pretrained(model_ckpt)
@@ -14,7 +14,7 @@ def VideoMAEModel():
         )
 
 
-def TimesformerModel():
+def Timesformer():
     def __init__(self, dataset):
         model_ckpt = "facebook/timesformer-base-finetuned-ssv2"
         self.preprocessor = AutoFeatureExtractor.from_pretrained(model_ckpt)
@@ -26,7 +26,7 @@ def TimesformerModel():
         )
 
 
-def XClipModel():
+def XClip():
     def __init__(self, dataset):
         model_ckpt = "microsoft/xclip-base-patch32"
         self.preprocessor = AutoFeatureExtractor.from_pretrained(model_ckpt)
