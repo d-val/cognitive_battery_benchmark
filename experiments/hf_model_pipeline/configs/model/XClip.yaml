@@ -1,0 +1,4 @@
+model: "XClip"
+
+epochs: 100
+batch_size: 3

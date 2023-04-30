@@ -6,7 +6,6 @@ import yaml
 
 from model import VideoMAE, Timesformer, XClip
 
-
 # save your trained model.py checkpoint to wandb
 os.environ["WANDB_LOG_MODEL"] = "true"
 
@@ -48,22 +47,22 @@ if __name__ == "__main__":
         model_config["model"],
         model_config["batch_size"],
     )
-    dataset_name, dataset_class_split, dataset_percentage_split = (
+    dataset_name, dataset_class_split, dataset_percentage_split, dataset_label = (
         dataset_config["dataset_name"],
         dataset_config["dataset_class_split"],
         dataset_config["dataset_percentage_split"],
+        dataset_config.get("dataset_label", "final_greater_side"),
     )
 
     os.environ["WANDB_PROJECT"] = f"{model_str}-{dataset_name}"
 
     dataset = VideoDatasetPipeline(
         f"./datasets/{dataset_name}",
-        "final_greater_side",
+        dataset_label,
         dataset_class_split=dataset_class_split,
         dataset_percentage_split=dataset_percentage_split,
     )
     model = eval(model_str)(dataset)
-
 
     dataset.preprocess(model)
     train_pipeline = TrainModelPipeline(model, dataset)
