@@ -124,9 +124,12 @@ class TrainingJob:
             )
         self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=self.config.train_params.lr
-        )
+        if self.config.train_params.optimizer.lower() == "adam":
+            optimizer = optim.Adam
+        else:
+            optimizer = optim.SGD
+        self.optimizer = optimizer(self.model.parameters(), lr=self.config.train_params.lr)
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=2, gamma=0.5)
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
@@ -178,7 +181,8 @@ class TrainingJob:
                 # gradient descent/optimizer step
                 nn.utils.clip_grad_norm_(self.model.parameters(), 2)
                 self.optimizer.step()
-
+                self.scheduler.step()
+                
             if evaluate:
                 # Calculate training and testing accuracies and losses for this epoch
                 evals = self.evaluate()
