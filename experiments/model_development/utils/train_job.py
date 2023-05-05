@@ -2,6 +2,7 @@
 train_job.py: contains the implementation of a model training job and its interface with the config file.
 """
 
+<<<<<<< HEAD
 import os
 import random
 import re
@@ -17,13 +18,28 @@ import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+=======
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
+import re, yaml, os
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
 from utils.framesdata import FramesDataset, collate_videos
 from utils.model import CNNLSTM
 from utils.translators import expts, label_keys
 
+<<<<<<< HEAD
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+=======
+import matplotlib.pyplot as plt
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
 class TrainingConfig:
     """
@@ -88,6 +104,7 @@ class TrainingJob:
         self.cnn_architecture = config.model.cnn_architecture
         self.stdout = stdout
         self.label_translator = expts[config.expt_name]
+<<<<<<< HEAD
         self.metrics = self._get_metrics()
 
         # Set the random seed, if provided
@@ -97,17 +114,31 @@ class TrainingJob:
         # Output set up
         self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
 
+=======
+
+        # Output set up
+        self._start_time = re.sub(r"[^\w\d-]", "_", str(datetime.now()))
+        
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
         out_path = f"output/{self.config.job_name}_{self._start_time}"
         os.makedirs(out_path)
         self._log_path = os.path.join(out_path, "training.log")
         self._debug_path = os.path.join(out_path, "debugging.log")
         self.config.write_yaml(os.path.join(out_path, "config.yaml"))
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
         ckpts_path = os.path.join(out_path, "ckpts")
         os.makedirs(ckpts_path)
         self._best_model_path = os.path.join(ckpts_path, "best.ckpt")
         self._epoch_model_path = os.path.join(ckpts_path, "ep%i.ckpt")
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
         self.writer = SummaryWriter(os.path.join(out_path, "tensorboard"))
 
         # Setting up data loaders, the model, and the optimizer & loss function
@@ -124,12 +155,18 @@ class TrainingJob:
             )
         self.model.to(device)
         self.loss_fn = nn.CrossEntropyLoss()
+<<<<<<< HEAD
         if self.config.train_params.optimizer.lower() == "adam":
             optimizer = optim.Adam
         else:
             optimizer = optim.SGD
         self.optimizer = optimizer(self.model.parameters(), lr=self.config.train_params.lr)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=2, gamma=0.5)
+=======
+        self.optimizer = optim.SGD(
+            self.model.parameters(), lr=self.config.train_params.lr
+        )
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
         # Initializing log and log metadata
         self._log(f"Starting Log, {self.cnn_architecture} + LSTM")
@@ -154,10 +191,17 @@ class TrainingJob:
 
         best_loss = float("inf")
         for epoch in range(1, self.config.train_params.epochs + 1):
+<<<<<<< HEAD
             pbar = tqdm(self.train_loader, desc=f"Epoch [{epoch}]")
             for data, targets in pbar:
                 # Images are in NHWC, torch works in NCHW
                 # self._debug(f"Epoch:{epoch}, it:{it}")
+=======
+            for it, (data, targets) in enumerate(self.train_loader):
+
+                # Images are in NHWC, torch works in NCHW
+                self._debug(f"Epoch:{epoch}, it:{it}")
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
                 data = torch.permute(data, (0, 1, 4, 2, 3))
 
                 # get data to cuda if possible
@@ -179,6 +223,7 @@ class TrainingJob:
                 self.train_count += 1
 
                 # gradient descent/optimizer step
+<<<<<<< HEAD
                 nn.utils.clip_grad_norm_(self.model.parameters(), 2)
                 self.optimizer.step()
                 self.scheduler.step()
@@ -204,6 +249,30 @@ class TrainingJob:
                 # Update best model file if a better model is found.
                 if test_metrics["loss"] < best_loss:
                     best_loss = test_metrics["loss"]
+=======
+                self.optimizer.step()
+
+            if evaluate:
+                # Calculate training and testing accuracies and losses for this epoch
+                evals = self.evaluate()
+
+                train_acc, train_loss = evals["train"]
+                self.writer.add_scalar("Accuracy/train_epoch", train_acc, epoch)
+                self.writer.add_scalar("Loss/train_epoch", train_loss, epoch)
+
+                test_acc, test_loss = evals["test"]
+                self.writer.add_scalar("Accuracy/test_epoch", test_acc, epoch)
+                self.writer.add_scalar("Loss/test_epoch", test_loss, epoch)
+
+                self._log(
+                    f"epoch={epoch},train_acc={train_acc:.2f},test_acc={test_acc:.2f},train_loss={train_loss:.2f},test_loss={test_loss:.2f}"
+                )
+                self.writer.flush()
+
+                # Update best model file if a better model is found.
+                if test_loss < best_loss:
+                    best_loss = test_loss
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
                     torch.save(self.model, self._best_model_path)
 
                 if self.config.train_params.save_all_epochs:
@@ -217,6 +286,7 @@ class TrainingJob:
         :rtype: dict["train":tuple(float, float), "test":tuple(float, float)]
         """
 
+<<<<<<< HEAD
         self._debug("\t Checking metrics on training data")
         train_metrics = self._compute_metrics(self.train_loader)
 
@@ -226,6 +296,17 @@ class TrainingJob:
         return {"train": train_metrics, "test": test_metrics}
 
     def _compute_metrics(self, loader):
+=======
+        self._debug("\t Checking accuracy on training data")
+        train_acc, train_loss = self._check_accuracy(self.train_loader)
+
+        self._debug("\t Checking accuracy on test data")
+        test_acc, test_loss = self._check_accuracy(self.test_loader)
+
+        return {"train": (train_acc, train_loss), "test": (test_acc, test_loss)}
+
+    def _check_accuracy(self, loader):
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
         """
         Checks the accuracy and loss of a model on a data loader.
 
@@ -238,10 +319,16 @@ class TrainingJob:
         # Set the model to evaluation state
         self.model.eval()
 
+<<<<<<< HEAD
         outputs, targets = [], []
         
         with torch.no_grad():
             for x, y in tqdm(loader):
+=======
+        with torch.no_grad():
+            for x, y in loader:
+
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
                 # Pre-process data and correct labels
                 x = torch.permute(x, (0, 1, 4, 2, 3))
                 x = x.to(device=device).squeeze(1)
@@ -253,9 +340,12 @@ class TrainingJob:
                 scores = self.model(x)
                 _, prediction = scores.max(1)
                 loss = self.loss_fn(scores, y)
+<<<<<<< HEAD
                 
                 outputs.append(scores.cpu())
                 targets.append(y.cpu())
+=======
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
                 # Compute accuracy and loss so far
                 num_correct += (prediction == y).sum()
@@ -267,6 +357,7 @@ class TrainingJob:
                 {float(num_correct)/float(num_samples)*100:.2f}"
             )
             acc = float(num_correct) / float(num_samples) * 100
+<<<<<<< HEAD
             eval_metrics = {"acc": acc, "loss": running_loss / len(loader)}
             outputs = torch.cat(outputs)
             targets = torch.cat(targets)
@@ -280,6 +371,13 @@ class TrainingJob:
         self.model.train()
 
         return eval_metrics
+=======
+
+        # Reset the model to train state
+        self.model.train()
+
+        return acc, running_loss / len(loader)
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
     def _log(self, statement):
         """
@@ -320,9 +418,15 @@ class TrainingJob:
         data_path = self.config.data_loader.data_path
         if self.using_ffcv:
             # Import necessary FFCV defs
+<<<<<<< HEAD
             from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
             from ffcv.loader import Loader, OrderOption
             from ffcv.transforms import ToTensor
+=======
+            from ffcv.loader import Loader, OrderOption
+            from ffcv.transforms import ToTensor
+            from ffcv.fields.decoders import IntDecoder, NDArrayDecoder
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
             # Preprocessing pipeline
             pipelines = {
@@ -374,6 +478,7 @@ class TrainingJob:
 
         return train_loader, test_loader
 
+<<<<<<< HEAD
     def _get_metrics(self):
         metrics = {}
         
@@ -403,6 +508,8 @@ class TrainingJob:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = True
 
+=======
+>>>>>>> 390a4fd1773bb9cf15cca5eeaa309d08bac7fb56
 
 if __name__ == "__main__":
     config = TrainingConfig.from_yaml("config/ModelArchitecture.yaml")
