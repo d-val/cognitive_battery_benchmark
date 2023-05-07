@@ -88,6 +88,21 @@ class Shape(Experiment):
         initialPoses = []
         afterPoses = []
 
+        positions = np.linspace(
+            *receptacle_position_limits[::-1], num=num_receptacles
+        )
+        # randomly sample between 0 and 1 for each position
+        if engaged_receptacles is None:
+            defined_rewards = np.random.random(
+                len(positions)
+            )  # TODO: implement defined_rewards
+        else:
+            defined_rewards = np.zeros(len(positions))
+            defined_rewards[:engaged_receptacles] = 1
+            np.random.shuffle(defined_rewards)
+
+        occ_positions = [0.4, -0.4]
+
         # Initialize Object by specifying each object location, receptacle and reward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
@@ -104,20 +119,7 @@ class Shape(Experiment):
                 "rotation": obj["rotation"],
             }
 
-            positions = np.linspace(
-                *receptacle_position_limits[::-1], num=num_receptacles
-            )
-            # randomly sample between 0 and 1 for each position
-            if engaged_receptacles is None:
-                defined_rewards = np.random.random(
-                    len(positions)
-                )  # TODO: implement defined_rewards
-            else:
-                defined_rewards = np.zeros(len(positions))
-                defined_rewards[:engaged_receptacles] = 1
-                np.random.shuffle(defined_rewards)
 
-            occ_positions = [0.4, -0.4]
             # Set the Plates location (pre-determined)
             if self.coveringType in obj["name"]:
                 # right Cardboard1 (z > 0)

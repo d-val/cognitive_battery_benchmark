@@ -172,6 +172,7 @@ class VideoDatasetPipeline:
         video_ext="mp4",
         dataset_class_split=None,
         dataset_percentage_split=None,
+        multi_label=False,
     ):
         self.std = None
         self.mean = None
@@ -197,9 +198,13 @@ class VideoDatasetPipeline:
                 exp_file = run + "/machine_readable/experiment_stats.yaml"
                 with open(exp_file, "r") as f:
                     exp = yaml.safe_load(f)
-                    label = str(exp[label_arg])
-                    if label not in classes:
-                        classes.append(label)
+                    if not multi_label:
+                        label = str(exp[label_arg])
+                        if label not in classes:
+                            classes.append(label)
+                    else:
+                        if len(classes) == 0:
+                            classes = [str(x) for x in range(len(exp[label_arg]))]
 
                 sub_videos_w_labels.append((video, {"label": classes.index(label)}))
             videos_w_labels[folder.split("/")[-2]] = sub_videos_w_labels

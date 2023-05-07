@@ -106,6 +106,10 @@ class SimpleSwap(Experiment):
         excludeList = []  # Egg and Pot exclude from randomization
         randomObjects = []  # store all other Pickupable objects
 
+        positions = np.linspace(
+            *receptacle_position_limits[::-1], num=num_receptacles
+        )
+
         # Initialize Object by specifying each object location, receptacle and rewward are set to pre-determined locations, the remaining stays at the same place
         # and will be location randomized later
         for obj in self.last_event.metadata["objects"]:
@@ -130,9 +134,7 @@ class SimpleSwap(Experiment):
                         },
                     }
                 )
-            positions = np.linspace(
-                *receptacle_position_limits[::-1], num=num_receptacles
-            )
+
             # Set receptacles location, initialize 3 times on the table at pre-determined positions
             if obj["objectType"] == receptacleType:
                 for i in range(num_receptacles):
