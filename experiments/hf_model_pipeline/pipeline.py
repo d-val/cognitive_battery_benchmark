@@ -188,13 +188,11 @@ class VideoDatasetPipeline:
         classes = []
         assert sub_folders != [], "No subfolders found in path"
         for _, folder in enumerate(sub_folders):
-            sub_videos_w_labels = []
             runs = glob.glob(folder + "/*")
             for run in runs:
                 video = glob.glob(run + f"/*.{video_ext}")
                 if len(video) != 1:
                     raise Exception(f"Found {len(video)} videos in {run}")
-                video = video[0]
                 exp_file = run + "/machine_readable/experiment_stats.yaml"
                 with open(exp_file, "r") as f:
                     exp = yaml.safe_load(f)
@@ -205,7 +203,15 @@ class VideoDatasetPipeline:
                     else:
                         if len(classes) == 0:
                             classes = [str(x) for x in range(len(exp[label_arg]))]
-
+        classes.sort()
+        for _, folder in enumerate(sub_folders):
+            sub_videos_w_labels = []
+            runs = glob.glob(folder + "/*")
+            for run in runs:
+                video = glob.glob(run + f"/*.{video_ext}")
+                if len(video) != 1:
+                    raise Exception(f"Found {len(video)} videos in {run}")
+                video = video[0]
                 sub_videos_w_labels.append((video, {"label": classes.index(label)}))
             videos_w_labels[folder.split("/")[-2]] = sub_videos_w_labels
 
