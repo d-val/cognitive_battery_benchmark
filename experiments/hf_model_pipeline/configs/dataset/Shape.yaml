@@ -1,5 +1,0 @@
-dataset_name: "Shape"
-
-dataset_class_split: [["1", "2", "3"], ["4"]]
-dataset_percentage_split: [[0.75, 0.25], []]
-dataset_label: "final_label"

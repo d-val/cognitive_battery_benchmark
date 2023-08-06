@@ -1,0 +1,5 @@
+model: "Resnet18LSTM"
+
+epochs: 50
+batch_size: 8
+rnn_bool: on

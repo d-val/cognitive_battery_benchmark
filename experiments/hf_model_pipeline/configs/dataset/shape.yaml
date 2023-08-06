@@ -1,0 +1,7 @@
+dataset_name: "shape_data"
+
+dataset_class_split: [["1", "2"], ["3"]]
+dataset_percentage_split: [[0.8, 0.2], []]
+dataset_label: "final_label"
+entire_video: on
+multi_label: on

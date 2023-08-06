@@ -1,4 +1,0 @@
-model: "VideoMAE"
-
-epochs: 100
-batch_size: 3

@@ -1,4 +1,4 @@
 model: "Timesformer"
 
-epochs: 100
-batch_size: 3
+epochs: 50
+batch_size: 16

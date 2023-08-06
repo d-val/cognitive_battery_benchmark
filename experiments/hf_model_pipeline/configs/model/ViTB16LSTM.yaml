@@ -1,0 +1,5 @@
+model: "ViTB16LSTM"
+
+epochs: 50
+batch_size: 2
+rnn_bool: on

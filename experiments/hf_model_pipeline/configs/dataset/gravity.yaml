@@ -1,0 +1,6 @@
+dataset_name: "gravity_data"
+
+dataset_class_split: [["1", "2", "3", "4", "5"], ["6", "7", "8"]]
+dataset_percentage_split: [[0.8, 0.2], []]
+dataset_label: "final_location"
+entire_video: on

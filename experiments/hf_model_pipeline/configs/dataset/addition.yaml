@@ -1,0 +1,9 @@
+dataset_name: "addition_data"
+
+dataset_class_split: [["1", "2", "3",], ["4"]]
+dataset_percentage_split: [[0.8, 0.2], []]
+
+dataset_label: "final_greater_plate"
+
+entire_video: on
+
