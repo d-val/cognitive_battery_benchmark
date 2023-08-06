@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
 import argparse
-from ast import parse
-import math
-from multiprocessing.sharedctypes import Value
 import os
 import random
 import numpy as np
 from .utils.experiment import Experiment
 
 # Gravity bias imports
-import pickle, yaml, cv2, shutil
+import pickle
+import yaml
+import cv2
+import shutil
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+SUPPRESS_BUILD_OUTPUT = True
 
 
 class GravityBias(Experiment):
+
     def __init__(
         self,
         controller_args={
             "unity_build": "utils/GravityBias.app",
-            "width": 300,
-            "height": 300,
+            "width": 800,
+            "height": 800,
             "show": True,
         },
         fov=[50, 65],
@@ -37,9 +39,13 @@ class GravityBias(Experiment):
 
         if not os.path.isdir(self.unity_build):
             raise ValueError(
-                "The Gravity Bias build is not in utils. Please download it and re-run this script."
+                "The Gravity Bias build is not in utils. "
+                "Please download it and re-run this script."
             )
-        self.bin_path = os.path.join(self.unity_build, 'Contents/MacOS/"Gravity Bias"')
+        self.bin_path = os.path.join(
+            self.unity_build,
+            'Contents/MacOS/"Gravity Bias"'
+        )
 
         self.outpath = os.path.join(os.getcwd(), ".gravitybiasout/")
         if os.path.isdir(self.outpath):
@@ -51,11 +57,15 @@ class GravityBias(Experiment):
 
     def save_pickle(self, pickle_path, hr_path, frames):
         # Getting 'images'
-        frame_names = sorted(frames.keys(), key=lambda x: int(x[:-4].split("_")[-1]))
+        frame_names = sorted(
+            frames.keys(),
+            key=lambda x: int(x[:-4].split("_")[-1])
+        )
         images = [np.asarray(frames[img]) for img in frame_names]
 
         # Getting 'stats'
-        with open(os.path.join(hr_path, "experiment_stats.yaml")) as yaml_stream:
+        yaml_path = os.path.join(hr_path, "experiment_stats.yaml")
+        with open(yaml_path) as yaml_stream:
             parsed_yaml = yaml.safe_load(yaml_stream)
         stats = parsed_yaml
 
@@ -64,24 +74,29 @@ class GravityBias(Experiment):
 
         # Writing pickle file
         iter_data = {"images": images, "stats": stats, "label": label}
-        with open(os.path.join(pickle_path, "iteration_data.pickle"), "wb") as handle:
+        file_path = os.path.join(pickle_path, "iteration_data.pickle")
+        with open(file_path, "wb") as handle:
             pickle.dump(iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     def save_video(self, frames, video_path="experiment_video.mp4"):
         """
-        Turns the frames in frames_dir into a video and saves it at the video_path.
-        frames: (dict<string, Image>) a mapping from frames' names to their Image instances.
+        Turns frames in `frames_dir` into a video and saves it at `video_path`
+        frames: (dict<string, Image>)
+            a mapping from frame names to Image instances.
         video_path: (string) the path at which the video is to be saved.
         """
 
         # Initializing frames and their dims
-        frame_names = sorted(frames.keys(), key=lambda x: int(x[:-4].split("_")[-1]))
+        frame_names = sorted(
+            frames.keys(),
+            key=lambda x: int(x[:-4].split("_")[-1])
+        )
         init_frame = frames[frame_names[0]]
         height, width, _layers = init_frame.shape
 
         # Creating the video at video_path
-        fps = 15
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        fps = 30
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
 
         # Appending the frames to the video one by one
@@ -94,7 +109,8 @@ class GravityBias(Experiment):
 
     def get_frames(self, frames_dir):
         """
-        Reads the frames in frames_dir and returns a dictionary mapping each frame's name to its Image instance.
+        Reads the frames in frames_dir and returns a dictionary mapping
+        each frame's name to its Image instance.
         frames_dir: (string) the path of the experiment frames.
         """
 
@@ -107,6 +123,10 @@ class GravityBias(Experiment):
     def run(
         self,
         rewardTypes=["Potato", "Tomato", "Apple"],
+        play_speed=3,
+        num_receptacles=None,
+        num_tubes=None,
+        dev_mode=False,
     ):
         """
         Runs the Gravity Bias build.
@@ -116,20 +136,34 @@ class GravityBias(Experiment):
         outdir: (string) path to save recorded frames
         """
         args = ""
-
         if not self.controller_args["show"]:
             args += " -batchmode "
+        if dev_mode:
+            args += f'--dev {play_speed} '
         args += f'--outdir "{self.outpath}" -record --seed {self.seed} '
         args += f'--width {self.controller_args["width"]} '
         args += f'--height {self.controller_args["width"]} '
-        args += f"--fov {np.random.uniform(self.fov[0], self.fov[1])} "
+        args += f'--fov {np.random.uniform(self.fov[0], self.fov[1])} '
+        args += f'--speed {play_speed} '
+
+        if type(num_receptacles) == int:
+            args += f'--num-receptacles {num_receptacles} '
+        elif type(num_receptacles) in {list, tuple}:
+            args += f'--num-receptacles {np.random.choice(num_receptacles)} '
+
+        if type(num_tubes) == int:
+            args += f'--num-tubes {num_tubes} '
+        elif type(num_tubes) in {list, tuple}:
+            args += f'--num-tubes {np.random.choice(num_tubes)} '
+
+        suppress_suffix = " > /dev/null " if SUPPRESS_BUILD_OUTPUT else ""
 
         # Ensures the experiment app has execution permessions
         os.system(f"chmod +x ./{self.bin_path}")
         os.system(f"xattr -r -d com.apple.quarantine {self.unity_build}")
 
         # Runs the experiment binary
-        os.system(f"./{self.bin_path} {args}")
+        os.system(f'./{self.bin_path} {args} {suppress_suffix}')
 
     def stop(self):
         # Automatically stops
@@ -171,17 +205,27 @@ class GravityBias(Experiment):
         }
 
         if save_video or save_stats:
-            frames = self.get_frames(os.path.join(db_SAVE_DIRS["human"], "frames"))
+            frames_path = os.path.join(db_SAVE_DIRS["human"], "frames")
+            frames = self.get_frames(frames_path)
             if save_video:
                 self.save_video(frames, os.path.join(save_dir, "experiment_video.mp4"))
             if save_stats:
-                self.save_pickle(db_SAVE_DIRS["machine"], db_SAVE_DIRS["human"], frames)
+                self.save_pickle(
+                    db_SAVE_DIRS["machine"],
+                    db_SAVE_DIRS["human"],
+                    frames
+                )
         return
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Rotation from file")
-    parser.add_argument("-S", "--show", action="store_true", help="show experiment")
+    parser.add_argument(
+        "-S",
+        "--show",
+        action="store_true",
+        help="show experiment"
+    )
     parser.add_argument(
         "saveTo",
         action="store",
@@ -189,13 +233,25 @@ if __name__ == "__main__":
         help="which folder to save frames to",
     )
     parser.add_argument(
-        "--seed", action="store", type=int, default=0, help="random seed for experiment"
+        "--seed",
+        action="store",
+        type=int,
+        default=0,
+        help="random seed for experiment",
     )
     parser.add_argument(
-        "--height", action="store", type=int, default=800, help="height of the frame"
+        "--height",
+        action="store",
+        type=int,
+        default=800,
+        help="height of the frame",
     )
     parser.add_argument(
-        "--width", action="store", type=int, default=800, help="width of the frame"
+        "--width",
+        action="store",
+        type=int,
+        default=800,
+        help="width of the frame",
     )
     parser.add_argument(
         "--buildPath",
@@ -208,13 +264,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     experiment = GravityBias(
-        {
-            "height": args.height,
-            "width": args.width,
-            "unity_build": args.buildPath,
-            "show": args.show,
-        },
-        seed=args.seed,
+        {"height": args.height,
+         "width": args.width,
+         "unity_build": args.buildPath,
+         "show": args.show},
+        seed=args.seed
     )
     experiment.run(
         case=args.case,

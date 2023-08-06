@@ -22,14 +22,14 @@ public class SceneRandomizer : MonoBehaviour
     public bool randomizeFOV;
 
     public Light mainLight; // Main light in the scene.
-    public GameObject STube;
-    public GameObject straigthTube;
+    public List<GameObject> tubes;
     public List<GameObject> chairs;
     public List<GameObject> walls;
-    public List<GameObject> bowls;
     public Camera showCam;
     public Camera recordCam;
     public float fov = 55;
+
+    public GravityBiasRunner sceneRunner;
     
     Dictionary<string, string> stats;
 
@@ -48,10 +48,24 @@ public class SceneRandomizer : MonoBehaviour
 
         // Randomize the color of the tube
         if (randomizeTubeColor){
-            Color32 newTubeColor = generateRandomColor(160, 255);
-            STube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
-            straigthTube.gameObject.GetComponent<Renderer>().material.color = newTubeColor;
-            stats.Add("tube_color", newTubeColor.ToString("F2"));
+            Color32 newTubeColor = generateRandomColor(55, 255);
+            stats.Add("reward_tube_color", newTubeColor.ToString("F2"));
+            foreach (GameObject tube in sceneRunner.tubes){
+                foreach(Renderer r in tube.GetComponentsInChildren<Renderer>()){
+                    r.material.color = newTubeColor;
+                }
+                newTubeColor = generateRandomColor(55, 255);
+            }
+        }
+
+        // Randomize the color of the walls
+        if (randomizeWallsColors){
+            Color32 newWallColor = generateRandomColor(150, 255);
+            foreach (GameObject wall in walls){
+                foreach(Renderer r in wall.GetComponentsInChildren<Renderer>()){
+                    r.material.color = newWallColor;
+                }
+            }
         }
 
         // Randomize the color of the background chairs and furniture
@@ -65,21 +79,10 @@ public class SceneRandomizer : MonoBehaviour
             }
         }
 
-        // Randomize the color of the walls
-        if (randomizeWallsColors){
-            Color32 newWallColor = generateRandomColor(100, 255);
-            foreach (GameObject wall in walls){
-                foreach(Renderer r in wall.GetComponentsInChildren<Renderer>()){
-                    r.material.color = newWallColor;
-                }
-            }
-        }
-
-
         // Randomize the color of the bowls
         if (randomizeBowlsColors){
             Color32 newBowlColor = generateRandomColor(100, 255);
-            foreach (GameObject bowl in bowls){
+            foreach (GameObject bowl in sceneRunner.receptacles){
                 foreach(Renderer r in bowl.GetComponentsInChildren<Renderer>()){
                     r.material.color = newBowlColor;
                 }

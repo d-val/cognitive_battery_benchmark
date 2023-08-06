@@ -1,13 +1,12 @@
 import logging
 import os
 import pickle
-from sys import platform
+
 import imageio
-import yaml
-from PIL import Image
-from ai2thor.controller import Controller
-from skimage import img_as_ubyte
 import numpy as np
+import yaml
+from ai2thor.controller import Controller
+from PIL import Image
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 logging.getLogger("imageio_ffmpeg").setLevel(logging.ERROR)
@@ -71,22 +70,32 @@ class Experiment(Controller):
 
     def save_frames_to_folder(
         self,
-        save_dir,
+        base_task_dir,
+        iteration,
         first_person=None,
         save_stats=True,
         db_mode=True,
         save_video=True,
         save_raw_data=False,
     ):
+        SAVE_DIR = os.path.join(base_task_dir, str(iteration))
+
+        fov = first_person if first_person is not None else self.fov
         fov_frames = (
             self.frame_list if self.fov == "front" else self.third_party_camera_frames
         )
 
+        if not os.path.isdir(base_task_dir):
+            os.makedirs(base_task_dir)
+        with open(f'{base_task_dir}/labels.txt', 'a') as labels_file:
+            labels_file.write(f'\n{iteration},{self.label}')
+
         if db_mode:
             db_SAVE_DIRS = {
-                "human": f"{save_dir}/human_readable",
-                "machine": f"{save_dir}/machine_readable",
+                "human": f"{SAVE_DIR}/human_readable",
+                "machine": f"{SAVE_DIR}/machine_readable",
             }
+
             for name, folder in db_SAVE_DIRS.items():
                 if not os.path.isdir(f"{folder}"):
                     if name == "human":
@@ -114,35 +123,24 @@ class Experiment(Controller):
                         "label": self.label,
                         "stats": self.stats,
                     }
-                    if len(self.depth_list) > 0:
-                        list_to_folder(
-                            f"{folder}/depth_frames", self.depth_list, npy=True
-                        )
-
-                    if len(self.segmentation_list) > 0:
-                        list_to_folder(
-                            f"{folder}/segmentation_frames",
-                            self.segmentation_list,
-                            npy=True,
-                        )
-
-                    if save_raw_data:
-                        with open(f"{folder}/iteration_data.pickle", "wb") as handle:
-                            pickle.dump(
-                                iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL
-                            )
         else:
-            if not os.path.isdir(f"{save_dir}"):
-                os.makedirs(f"{save_dir}")
-            elif save_stats:
-                with open(
-                    f"{save_dir}/experiment_stats.yaml",
-                    "w",
-                ) as yaml_file:
-                    yaml.dump(self.stats, yaml_file, default_flow_style=False)
+            if not os.path.isdir(f"{SAVE_DIR}"):
+                os.makedirs(f"{SAVE_DIR}")
+            if len(self.segmentation_list) > 0:
+                list_to_folder(
+                    f"{folder}/segmentation_frames",
+                    self.segmentation_list,
+                    npy=True,
+                )
+
+            if save_raw_data:
+                with open(f"{folder}/iteration_data.pickle", "wb") as handle:
+                    pickle.dump(
+                        iter_data, handle, protocol=pickle.HIGHEST_PROTOCOL
+                    )
 
         if save_video:
-            save_frames_to_video(save_dir, fov_frames, "experiment_video")
+            save_frames_to_video(SAVE_DIR, fov_frames, "experiment_video")
 
     def update_frames(self):
         self.frame_list.append(self.last_event.frame)
